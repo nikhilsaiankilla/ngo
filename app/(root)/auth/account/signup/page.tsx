@@ -1,6 +1,7 @@
 "use client";
 
 import { signUp } from '@/actions/auth';
+import SignWithGoogle from '@/components/SignWithGoogle';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,20 +20,15 @@ const Page = () => {
 
     const router = useRouter();
 
-    const handleGoogleLogin = () => {
-        // TODO: Connect with OAuth or next-auth Google login
-        console.log('Google login clicked');
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            const res = await signUp(email, password);
+            const res = await signUp(name, email, password);
 
-            if (res?.error) {
-                // toast.error(res?.error);
+            if (!res?.success) {
+                toast.error(res?.message || "something went wrong");
                 return
             }
 
@@ -41,17 +37,7 @@ const Page = () => {
             router.push('/auth/account/signin')
         } catch (error: unknown) {
             console.error("Signup error:", error);
-
-            if (error instanceof Error) {
-                // Custom error messages
-                if (error.message.includes("already")) {
-                    toast.error("User already exists.");
-                } else if (error.message.includes("invalid")) {
-                    toast.error("Invalid email or password.");
-                } else {
-                    toast.error("Something went wrong. Please try again.");
-                }
-            }
+            toast.error("Something went wrong. Please try again.");
 
         } finally {
             setLoading(false);
@@ -105,7 +91,7 @@ const Page = () => {
 
                     <CardFooter className="flex flex-col gap-3">
                         <Button type="submit" className="w-full mt-2">
-                            {loading ? <><Loader className='animate-spin' /> Logging in</> : "Login"}
+                            {loading ? <><Loader className='animate-spin' /> Signing up</> : "sign up"}
                         </Button>
 
                         {/* Divider */}
@@ -115,16 +101,9 @@ const Page = () => {
                             <div className="flex-1 h-px bg-gray-300" />
                         </div>
 
-                        <Button
-                            variant="outline"
-                            className="w-full"
-                            onClick={handleGoogleLogin}
-                            type="button"
-                        >
-                            Continue with Google
-                        </Button>
+                        <SignWithGoogle />
 
-                        <p>if you already have account please <Link href='/auth/account/signin'>signin</Link></p>
+                        <p>if you already have account please <Link href='/auth/account/signin' className='text-blue-400'>signin</Link></p>
                     </CardFooter>
                 </form>
             </Card>

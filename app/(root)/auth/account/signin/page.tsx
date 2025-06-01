@@ -1,6 +1,7 @@
 'use client';
 
 import { signIn } from "@/actions/auth";
+import SignWithGoogle from "@/components/SignWithGoogle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,11 +18,6 @@ const Page = () => {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    const handleGoogleLogin = () => {
-        // TODO: Add Google OAuth login here
-        toast('Google login clicked');
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -29,8 +25,8 @@ const Page = () => {
         try {
             const res = await signIn(email, password);
 
-            if (res?.error) {
-                // toast.error(res.error);
+            if (res?.success) {
+                toast.error(res.message);
                 return;
             }
 
@@ -100,16 +96,9 @@ const Page = () => {
                             <div className="flex-1 h-px bg-gray-300" />
                         </div>
 
-                        <Button
-                            variant="outline"
-                            className="w-full"
-                            type="button"
-                            onClick={handleGoogleLogin}
-                        >
-                            Continue with Google
-                        </Button>
+                       <SignWithGoogle/>
 
-                        <p>if you dont have account please <Link href='/auth/account/signup'>signup</Link></p>
+                        <p>if you dont have account please <Link href='/auth/account/signup' className="text-blue-400">signup</Link></p>
                     </CardFooter>
                 </form>
             </Card>

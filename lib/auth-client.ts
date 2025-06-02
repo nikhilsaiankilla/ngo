@@ -5,48 +5,51 @@ import { db } from "@/firebase/firebase";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 
+// Interface representing the user data to be saved/used
 export interface SaveUserProps {
-  id: string;
-  name: string;
-  email: string;
-  photoURL?: string,
+  id: string;             // Unique user ID (Firebase UID)
+  name: string;           // User's display name
+  email: string;          // User's email address
+  photoURL?: string;      // Optional profile image URL
 }
 
+// Function to handle Google Sign-In from the client
 export async function signInWithGoogleClient(): Promise<SaveUserProps | null> {
-  const provider = new GoogleAuthProvider();
-  const auth = getAuth();
+  const provider = new GoogleAuthProvider();      // Initialize Google provider
+  const auth = getAuth();                         // Firebase auth instance
 
   try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
+    const result = await signInWithPopup(auth, provider);  // Trigger Google login popup
+    const firebaseUser = result.user;                      // Authenticated Firebase user
 
     const userData: SaveUserProps = {
-      id: user.uid,
-      name: user.displayName || "",
-      email: user.email || "",
-      photoURL: user?.photoURL || ""
+      id: firebaseUser.uid,
+      name: firebaseUser.displayName || "",
+      email: firebaseUser.email || "",
+      photoURL: firebaseUser.photoURL || ""
     };
 
-    const userRef = doc(db, "users", user.uid);
-    const existingUser = await getDoc(userRef);
+    const userRef = doc(db, "users", firebaseUser.uid);  // Reference to user doc in Firestore
+    const existingUser = await getDoc(userRef);          // Check if user already exists
 
     if (!existingUser.exists()) {
-      const user = await setDoc(userRef, {
+      // Create new user document if it doesn't exist
+      await setDoc(userRef, {
         ...userData,
-        "user_type": "REGULAR",
-        createdAt: serverTimestamp(),
+        user_type: "REGULAR",                  // Assign default role
+        createdAt: serverTimestamp(),          // Set creation timestamp
       });
-
     }
 
-    const idToken = await user.getIdToken();
+    // Retrieve ID token for the session
+    const idToken = await firebaseUser.getIdToken();
 
-    // TODO : SERVER SIDE TOKEN IS ALREADY STORED WE NEED TO STORE THE TOKEN AFTER GOOGLE AUTH LOGIN
-    await handleTokenForGoogleAuth(idToken, user.uid);
+    // Send token to server to store/verify session (already handled on server)
+    await handleTokenForGoogleAuth(idToken, firebaseUser.uid);
 
     return userData;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Google Sign-In Error:", error);
-    return null;
+    return null; // Return null on failure
   }
 }

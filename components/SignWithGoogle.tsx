@@ -29,17 +29,21 @@ const SignWithGoogle = () => {
 
     return (
         <Button
-            className="w-full px-1 rounded-lg cursor-pointer"
             onClick={handleGoogleLogin}
+            disabled={isLoading}
+            className="w-full flex items-center justify-center gap-3 px-4 py-2 rounded-lg cursor-pointer text-base font-semibold"
+            aria-live="polite"
+            aria-busy={isLoading}
         >
-            {
-                isLoading && <Loader2 className="animate-spin"/>
-            }
-            
-            <Image src="/googleLogo.webp" alt="logo" width={20} height={20} />
-            {
-                isLoading ? <> Signing With Google</> : "Sign In With Google"
-            }
+            {isLoading && <Loader2 className="animate-spin w-5 h-5" aria-hidden="true" />}
+            <Image
+                src="/googleLogo.webp"
+                alt="Google Logo"
+                width={20}
+                height={20}
+                className="inline-block"
+            />
+            {isLoading ? "Signing in with Google..." : "Sign In With Google"}
         </Button>
     );
 };

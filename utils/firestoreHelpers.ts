@@ -1,5 +1,5 @@
-import { db } from '@/firebase/config';
-import { doc, setDoc } from 'firebase/firestore';
+import { db } from '@/firebase/firebase';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 export interface SaveUserProps {
     id: string,
@@ -14,5 +14,7 @@ export const saveUser = async (user: SaveUserProps) => {
         name: user.name,
         email: user.email,
         photoURL: user.image || "",
+        user_type: "REGULAR",
+        createdAt: serverTimestamp(),
     }, { merge: true });
 };

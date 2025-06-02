@@ -34,7 +34,7 @@ const Page = () => {
 
             toast.success("Successfully signed up!");
             console.log("Signup response:", res);
-            router.push('/auth/account/signin')
+            router.push('/auth/signin')
         } catch (error: unknown) {
             console.error("Signup error:", error);
             toast.error("Something went wrong. Please try again.");
@@ -103,7 +103,7 @@ const Page = () => {
 
                         <SignWithGoogle />
 
-                        <p>if you already have account please <Link href='/auth/account/signin' className='text-blue-400'>signin</Link></p>
+                        <p>if you already have account please <Link href='/auth/signin' className='text-blue-400'>signin</Link></p>
                     </CardFooter>
                 </form>
             </Card>

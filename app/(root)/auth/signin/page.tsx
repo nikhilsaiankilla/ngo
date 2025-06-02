@@ -25,13 +25,13 @@ const Page = () => {
         try {
             const res = await signIn(email, password);
 
-            if (res?.success) {
+            if (!res?.success) {
                 toast.error(res.message);
                 return;
             }
 
             toast.success('Signed in successfully!');
-            router.push('/')
+            router.push('/home')
         } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.error(error?.message || 'Something went wrong. Please try again.');
@@ -98,7 +98,7 @@ const Page = () => {
 
                        <SignWithGoogle/>
 
-                        <p>if you dont have account please <Link href='/auth/account/signup' className="text-blue-400">signup</Link></p>
+                        <p>if you dont have account please <Link href='/auth/signup' className="text-blue-400">signup</Link></p>
                     </CardFooter>
                 </form>
             </Card>

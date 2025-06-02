@@ -194,3 +194,20 @@ export async function getCurrentUser(id: string) {
         };
     }
 }
+
+export async function userSignOut() {
+    try {
+        const cookieStore = await cookies();
+
+        cookieStore.delete('accessToken');
+        cookieStore.delete('userId');
+
+        return { success: true, status: 200, message: 'Signed out successfully' }
+    } catch (error: unknown) {
+        return {
+            success: false,
+            status: 500,
+            message: getErrorMessage(error),
+        };
+    }
+}

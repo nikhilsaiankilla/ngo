@@ -1,8 +1,9 @@
+import { LogoutButton } from '@/components/LogoutButton';
 import { adminDb } from '@/firebase/firebaseAdmin';
 import React from 'react';
 
 const Page = async ({ params }: { params: { id: string } }) => {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
         return <h1>No ID found</h1>;
@@ -20,6 +21,8 @@ const Page = async ({ params }: { params: { id: string } }) => {
         <div>
             <h1>User Data</h1>
             <pre>{JSON.stringify(user, null, 2)}</pre>
+
+            <LogoutButton/>
         </div>
     );
 };

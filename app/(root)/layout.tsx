@@ -4,6 +4,7 @@ import "../globals.css";
 
 import { Toaster } from "@/components/ui/sonner"
 import Navbar from "@/components/Navbar";
+import { Providers } from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,11 +29,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`}
       >
-        <Navbar />
-        {children}
-        <Toaster />
+        <Providers>
+          <Navbar />
+          {children}
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );

@@ -8,6 +8,8 @@ export interface SaveUserProps {
     name: string;         // Full name of the user
     image?: string;       // Optional profile image URL
     email: string;        // Email address of the user
+    token?: string,
+    user_type?: string,
 }
 
 // Function to save or update user data in Firestore

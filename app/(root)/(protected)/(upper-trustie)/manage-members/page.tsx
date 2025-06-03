@@ -1,35 +1,32 @@
 import { getAllRoleRequests } from "@/actions/requestRoleUpgrade";
+import { DataTable } from "./data-table";
+import { columns } from "./columns";
 
-const page = async ({
+const Page = async ({
   searchParams,
 }: {
-  searchParams: Promise<{ cursor?: string }>; // Note: Promise here
+  searchParams: Promise<{ searchParams?: { cursor?: string }; }>
 }) => {
-  const params = await searchParams; // await here
-  const { cursor } = params || {};
+  const cursor = (await searchParams).searchParams?.cursor;
 
-  const { data, nextCursor } = await getAllRoleRequests({
+  const result = await getAllRoleRequests({
     pageSize: 10,
     cursor: cursor || null,
   });
 
+  if (!result.success) {
+    // You can throw an error and use the error boundary
+    throw new Error(result.message || "Failed to fetch role requests");
+  }
+
+  const roleRequests = result.data?.data ?? [];
+
   return (
     <div>
-      <h1>Role Requests</h1>
-      <ul>
-        {data.map((req) => (
-          <li key={req.id}>
-            User: {req.userId} — Requested Role: {req.requestedRole}
-          </li>
-        ))}
-      </ul>
-      {nextCursor && (
-        <a href={`?cursor=${nextCursor}`} style={{ color: "blue" }}>
-          Next Page
-        </a>
-      )}
+      <h1 className="text-xl font-bold mb-4">Role Requests</h1>
+      <DataTable columns={columns} data={roleRequests} />
     </div>
   );
 };
 
-export default page;
+export default Page;

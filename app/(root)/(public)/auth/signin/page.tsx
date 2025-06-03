@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { setUser } from "@/lib/features/users/userSlice";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 
 const Page = () => {
@@ -17,6 +19,7 @@ const Page = () => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const diapatch = useDispatch();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,8 +33,22 @@ const Page = () => {
                 return;
             }
 
-            toast.success('Signed in successfully!');
-            router.push('/home')
+            if (res.data) {
+                const { id, name, email, user_type, token } = res.data;
+
+                diapatch(setUser({
+                    id,
+                    name,
+                    email,
+                    user_type : user_type || "REGULAR",
+                    token : token || ""
+                }));
+
+                toast.success('Signed in successfully!');
+                router.push('/home');
+            } else {
+                toast.error("User data is missing in response.");
+            }
         } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.error(error?.message || 'Something went wrong. Please try again.');
@@ -96,7 +113,7 @@ const Page = () => {
                             <div className="flex-1 h-px bg-gray-300" />
                         </div>
 
-                       <SignWithGoogle/>
+                        <SignWithGoogle />
 
                         <p>if you dont have account please <Link href='/auth/signup' className="text-blue-400">signup</Link></p>
                     </CardFooter>

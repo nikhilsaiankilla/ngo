@@ -1,55 +1,74 @@
-// lib/auth-client.ts
-
 import { handleTokenForGoogleAuth } from "@/actions/auth";
 import { db } from "@/firebase/firebase";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { store } from "./store";
+import { setUser } from "./features/users/userSlice";
 
-// Interface representing the user data to be saved/used
+// Interface for the user data we handle
 export interface SaveUserProps {
-  id: string;             // Unique user ID (Firebase UID)
+  id: string;             // Firebase UID
   name: string;           // User's display name
-  email: string;          // User's email address
-  photoURL?: string;      // Optional profile image URL
+  email: string;          // User's email
+  photoURL?: string;      // Optional profile picture URL
 }
 
-// Function to handle Google Sign-In from the client
+// Function to handle Google sign-in and store user data
 export async function signInWithGoogleClient(): Promise<SaveUserProps | null> {
-  const provider = new GoogleAuthProvider();      // Initialize Google provider
-  const auth = getAuth();                         // Firebase auth instance
+  const provider = new GoogleAuthProvider();  // Create Google auth provider
+  const auth = getAuth();                     // Initialize Firebase auth
 
   try {
-    const result = await signInWithPopup(auth, provider);  // Trigger Google login popup
-    const firebaseUser = result.user;                      // Authenticated Firebase user
+    // Trigger Google sign-in popup
+    const result = await signInWithPopup(auth, provider);
+    const firebaseUser = result.user;
 
+    // Extract basic user info
     const userData: SaveUserProps = {
       id: firebaseUser.uid,
       name: firebaseUser.displayName || "",
       email: firebaseUser.email || "",
-      photoURL: firebaseUser.photoURL || ""
+      photoURL: firebaseUser.photoURL || "",
     };
 
-    const userRef = doc(db, "users", firebaseUser.uid);  // Reference to user doc in Firestore
-    const existingUser = await getDoc(userRef);          // Check if user already exists
+    // Reference to the user's Firestore document
+    const userRef = doc(db, "users", firebaseUser.uid);
+    const existingUser = await getDoc(userRef);
+
+    // Default user type
+    let userType = "REGULAR";
 
     if (!existingUser.exists()) {
-      // Create new user document if it doesn't exist
+      // New user: create Firestore entry
       await setDoc(userRef, {
         ...userData,
-        user_type: "REGULAR",                  // Assign default role
-        createdAt: serverTimestamp(),          // Set creation timestamp
+        user_type: userType,
+        createdAt: serverTimestamp(),
       });
+    } else {
+      // Existing user: fetch user_type from Firestore
+      const userDocData = existingUser.data();
+      userType = userDocData.user_type || "REGULAR";
     }
 
-    // Retrieve ID token for the session
-    const idToken = await firebaseUser.getIdToken();
+    // Get Firebase ID token for server auth/session
+    const token = await firebaseUser.getIdToken();
 
-    // Send token to server to store/verify session (already handled on server)
-    await handleTokenForGoogleAuth(idToken, firebaseUser.uid);
+    // Send token to server to handle session/auth setup
+    await handleTokenForGoogleAuth(token, firebaseUser.uid);
+
+    // Save user info in Redux store
+    store.dispatch(setUser({
+      id: firebaseUser.uid,
+      name: firebaseUser.displayName || "",
+      email: firebaseUser.email || "",
+      user_type: userType,
+      token,
+    }));
 
     return userData;
   } catch (error: unknown) {
     console.error("Google Sign-In Error:", error);
-    return null; // Return null on failure
+    return null;
   }
 }

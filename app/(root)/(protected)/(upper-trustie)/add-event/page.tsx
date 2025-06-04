@@ -1,8 +1,11 @@
+import EventUploadForm from '@/components/forms/EventUploadForm'
 import React from 'react'
 
 const page = () => {
   return (
-    <div>page</div>
+    <div>
+      <EventUploadForm />
+    </div>
   )
 }
 

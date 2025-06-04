@@ -3,6 +3,7 @@
 import { getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 // Firebase configuration using environment variables (recommended for security)
 const firebaseConfig = {
@@ -21,6 +22,7 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 // Initialize Firebase services
 const auth = getAuth(app);         // Firebase Authentication
 const db = getFirestore(app);      // Firebase Firestore (NoSQL DB)
+const storage = getStorage(app);
 
 // Export instances for use in the app
-export { auth, db };
+export { auth, db, storage };

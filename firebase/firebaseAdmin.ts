@@ -17,7 +17,6 @@ if (
 const serviceAccount = {
     projectId: process.env.FIREBASE_PROJECT_ID,
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    // Firebase private key includes escaped newlines (\\n); convert them to real newlines
     privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
 };
 
@@ -29,7 +28,7 @@ if (!getApps().length) {
 }
 
 // Export initialized Admin services
-const adminDb = getFirestore(); // Firestore instance with elevated (admin) privileges
-const adminAuth = getAuth();    // Auth instance for verifying and managing users
+const adminDb = getFirestore();
+const adminAuth = getAuth();
 
 export { adminDb, adminAuth };

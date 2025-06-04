@@ -78,10 +78,10 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const requestedRole = roleUpgradeMap[user.user_type];
 
     return (
-        <div className="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-lg">
+        <div className="max-w-5xl mx-auto mt-10 ">
             <h1 className="text-3xl font-semibold mb-6 text-center">User Profile</h1>
 
-            <div className='max-w-xl mx-auto shadow-md'>
+            <div className='max-w-xl mx-auto shadow-md p-6 bg-white rounded-lg'>
                 <div className="flex items-center space-x-6 mb-6">
                     <Image
                         src={

@@ -6,6 +6,7 @@ import { createOrderId } from "@/utils/payment";
 import axios from 'axios';
 import { getUser } from "@/actions/auth";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type User = {
     userId: string;
@@ -28,9 +29,9 @@ type Props = {
 
 const DonationForm = ({ userId }: Props) => {
     const [price, setPrice] = useState<number>(0);
-    const [message, setMessage] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState<User | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -55,7 +56,7 @@ const DonationForm = ({ userId }: Props) => {
                     toast.error(res?.message);
                 }
             } catch (err) {
-                setMessage("Something went wrong while fetching user data");
+                toast.error("something went wrong please try again")
             } finally {
                 setLoading(false);
             }
@@ -71,7 +72,7 @@ const DonationForm = ({ userId }: Props) => {
         setLoading(true);
 
         if (!user?.userId || !user?.email || !user?.name) {
-            alert("User data not available");
+            toast.error('User data not available')
             setLoading(false);
             return;
         }
@@ -84,7 +85,7 @@ const DonationForm = ({ userId }: Props) => {
                 amount: price * 100,
                 currency: "INR",
                 name: "NGO",
-                description: "Payment for your order",
+                description: "A step towards to uplift the people",
                 order_id: orderId,
                 handler: async function (response: any) {
                     try {
@@ -94,10 +95,15 @@ const DonationForm = ({ userId }: Props) => {
                             razorpay_signature: response.razorpay_signature,
                         });
 
-                        alert("Payment Successful!");
-                        console.log(paymentResponse.data);
+                        toast.success("Payment Successful!")
+
+                        const paymentId = paymentResponse?.data?.payment_id;
+
+                        if (paymentId) {
+                            router.push(`/payment-success/${paymentId}`)
+                        }
                     } catch (error) {
-                        alert("Payment verification failed. Please contact support.");
+                        toast.error("Payment verification failed. Please contact support.")
                         console.error(error);
                     }
                 },
@@ -112,7 +118,7 @@ const DonationForm = ({ userId }: Props) => {
 
             const razorpay = new (window as any).Razorpay(options);
             razorpay.on("payment.failed", function (response: any) {
-                alert("Payment failed");
+                toast.error("Payment failed")
                 console.error(response.error);
             });
             razorpay.open();
@@ -148,18 +154,6 @@ const DonationForm = ({ userId }: Props) => {
                         className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         min={1}
                         required
-                    />
-                </div>
-
-                <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">
-                        Message (optional)
-                    </label>
-                    <textarea
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                        rows={3}
                     />
                 </div>
 

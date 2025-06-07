@@ -214,9 +214,20 @@ export async function getUser(id: string) {
             return { success: false, status: 404, message: 'User not found' };
         }
 
-        const user = docSnap.data();
+        const fetchedUser = docSnap.data();
 
-        return { success: true, status: 200, message: 'User fetched successfully', data: user };
+        const user = {
+            id: docSnap.id,
+            ...fetchedUser,
+            createdAt: fetchedUser?.createdAt?.toDate()?.toISOString() || null,
+        };
+
+        return {
+            success: true,
+            status: 200,
+            message: 'User fetched successfully',
+            data: user,
+        };
     } catch (error) {
         return {
             success: false,

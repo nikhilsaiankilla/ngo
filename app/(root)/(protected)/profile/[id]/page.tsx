@@ -66,11 +66,11 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     // Construct user with all needed props including createdAt
     const user: User = userRes?.data
         ? {
-            name: userRes.data.name,
-            photoURL: userRes.data.photoURL,
-            email: userRes.data.email,
-            user_type: userRes.data.user_type,
-            createdAt: userRes.data.createdAt, // <- important!
+            name: userRes?.data?.name,
+            photoURL: userRes?.data?.photoURL,
+            email: userRes?.data?.email,
+            user_type: userRes?.data?.user_type,
+            createdAt: userRes?.data?.createdAt, // <- important!
         }
         : ({} as User);
 

@@ -171,7 +171,8 @@ export default function EventEditForm({ eventData }: { eventData: any }) {
                         onChange={(val) => setDescription(val || "")}
                         preview="edit"
                         height={300}
-                        style={{ borderRadius: 20, overflow: "hidden" }}
+                        className="mt-3"
+                        style={{ borderRadius: "5px", overflow: "hidden" }}
                         textareaProps={{ placeholder: "Briefly describe your event" }}
                         previewOptions={{ disallowedElements: ["style"] }}
                     />
@@ -205,23 +206,17 @@ export default function EventEditForm({ eventData }: { eventData: any }) {
 
                 <div className="flex flex-col md:flex-row justify-between gap-6">
                     <div>
-                        <Label>Start Date</Label>
                         <Calendar
-                            mode="single"
-                            selected={startDate}
-                            onSelect={setStartDate}
+                            mode="range"
+                            selected={{
+                                from: startDate,
+                                to: endDate,
+                            }}
+                            onSelect={(range) => {
+                                setStartDate(range?.from);
+                                setEndDate(range?.to);
+                            }}
                             className="border rounded-md p-2 mt-2"
-                            disabled={(date) => (endDate ? date > endDate : false)}
-                        />
-                    </div>
-                    <div>
-                        <Label>End Date</Label>
-                        <Calendar
-                            mode="single"
-                            selected={endDate}
-                            onSelect={setEndDate}
-                            className="border rounded-md p-2 mt-2"
-                            disabled={(date) => (startDate ? date < startDate : false)}
                         />
                     </div>
                 </div>

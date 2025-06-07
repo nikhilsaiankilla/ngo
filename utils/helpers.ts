@@ -28,3 +28,11 @@ export type Role = typeof ROLES[number]
 export function hasRole(userRole: Role, requiredRole: Role): boolean {
     return ROLES.indexOf(userRole) >= ROLES.indexOf(requiredRole)
 }
+
+import { remark } from 'remark';
+import html from 'remark-html';
+
+export const markdownToHtml = async (markdown: string) => {
+    const result = await remark().use(html).process(markdown);
+    return result.toString();
+};

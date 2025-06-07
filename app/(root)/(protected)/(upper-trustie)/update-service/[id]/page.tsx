@@ -26,6 +26,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
             id,
             ...data,
             createdAt: data?.createdAt?.toDate().toISOString() || null,
+            updatedAt: data?.updatedAt?.toDate().toISOString() || null,
         };
 
         console.log('Fetched Event:', serviceData);

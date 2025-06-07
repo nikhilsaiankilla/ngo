@@ -77,7 +77,7 @@ export default function EventUploadForm() {
 
         try {
             const imageFile = values.image;
-            let imageUrl = "";
+            let imageUrl = "https://kokanngo.org/articles/wp-content/uploads/2023/12/Tailoring.png";
 
             // TODO:// we have to fix this later IMAGE UPLOAD PROBLEM
 

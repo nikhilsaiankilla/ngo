@@ -23,6 +23,7 @@ import { Loader } from "lucide-react";
 import uploadImageToFirebase from "@/lib/uploadImageToFirebase";
 import { updateService } from "@/actions/services"; // adjust if needed
 import { getErrorMessage } from "@/utils/helpers";
+import Image from "next/image";
 
 // Schema
 const formSchema = z.object({
@@ -33,7 +34,18 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function EditServiceForm({ serviceData }: { serviceData: any }) {
+interface serviceDataType {
+    id: string,
+    title: string,
+    tagline: string,
+    description: string,
+    image: string,
+    createdBy: string,
+    createdAt?: string,
+    updatedAt?: string,
+}
+
+export default function EditServiceForm({ serviceData }: { serviceData: serviceDataType }) {
     const [isLoading, setIsLoading] = useState(false);
     const [description, setDescription] = useState(serviceData?.description || "");
     const [imagePreview, setImagePreview] = useState(serviceData?.image || "");
@@ -61,15 +73,15 @@ export default function EditServiceForm({ serviceData }: { serviceData: any }) {
         try {
             let imageUrl = serviceData.image;
 
-            // if (values.image instanceof File) {
-            //     const uploadResult = await uploadImageToFirebase(values.image);
-            //     if (!uploadResult.success) {
-            //         toast.error("Image upload failed: " + uploadResult.message);
-            //         setIsLoading(false);
-            //         return;
-            //     }
-            //     imageUrl = uploadResult?.data?.url;
-            // }
+            if (values.image instanceof File) {
+                const uploadResult = await uploadImageToFirebase(values.image);
+                if (!uploadResult.success) {
+                    toast.error("Image upload failed: " + uploadResult.message);
+                    setIsLoading(false);
+                    return;
+                }
+                imageUrl = uploadResult?.data?.url || "";
+            }
 
             const updatedService = {
                 id: serviceData.id,
@@ -154,7 +166,9 @@ export default function EditServiceForm({ serviceData }: { serviceData: any }) {
                             </FormControl>
                             <FormMessage />
                             {imagePreview && (
-                                <img
+                                <Image
+                                    height={10}
+                                    width={10}
                                     src={imagePreview}
                                     alt="Preview"
                                     className="mt-2 rounded-md w-full h-auto max-h-64 object-contain"

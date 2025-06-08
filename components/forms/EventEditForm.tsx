@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,6 +24,7 @@ import { updateEvent } from "@/actions/events"; // assume updateEvent exists
 import { getErrorMessage } from "@/utils/helpers";
 import { Loader } from "lucide-react";
 import uploadImageToFirebase from "@/lib/uploadImageToFirebase";
+import Image from "next/image";
 
 // Schema
 const formSchema = z.object({
@@ -35,7 +36,22 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function EventEditForm({ eventData }: { eventData: any }) {
+// @/types/event.ts
+export interface EventDataType {
+    id: string;
+    title: string;
+    tagline: string;
+    description: string;
+    location: string;
+    image: string | null;
+    createdBy: string;
+    startDate: string | null;
+    endDate: string | null;
+    createdAt?: string | null;
+    updatedAt?: string | null;
+}
+
+export default function EventEditForm({ eventData }: { eventData: EventDataType }) {
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<FormValues>({
@@ -194,7 +210,9 @@ export default function EventEditForm({ eventData }: { eventData: any }) {
                             </FormControl>
                             <FormMessage />
                             {imagePreview && (
-                                <img
+                                <Image
+                                    width={10}
+                                    height={10}
                                     src={imagePreview}
                                     alt="Preview"
                                     className="mt-2 rounded-md w-full h-auto max-h-64 object-contain"

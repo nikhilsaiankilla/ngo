@@ -1,3 +1,4 @@
+import { Transaction } from '@/app/api/verifyOrder/route';
 import { adminDb } from '@/firebase/firebaseAdmin';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
@@ -20,7 +21,7 @@ const Page = async ({ searchParams }: { searchParams: { cursor?: string } }) => 
     .collection('transactions')
     .where('userId', '==', userId)
     .orderBy('timestamp', 'desc')
-    .limit(ITEMS_PER_PAGE + 1); // fetch 1 extra to check for next page
+    .limit(ITEMS_PER_PAGE + 1);
 
   if (cursor) {
     const cursorDoc = await adminDb.collection('transactions').doc(cursor).get();
@@ -35,7 +36,7 @@ const Page = async ({ searchParams }: { searchParams: { cursor?: string } }) => 
   const hasNextPage = docs.length > ITEMS_PER_PAGE;
   const paginatedDocs = hasNextPage ? docs.slice(0, -1) : docs;
 
-  const transactions = paginatedDocs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const transactions = paginatedDocs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as Transaction));
 
   const nextCursor = hasNextPage ? docs[docs.length - 2]?.id : null;
 
@@ -44,8 +45,8 @@ const Page = async ({ searchParams }: { searchParams: { cursor?: string } }) => 
       <h1 className="text-2xl font-semibold mb-4">Your Donations</h1>
 
       <ul className="space-y-4">
-        {transactions.map((txn: any) => (
-          <li key={txn.id} className="p-4 bg-white shadow rounded">
+        {transactions.map((txn: Transaction) => (
+          <li key={txn.razorpay_payment_id} className="p-4 bg-white shadow rounded">
             <div className="text-lg font-medium">₹{txn.amount}</div>
             <div className="text-sm text-gray-500">
               {txn.timestamp?.toDate?.().toLocaleString() || 'Unknown'}
@@ -56,7 +57,6 @@ const Page = async ({ searchParams }: { searchParams: { cursor?: string } }) => 
       </ul>
 
       <div className="flex justify-between mt-6">
-        {/* This only resets to the first page */}
         {cursor && (
           <a href={`/my-donations`} className="text-blue-600 hover:underline">
             Previous

@@ -2,6 +2,7 @@ import { adminDb } from '@/firebase/firebaseAdmin';
 import React from 'react';
 import { notFound } from 'next/navigation';
 import { markdownToHtml } from '@/utils/helpers';
+import Image from 'next/image';
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -40,7 +41,9 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
             {/* Image */}
             {event.image && (
                 <div className="w-full overflow-hidden rounded-xl shadow">
-                    <img
+                    <Image
+                        width={100}
+                        height={100}
                         src={event.image}
                         alt={event.title}
                         className="w-full h-auto max-h-[400px] object-cover"

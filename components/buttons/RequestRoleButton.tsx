@@ -9,7 +9,7 @@ type Props = {
     requestedRole: 'MEMBER' | 'TRUSTIE' | 'UPPER_TRUSTIE';
 };
 
-export const RequestRoleButton = ({ currentRole, requestedRole }: Props) => {
+export const RequestRoleButton = ({ requestedRole }: Props) => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [feedback, setFeedback] = useState<string | null>(null);
@@ -28,7 +28,7 @@ export const RequestRoleButton = ({ currentRole, requestedRole }: Props) => {
 
             setFeedback(`Request to upgrade to ${requestedRole} has been sent.`);
             setMessage('');
-        } catch (err) {
+        } catch (err: unknown) {
             setFeedback('Something went wrong. Please try again.');
             console.error(err);
         } finally {

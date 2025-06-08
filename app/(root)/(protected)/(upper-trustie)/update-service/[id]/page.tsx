@@ -24,7 +24,11 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
         // Convert createdAt from Firestore Timestamp to string
         serviceData = {
             id,
-            ...data,
+            title: data?.title || '',
+            tagline: data?.tagline || '',
+            description: data?.description || '',
+            image: data?.image || null,
+            createdBy: data?.createdBy || "",
             createdAt: data?.createdAt?.toDate().toISOString() || null,
             updatedAt: data?.updatedAt?.toDate().toISOString() || null,
         };

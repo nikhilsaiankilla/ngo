@@ -24,6 +24,7 @@ import { addEvent } from "@/actions/events";
 import { getErrorMessage } from "@/utils/helpers";
 import { Loader } from "lucide-react";
 import uploadImageToFirebase from "@/lib/uploadImageToFirebase";
+import Image from "next/image";
 
 // Define schema
 const formSchema = z.object({
@@ -79,20 +80,20 @@ export default function EventUploadForm() {
             const imageFile = values.image;
             let imageUrl = "https://kokanngo.org/articles/wp-content/uploads/2023/12/Tailoring.png";
 
-            // TODO:// we have to fix this later IMAGE UPLOAD PROBLEM
+            TODO:// we have to fix this later IMAGE UPLOAD PROBLEM
 
-            // if (imageFile) {
-            //     const uploadResult = await uploadImageToFirebase(imageFile);
-            //     if (!uploadResult.success) {
-            //         toast.error("Image upload failed: " + uploadResult.message);
-            //         return;
-            //     }
-            //     imageUrl = uploadResult?.data?.url || "";
-            // } else {
-            //     toast.error("Image is required.");
-            //      setIsLoading(false)
-            //     return;
-            // }
+            if (imageFile) {
+                const uploadResult = await uploadImageToFirebase(imageFile);
+                if (!uploadResult.success) {
+                    toast.error("Image upload failed: " + uploadResult.message);
+                    return;
+                }
+                imageUrl = uploadResult?.data?.url || "";
+            } else {
+                toast.error("Image is required.");
+                setIsLoading(false)
+                return;
+            }
 
             const finalData = {
                 ...values,
@@ -113,7 +114,7 @@ export default function EventUploadForm() {
                 setImagePreview("");
             } else {
                 toast.error("Failed to add event: " + response.message);
-                 setIsLoading(false)
+                setIsLoading(false)
             }
             setIsLoading(false)
         } catch (error: unknown) {
@@ -203,7 +204,9 @@ export default function EventUploadForm() {
                             </FormControl>
                             <FormMessage />
                             {imagePreview && (
-                                <img
+                                <Image
+                                    width={10}
+                                    height={10}
                                     src={imagePreview}
                                     alt="Preview"
                                     className="mt-2 rounded-md w-full h-auto max-h-64 object-contain"

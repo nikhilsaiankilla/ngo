@@ -100,23 +100,14 @@ type UpdateEventInput = {
     tagline: string;
     location: string;
     description: string;
-    image: string;
+    image: string | null;
     startDate: string | Date;
     endDate: string | Date;
 };
 
 export async function updateEvent(data: UpdateEventInput): Promise<ServerResponse> {
     try {
-        const {
-            id,
-            title,
-            tagline,
-            location,
-            description,
-            image,
-            startDate,
-            endDate,
-        } = data;
+        const { id, title, tagline, location, description, image, startDate, endDate } = data;
 
         if (!id) {
             return {
@@ -148,10 +139,10 @@ export async function updateEvent(data: UpdateEventInput): Promise<ServerRespons
             };
         }
 
-        if (!title || !tagline || !location || !description || !image || !startDate || !endDate) {
+        if (!title || !tagline || !location || !description || !startDate || !endDate) {
             return {
                 success: false,
-                message: "All fields are required.",
+                message: "Required fields are missing.",
                 status: 400,
             };
         }
@@ -172,7 +163,7 @@ export async function updateEvent(data: UpdateEventInput): Promise<ServerRespons
             tagline,
             location,
             description,
-            image,
+            image: image ?? "", // Handle null explicitly
             startDate: Timestamp.fromDate(new Date(startDate)),
             endDate: Timestamp.fromDate(new Date(endDate)),
             updatedAt: Timestamp.now(),
@@ -194,78 +185,78 @@ export async function updateEvent(data: UpdateEventInput): Promise<ServerRespons
 }
 
 export async function deleteEvent(eventId: string) {
-  try {
-    // Step 1: Check if eventId is provided
-    if (!eventId) {
-      return {
-        success: false,
-        message: "Event ID is required",
-        status: 400,
-      };
+    try {
+        // Step 1: Check if eventId is provided
+        if (!eventId) {
+            return {
+                success: false,
+                message: "Event ID is required",
+                status: 400,
+            };
+        }
+
+        // Step 2: Get current userId from cookies
+        const cookieStore = await cookies();
+        const userId = cookieStore.get("userId")?.value;
+
+        if (!userId) {
+            return {
+                success: false,
+                message: "Unauthorized: User not logged in",
+                status: 401,
+            };
+        }
+
+        // Step 3: Fetch user data from Firestore
+        const userRef = await adminDb.collection("users").doc(userId).get();
+        const user = userRef.data();
+
+        // Step 4: Check if user is an upper_trustie
+        if (user?.user_type !== "UPPER_TRUSTIE") {
+            return {
+                success: false,
+                message: "Unauthorized: Only upper_trustie can delete events",
+                status: 403,
+            };
+        }
+
+        // Step 5: Fetch the event to be deleted
+        const eventDocRef = adminDb.collection("events").doc(eventId);
+        const eventSnapshot = await eventDocRef.get();
+        const eventData = eventSnapshot.data();
+
+        // Step 6: Check if the event exists
+        if (!eventData) {
+            return {
+                success: false,
+                message: "Event not found",
+                status: 404,
+            };
+        }
+
+        // Optional: Verify that the event belongs to the same user (if needed)
+        if (eventData.createdBy !== userId) {
+            return {
+                success: false,
+                message: "Unauthorized: You can only delete your own events",
+                status: 403,
+            };
+        }
+
+        // Step 7: Delete the event
+        await eventDocRef.delete();
+
+        return {
+            success: true,
+            message: "Event deleted successfully",
+            status: 200,
+        };
+    } catch (err: unknown) {
+        console.error("Error while deleting event:", err);
+        return {
+            success: false,
+            message: getErrorMessage(err),
+            status: 500,
+        };
     }
-
-    // Step 2: Get current userId from cookies
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("userId")?.value;
-
-    if (!userId) {
-      return {
-        success: false,
-        message: "Unauthorized: User not logged in",
-        status: 401,
-      };
-    }
-
-    // Step 3: Fetch user data from Firestore
-    const userRef = await adminDb.collection("users").doc(userId).get();
-    const user = userRef.data();
-
-    // Step 4: Check if user is an upper_trustie
-    if (user?.user_type !== "UPPER_TRUSTIE") {
-      return {
-        success: false,
-        message: "Unauthorized: Only upper_trustie can delete events",
-        status: 403,
-      };
-    }
-
-    // Step 5: Fetch the event to be deleted
-    const eventDocRef = adminDb.collection("events").doc(eventId);
-    const eventSnapshot = await eventDocRef.get();
-    const eventData = eventSnapshot.data();
-
-    // Step 6: Check if the event exists
-    if (!eventData) {
-      return {
-        success: false,
-        message: "Event not found",
-        status: 404,
-      };
-    }
-
-    // Optional: Verify that the event belongs to the same user (if needed)
-    if (eventData.createdBy !== userId) {
-      return {
-        success: false,
-        message: "Unauthorized: You can only delete your own events",
-        status: 403,
-      };
-    }
-
-    // Step 7: Delete the event
-    await eventDocRef.delete();
-
-    return {
-      success: true,
-      message: "Event deleted successfully",
-      status: 200,
-    };
-  } catch (err: unknown) {
-    console.error("Error while deleting event:", err);
-    return {
-      success: false,
-      message: getErrorMessage(err),
-      status: 500,
-    };
-  }
 }

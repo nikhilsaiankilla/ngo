@@ -2,12 +2,13 @@ import { LogoutButton } from '@/components/buttons/LogoutButton';
 import { RequestRoleButton } from '@/components/buttons/RequestRoleButton';
 import Image from 'next/image';
 import React from 'react';
-import { getRoleRequestHistory } from '@/actions/requestRoleUpgrade'
+import { getRoleRequestHistory } from '@/actions/requestRoleUpgrade';
 import { getUser } from '@/actions/auth';
 import { roleUpgradeMap } from '@/utils/helpers';
 import { DataTable } from '../../(upper-trustie)/manage-members/data-table';
 import { columns, RoleRequestHistory } from './columns';
 
+// Define types for user
 type UserRole = 'REGULAR' | 'MEMBER' | 'TRUSTIE' | 'UPPER_TRUSTIE';
 
 type User = {
@@ -17,6 +18,39 @@ type User = {
     name: string;
     email: string;
 };
+
+// Define type for role request data from server
+interface RoleRequest {
+    userId: string;
+    name: string;
+    message: string;
+    currentRole: string;
+    requestedRole: string;
+    status: 'accepted' | 'rejected';
+    reviewedBy?: string;
+    rejectionReason?: string;
+    reviewedAt?: { seconds: number; nanoseconds: number } | string;
+}
+
+// Define type for historyRes
+interface HistoryResponse {
+    success: boolean;
+    message?: string;
+    data?: RoleRequest[];
+}
+
+// Define type for userRes
+interface UserResponse {
+    success: boolean;
+    message?: string;
+    data?: {
+        name: string;
+        photoURL?: string;
+        email: string;
+        user_type: UserRole;
+        createdAt: { _seconds: number; _nanoseconds: number };
+    };
+}
 
 const formatDate = (seconds: number) => {
     return new Date(seconds * 1000).toLocaleDateString(undefined, {
@@ -33,31 +67,33 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
         return <h1 className="text-red-500 text-center mt-10">No ID found</h1>;
     }
 
-    const [userRes, historyRes] = await Promise.all([getUser(id), getRoleRequestHistory(id)]);
+    const [userRes, historyRes]: [UserResponse, HistoryResponse] = await Promise.all([
+        getUser(id),
+        getRoleRequestHistory(id),
+    ]);
 
     if (!userRes?.success) {
         return <h1 className="text-red-500 text-center mt-10">{userRes?.message}</h1>;
     }
 
     if (!historyRes?.success) {
-        console.log("history message ", historyRes.message);
+        console.log('History message:', historyRes?.message || 'No history data');
     }
 
-    const historyData: RoleRequestHistory[] = historyRes?.data?.map((request: any) => ({
-        userId: request.userId,
-        name: request.name,
-        message: request.message,
-        currentRole: request.currentRole,
-        requestedRole: request.requestedRole,
-        status: request.status,
-        reviewedBy: request.reviewedBy,
-        rejectionReason: request.rejectionReason,
-
-        // Convert reviewedAt from Firestore Timestamp object or string to ISO string
+    // Transform history data to match RoleRequestHistory
+    const historyData: RoleRequestHistory[] = historyRes?.data?.map((request) => ({
+        userId: request.userId || 'N/A',
+        name: request.name || 'Unknown',
+        message: request.message || '',
+        currentRole: request.currentRole || 'Unknown',
+        requestedRole: request.requestedRole || 'Unknown',
+        status: request.status || 'pending',
+        reviewedBy: request.reviewedBy || 'N/A',
+        rejectionReason: request.rejectionReason || '',
         reviewedAt: request.reviewedAt
             ? typeof request.reviewedAt === 'string'
                 ? request.reviewedAt
-                : request.reviewedAt.seconds // Firestore Timestamp has seconds and nanoseconds
+                : request.reviewedAt.seconds
                     ? new Date(request.reviewedAt.seconds * 1000).toISOString()
                     : undefined
             : undefined,
@@ -66,22 +102,22 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     // Construct user with all needed props including createdAt
     const user: User = userRes?.data
         ? {
-            name: userRes?.data?.name,
-            photoURL: userRes?.data?.photoURL,
-            email: userRes?.data?.email,
-            user_type: userRes?.data?.user_type,
-            createdAt: userRes?.data?.createdAt, // <- important!
+            name: userRes.data.name,
+            photoURL: userRes.data.photoURL,
+            email: userRes.data.email,
+            user_type: userRes.data.user_type,
+            createdAt: userRes.data.createdAt,
         }
         : ({} as User);
 
-    // requestedRole based on user_type
+    // Requested role based on user_type
     const requestedRole = roleUpgradeMap[user.user_type];
 
     return (
-        <div className="max-w-5xl mx-auto mt-10 ">
+        <div className="max-w-5xl mx-auto mt-10">
             <h1 className="text-3xl font-semibold mb-6 text-center">User Profile</h1>
 
-            <div className='max-w-xl mx-auto shadow-md p-6 bg-white rounded-lg'>
+            <div className="max-w-xl mx-auto shadow-md p-6 bg-white rounded-lg">
                 <div className="flex items-center space-x-6 mb-6">
                     <Image
                         src={
@@ -117,12 +153,15 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
                 </div>
             </div>
 
-            <div className='mt-10'>
-                {historyRes?.data && <DataTable columns={columns} data={historyData} />}
+            <div className="mt-10">
+                {historyData.length > 0 ? (
+                    <DataTable columns={columns} data={historyData} />
+                ) : (
+                    <p className="text-center text-gray-500">No role request history available.</p>
+                )}
             </div>
         </div>
     );
 };
-
 
 export default Page;

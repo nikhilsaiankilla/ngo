@@ -24,6 +24,7 @@ import { Loader } from "lucide-react";
 import uploadImageToFirebase from "@/lib/uploadImageToFirebase";
 import { addService } from "@/actions/services";
 import { getErrorMessage } from "@/utils/helpers";
+import Image from "next/image";
 
 // Schema
 const formSchema = z.object({
@@ -69,19 +70,19 @@ export default function ServiceForm() {
             const imageFile = values.image;
             let imageUrl = "https://t4.ftcdn.net/jpg/02/42/52/27/360_F_242522709_ZhoDmO1L1PHkL6yvVVNutSBGsk1Ob7m0.jpg";
 
-            // if (imageFile instanceof File) {
-            //     const uploadResult = await uploadImageToFirebase(imageFile);
-            //     if (!uploadResult.success) {
-            //         toast.error("Image upload failed: " + uploadResult.message);
-            //         setIsLoading(false);
-            //         return;
-            //     }
-            //     imageUrl = uploadResult.data?.url || "";
-            // } else {
-            //     toast.error("Please upload an image.");
-            //     setIsLoading(false);
-            //     return;
-            // }
+            if (imageFile instanceof File) {
+                const uploadResult = await uploadImageToFirebase(imageFile);
+                if (!uploadResult.success) {
+                    toast.error("Image upload failed: " + uploadResult.message);
+                    setIsLoading(false);
+                    return;
+                }
+                imageUrl = uploadResult.data?.url || "";
+            } else {
+                toast.error("Please upload an image.");
+                setIsLoading(false);
+                return;
+            }
 
             const payload = {
                 title: values.title,
@@ -168,9 +169,11 @@ export default function ServiceForm() {
                             </FormControl>
                             <FormMessage />
                             {imagePreview && (
-                                <img
+                                <Image
                                     src={imagePreview}
                                     alt="Preview"
+                                    width={100}
+                                    height={100}
                                     className="mt-2 rounded-md w-full h-auto max-h-64 object-contain"
                                 />
                             )}

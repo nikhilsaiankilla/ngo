@@ -54,10 +54,9 @@ export const columns: ColumnDef<RoleRequestHistory>[] = [
             if (!dateStr) return "-";
 
             const date = new Date(dateStr);
-            if (isNaN(date.getTime())) return "-";  // <-- check if date is invalid
+            if (isNaN(date.getTime())) return "-";
 
             return date.toLocaleString();
         },
-    }
-
+    },
 ];

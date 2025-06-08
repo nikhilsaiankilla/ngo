@@ -1,5 +1,6 @@
 import EventEditForm from '@/components/forms/EventEditForm';
 import { adminDb } from '@/firebase/firebaseAdmin';
+import { getErrorMessage } from '@/utils/helpers';
 import React from 'react';
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
@@ -22,14 +23,19 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
         eventData = {
             id,
-            ...data,
-            endDate: data?.endDate?.toDate().toISOString() || null,
+            title: data?.title || '',
+            tagline: data?.tagline || '',
+            description: data?.description || '',
+            location: data?.location || '',
+            image: data?.image || null,
+            createdBy: data?.createdBy || '',
             startDate: data?.startDate?.toDate().toISOString() || null,
+            endDate: data?.endDate?.toDate().toISOString() || null,
             createdAt: data?.createdAt?.toDate().toISOString() || null,
             updatedAt: data?.updatedAt?.toDate().toISOString() || null,
-        }
-    } catch (error) {
-        console.error('Error fetching event:', error);
+        };
+    } catch (error: unknown) {
+        console.error('Error fetching event:', getErrorMessage(error));
         return <h1 className="text-red-500 text-center mt-10">Error fetching event</h1>;
     }
 

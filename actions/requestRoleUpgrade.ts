@@ -3,8 +3,8 @@
 import { cookies } from 'next/headers'
 import { adminAuth, adminDb } from '@/firebase/firebaseAdmin'
 import { Timestamp } from 'firebase-admin/firestore'
-import { getErrorMessage } from '@/utils/helpers'
-import { RoleRequestHistory } from '@/app/(root)/(protected)/profile/[id]/columns'
+import { getErrorMessage, timestampToISOString } from '@/utils/helpers'
+import { RoleRequestHistory } from '@/app/(root)/dashboard/(protected)/profile/columns'
 
 type RequestRoleUpgradeInput = {
   requestedRole: 'MEMBER' | 'TRUSTIE' | 'UPPER_TRUSTIE'
@@ -360,15 +360,13 @@ export async function getRoleRequestHistory(userId: string) {
       };
     }
 
-    const historyData = snapshot.docs.map(doc => {
+    const historyData = snapshot.docs.map((doc) => {
       const data = doc.data();
 
       return {
         ...data,
-        createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : undefined,
-        reviewedAt: typeof data.reviewedAt === 'string'
-          ? data.reviewedAt
-          : data.reviewedAt?.toDate().toISOString() || undefined,
+        createdAt: timestampToISOString(data.createdAt) || undefined,
+        reviewedAt: timestampToISOString(data.reviewedAt) || undefined,
       };
     });
 

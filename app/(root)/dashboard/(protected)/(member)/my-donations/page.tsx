@@ -18,14 +18,19 @@ interface Transaction {
 
 // Define props type for Next.js App Router
 interface PageProps {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-const ITEMS_PER_PAGE = 1;
+const ITEMS_PER_PAGE = 5;
 
 const Page = async ({ searchParams }: PageProps) => {
   const cookieStore = await cookies();
+
   const userId = cookieStore.get("userId")?.value;
+
+  const params = await searchParams;  // <-- await here
+
+  const cursor = typeof params.cursor === 'string' ? params.cursor : undefined;
 
   // Check authentication
   if (!userId) {
@@ -43,8 +48,6 @@ const Page = async ({ searchParams }: PageProps) => {
   if (!userType || !["MEMBER", "TRUSTIE", "UPPER_TRUSTIE"].includes(userType)) {
     return notFound(); // Restrict to MEMBER and above
   }
-
-  const cursor = searchParams.cursor as string | undefined;
 
   // Build Firestore query
   let query = adminDb
@@ -97,55 +100,76 @@ const Page = async ({ searchParams }: PageProps) => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-10 px-4">
-      <h1 className="text-2xl font-semibold mb-6">Your Donations</h1>
+    <div className="w-full mx-auto py-12 px-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-3xl font-extrabold mb-8 text-center text-gray-900">
+        Your Donations
+      </h1>
 
       {transactions.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-gray-600 text-center">No donations found.</p>
-            <Link href="/donate">
-              <Button className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white">
+        <Card className="bg-gray-50 border border-gray-200">
+          <CardContent className="pt-10 pb-8 flex flex-col items-center">
+            <p className="text-gray-600 text-lg mb-6 text-center">
+              No donations found.
+            </p>
+            <Link href="/donate" passHref>
+              <Button
+                className="w-full max-w-xs bg-blue-600 hover:bg-blue-700 text-white transition"
+                size="lg"
+              >
                 Make a Donation
               </Button>
             </Link>
           </CardContent>
         </Card>
       ) : (
-        <ul className="space-y-4">
+        <ul className="space-y-6">
           {transactions.map((txn) => (
-            <Card key={txn.razorpay_payment_id}>
-              <CardHeader>
-                <CardTitle className="text-lg">Donation: ₹{txn.amount}</CardTitle>
+            <Card
+              key={txn.razorpay_payment_id}
+              className="w-full border border-gray-200 hover:shadow-lg transition-shadow duration-300"
+            >
+              <CardHeader className="bg-blue-50 rounded-t-lg p-4">
+                <CardTitle className="text-xl font-semibold text-blue-800">
+                  Donation: ₹{txn.amount.toLocaleString()}
+                </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 space-y-2">
                 <p className="text-sm text-gray-500">
                   {txn.timestamp.toDate().toLocaleString() || "Unknown"}
                 </p>
-                <p className="text-sm text-gray-700">Method: {txn.method}</p>
+                <p className="text-sm text-gray-700 font-medium">
+                  Method: <span className="capitalize">{txn.method}</span>
+                </p>
               </CardContent>
             </Card>
           ))}
         </ul>
       )}
 
-      <div className="flex justify-between mt-6">
+      <div className="flex justify-between mt-10">
         {cursor && (
-          <Link href="/my-donations">
-            <Button variant="outline" className="text-blue-600 border-blue-600 hover:bg-blue-50">
-              Previous
+          <Link href="/dashboard/my-donations" passHref>
+            <Button
+              variant="outline"
+              className="text-blue-600 border-blue-600 hover:bg-blue-100 transition"
+            >
+              ← Previous
             </Button>
           </Link>
         )}
         {hasNextPage && nextCursor && (
-          <Link href={`/my-donations?cursor=${nextCursor}`}>
-            <Button variant="outline" className="text-blue-600 border-blue-600 hover:bg-blue-50">
-              Next
+          <Link href={`/dashboard/my-donations?cursor=${nextCursor}`} passHref>
+            <Button
+              variant="outline"
+              className="text-blue-600 border-blue-600 hover:bg-blue-100 transition"
+            >
+              Next →
             </Button>
           </Link>
         )}
       </div>
     </div>
+
   );
 };
 

@@ -1,6 +1,9 @@
+import Navbar from "@/components/Navbar";
+
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-white text-gray-800 font-sans">
+      <Navbar />
       <header className="mb-12">
         <h1 className="text-3xl font-bold">NGO Site</h1>
       </header>

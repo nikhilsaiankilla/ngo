@@ -36,3 +36,12 @@ export const markdownToHtml = async (markdown: string) => {
     const result = await remark().use(html).process(markdown);
     return result.toString();
 };
+
+// helper function to convert Firestore timestamp to ISO string
+export function timestampToISOString(
+    timestamp?: { seconds: number; nanoseconds: number } | string | null
+): string | null {
+    if (!timestamp) return null;
+    if (typeof timestamp === 'string') return timestamp;
+    return new Date(timestamp.seconds * 1000).toISOString();
+}

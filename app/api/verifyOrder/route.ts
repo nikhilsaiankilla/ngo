@@ -162,6 +162,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             message: "Payment verified successfully",
             success: true,
+            status: 200,
             data: {
                 payment_id: payment.id,
                 amount: Number(payment.amount) / 100, // Convert paise to rupees
@@ -185,6 +186,8 @@ export async function POST(request: NextRequest) {
             timestamp: Timestamp.now(),
         } satisfies Transaction);
 
+        console.log(error);
+        
         // Return error response
         return NextResponse.json(
             { error: getErrorMessage(error), success: false },

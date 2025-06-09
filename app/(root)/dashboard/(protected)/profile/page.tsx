@@ -5,8 +5,9 @@ import React from 'react';
 import { getRoleRequestHistory } from '@/actions/requestRoleUpgrade';
 import { getUser } from '@/actions/auth';
 import { roleUpgradeMap } from '@/utils/helpers';
-import { DataTable } from '../../(upper-trustie)/manage-members/data-table';
+import { DataTable } from '../(upper-trustie)/manage-members/data-table';
 import { columns, RoleRequestHistory } from './columns';
+import { cookies } from 'next/headers';
 
 // Define types for user
 type UserRole = 'REGULAR' | 'MEMBER' | 'TRUSTIE' | 'UPPER_TRUSTIE';
@@ -60,8 +61,9 @@ const formatDate = (seconds: number) => {
     });
 };
 
-const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
-    const id = (await params).id;
+const Page = async () => {
+    const cookiesStore = await cookies();
+    const id = cookiesStore.get('userId')?.value;
 
     if (!id) {
         return <h1 className="text-red-500 text-center mt-10">No ID found</h1>;
@@ -75,7 +77,6 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     if (!userRes?.success) {
         return <h1 className="text-red-500 text-center mt-10">{userRes?.message}</h1>;
     }
-
     if (!historyRes?.success) {
         console.log('History message:', historyRes?.message || 'No history data');
     }

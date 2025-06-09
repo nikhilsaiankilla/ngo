@@ -50,6 +50,7 @@ export default function EventUploadForm() {
     });
 
     const [description, setDescription] = useState("");
+    const [image, setImage] = useState<File | null>(null)
     const [imagePreview, setImagePreview] = useState<string>("");
     const [startDate, setStartDate] = useState<Date | undefined>(undefined);
     const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -57,7 +58,7 @@ export default function EventUploadForm() {
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            form.setValue("image", file);
+            setImage(file);
             setImagePreview(URL.createObjectURL(file));
         }
     };
@@ -76,19 +77,24 @@ export default function EventUploadForm() {
             return;
         }
 
+        let imageUrl = ""
+
         try {
-            const imageFile = values.image;
-            let imageUrl = "https://kokanngo.org/articles/wp-content/uploads/2023/12/Tailoring.png";
-
             TODO:// we have to fix this later IMAGE UPLOAD PROBLEM
+            if (image) {
+                const res = await uploadImageToFirebase(image);
 
-            if (imageFile) {
-                const uploadResult = await uploadImageToFirebase(imageFile);
-                if (!uploadResult.success) {
-                    toast.error("Image upload failed: " + uploadResult.message);
+                if (!res.success) {
+                    toast.error(res?.message);
                     return;
                 }
-                imageUrl = uploadResult?.data?.url || "";
+
+                if (!res?.data?.url) {
+                    toast.error("something went wrong while uploading");
+                    return;
+                }
+                
+                imageUrl = res?.data?.url
             } else {
                 toast.error("Image is required.");
                 setIsLoading(false)

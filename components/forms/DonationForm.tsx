@@ -64,6 +64,10 @@ type Props = {
     userId: string; // User ID passed as prop
 };
 
+export function fromFirestoreTimestamp(ts: { _seconds: number; _nanoseconds?: number }) {
+    return new Date(ts._seconds * 1000);
+}
+
 // DonationForm component for handling donations via Razorpay
 const DonationForm = ({ userId }: Props) => {
     // State for donation amount
@@ -85,12 +89,8 @@ const DonationForm = ({ userId }: Props) => {
                 if (res?.success && res.data) {
                     const fetchedData = res.data as UserData;
 
-                    // Convert Firestore timestamp to ISO string
                     const fetchedUser = {
                         ...fetchedData,
-                        createdAt: fetchedData.createdAt
-                            ? new Date(fetchedData.createdAt._seconds * 1000).toISOString()
-                            : null,
                     };
 
                     // Set user state
@@ -154,7 +154,7 @@ const DonationForm = ({ userId }: Props) => {
                         toast.success("Payment Successful!");
 
                         console.log(paymentResponse);
-                        
+
                         // Redirect to payment success page
                         const paymentId = paymentResponse?.data?.data?.payment_id;
                         if (paymentId) {

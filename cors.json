@@ -1,12 +1,18 @@
 [
   {
-    "origin": ["http://localhost:3000"],
-    "method": ["GET", "POST", "PUT", "DELETE", "HEAD"],
-    "maxAgeSeconds": 3600
-  },
-  {
-    "origin": ["*"],
-    "method": ["GET"],
+    "origin": [
+      "http://localhost:3000",
+      "https://ngo-two-ivory.vercel.app"
+    ],
+    "method": [
+      "GET",
+      "POST",
+      "PUT"
+    ],
+    "responseHeader": [
+      "Content-Type",
+      "Authorization"
+    ],
     "maxAgeSeconds": 3600
   }
 ]

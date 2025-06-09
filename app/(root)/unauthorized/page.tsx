@@ -17,7 +17,6 @@ interface UserData {
 }
 
 export default function UnauthorizedPage() {
-    const router = useRouter();
     const [user, setUser] = useState<UserData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 

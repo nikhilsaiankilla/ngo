@@ -23,7 +23,7 @@ const SignWithGoogle = () => {
         }
 
         toast.success("Login successful!");
-        router.push("/home");
+        router.push("/dashboard");
         setIsLoading(false);
     };
 
@@ -31,7 +31,7 @@ const SignWithGoogle = () => {
         <Button
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-2 rounded-lg cursor-pointer text-base font-semibold"
+            className="w-full flex items-center justify-center gap-3 text-sm px-4 py-2 rounded-lg cursor-pointer font-semibold"
             aria-live="polite"
             aria-busy={isLoading}
         >

@@ -1,7 +1,8 @@
 // lib/uploadImageToFirebase.ts
+
 import { storage } from "@/firebase/firebase";
 import { getErrorMessage } from "@/utils/helpers";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 interface UploadResult {
     success: boolean;
@@ -12,15 +13,23 @@ interface UploadResult {
 
 export default async function uploadImageToFirebase(file: File): Promise<UploadResult> {
     try {
-        const filePath = `event_images/${Date.now()}-${file.name}`;
-        const storageRef = ref(storage, filePath);
-        const uploadTask = await uploadBytesResumable(storageRef, file);
-        const downloadURL = await getDownloadURL(uploadTask.ref);
+        if (!file) {
+            return {
+                success: false,
+                status: 200,
+                message: "image is required"
+            };
+        }
+
+        const storageRef = ref(storage, `images/${file.name}`); // Create a reference to the file in Firebase Storage
+
+        await uploadBytes(storageRef, file); // Upload the file to Firebase Storage
+        const url = await getDownloadURL(storageRef); // Get the download URL of the uploaded file
 
         return {
             success: true,
             status: 200,
-            data: { url: downloadURL },
+            data: { url: url },
         };
     } catch (error: unknown) {
         console.error("Firebase upload error:", error);

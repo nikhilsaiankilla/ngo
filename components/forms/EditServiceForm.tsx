@@ -71,16 +71,16 @@ export default function EditServiceForm({ serviceData }: { serviceData: serviceD
         setIsLoading(true);
 
         try {
-            let imageUrl = serviceData.image;
+            let imageUrl = serviceData.image || "https://dummyimage.com/600x400/000/fff";
 
             if (values.image instanceof File) {
-                const uploadResult = await uploadImageToFirebase(values.image);
-                if (!uploadResult.success) {
-                    toast.error("Image upload failed: " + uploadResult.message);
-                    setIsLoading(false);
-                    return;
-                }
-                imageUrl = uploadResult?.data?.url || "";
+                // const uploadResult = await uploadImageToFirebase(values.image);
+                // if (!uploadResult.success) {
+                //     toast.error("Image upload failed: " + uploadResult.message);
+                //     setIsLoading(false);
+                //     return;
+                // }
+                // imageUrl = uploadResult?.data?.url || "";
             }
 
             const updatedService = {
@@ -144,9 +144,10 @@ export default function EditServiceForm({ serviceData }: { serviceData: serviceD
                         onChange={(val) => setDescription(val || "")}
                         preview="edit"
                         height={300}
-                        style={{ borderRadius: 20, overflow: "hidden" }}
+                        style={{ borderRadius: 5, overflow: "hidden" }}
                         textareaProps={{ placeholder: "Describe the service..." }}
                         previewOptions={{ disallowedElements: ["style"] }}
+                        className="mt-2"
                     />
                 </div>
 

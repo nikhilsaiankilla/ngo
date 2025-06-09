@@ -82,19 +82,19 @@ export default function EventUploadForm() {
         try {
             TODO:// we have to fix this later IMAGE UPLOAD PROBLEM
             if (image) {
-                const res = await uploadImageToFirebase(image);
+                // const res = await uploadImageToFirebase(image);
 
-                if (!res.success) {
-                    toast.error(res?.message);
-                    return;
-                }
+                // if (!res.success) {
+                //     toast.error(res?.message);
+                //     return;
+                // }
 
-                if (!res?.data?.url) {
-                    toast.error("something went wrong while uploading");
-                    return;
-                }
-                
-                imageUrl = res?.data?.url
+                // if (!res?.data?.url) {
+                //     toast.error("something went wrong while uploading");
+                //     return;
+                // }
+
+                imageUrl = "https://dummyimage.com/600x400/000/fff" //|| res?.data?.url ||
             } else {
                 toast.error("Image is required.");
                 setIsLoading(false)
@@ -185,12 +185,13 @@ export default function EventUploadForm() {
                         onChange={(val) => setDescription(val || "")}
                         preview="edit"
                         height={300}
-                        style={{ borderRadius: 20, overflow: "hidden" }}
+                        style={{ borderRadius: 5, overflow: "hidden" }}
                         textareaProps={{
                             placeholder:
                                 "Briefly describe your idea and what problem it solves",
                         }}
                         previewOptions={{ disallowedElements: ["style"] }}
+                        className="mt-2"
                     />
                 </div>
 

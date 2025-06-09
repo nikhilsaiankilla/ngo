@@ -1,13 +1,13 @@
 import { adminDb } from '@/firebase/firebaseAdmin';
 import React from 'react';
-import { notFound } from 'next/navigation';
+import { unauthorized } from 'next/navigation';
 import { markdownToHtml } from '@/utils/helpers';
-import Image from 'next/image';
+import SafeImage from '@/components/SafeImage';
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
 
-    if (!id) return notFound();
+    if (!id) return unauthorized();
 
     const serviceDoc = await adminDb.collection('services').doc(id).get();
     const service = serviceDoc.data();
@@ -35,6 +35,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
                 <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
                     {service.title}
                 </h1>
+
                 {service.tagline && (
                     <p className="text-lg text-gray-600 dark:text-gray-400">{service.tagline}</p>
                 )}
@@ -43,13 +44,12 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
             {/* Image */}
             {service.image && (
                 <div className="overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-                    <Image
+                    <SafeImage
                         src={service.image}
-                        alt={service.title}
+                        alt={`${service.title} Image`}
                         width={1200}
                         height={630}
                         className="w-full h-auto aspect-video object-cover"
-                        priority
                     />
                 </div>
             )}

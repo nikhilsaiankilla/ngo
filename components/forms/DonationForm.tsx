@@ -199,38 +199,53 @@ const DonationForm = ({ userId }: Props) => {
 
     return (
         <>
-            {/* Load Razorpay checkout script */}
+            {/* Razorpay script */}
             <Script id="razorpay-checkout-js" src="https://checkout.razorpay.com/v1/checkout.js" />
 
-            {/* Donation form */}
-            <form
-                onSubmit={handlePayment}
-                className="bg-white rounded-xl p-6 shadow-md w-full max-w-md space-y-4"
-            >
-                <h2 className="text-xl font-bold text-gray-800">Make a Donation</h2>
-
-                {/* Donation amount input */}
-                <div>
-                    <label className="block mb-1 text-sm font-medium text-gray-700">Amount (INR)</label>
-                    <input
-                        type="number"
-                        value={price}
-                        onChange={(e) => setPrice(parseInt(e.target.value) || 0)} // Update price state
-                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                        min={1} // Prevent non-positive values
-                        required // Make input required
-                    />
-                </div>
-
-                {/* Submit button */}
-                <Button
-                    type="submit"
-                    disabled={loading} // Disable during loading
-                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300"
+            <div className="w-full max-w-md mx-auto">
+                <form
+                    onSubmit={handlePayment}
+                    className="p-8 space-y-6"
                 >
-                    {loading ? "Processing..." : "Donate"} {/* Show loading state */}
-                </Button>
-            </form>
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-gray-800">Support Our Cause</h2>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Your donation helps us make a difference.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="donationAmount"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            Donation Amount (INR)
+                        </label>
+                        <input
+                            id="donationAmount"
+                            type="number"
+                            value={price}
+                            onChange={(e) => setPrice(parseInt(e.target.value) || 0)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                            min={1}
+                            required
+                            placeholder="Enter amount"
+                        />
+                    </div>
+
+                    <Button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-300 text-center"
+                    >
+                        {loading ? "Processing..." : "Donate Now"}
+                    </Button>
+
+                    <p className="text-xs text-gray-400 text-center">
+                        Powered by Razorpay
+                    </p>
+                </form>
+            </div>
         </>
     );
 };

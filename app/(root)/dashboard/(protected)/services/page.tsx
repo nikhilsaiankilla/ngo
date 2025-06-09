@@ -50,7 +50,7 @@ const Page = async () => {
                                     <CardDescription className="text-sm text-muted-foreground line-clamp-2">
                                         {service.tagline}
                                     </CardDescription>
-                                    <p className="text-sm mt-2">{service.description}</p>
+                                    <p className="text-gray-600 text-sm line-clamp-2">{service.description}</p>
                                 </CardContent>
                                 <CardAction>
                                     <Link

@@ -2,7 +2,7 @@ import { adminDb } from '@/firebase/firebaseAdmin';
 import React from 'react';
 import { notFound } from 'next/navigation';
 import { markdownToHtml } from '@/utils/helpers';
-import Image from 'next/image';
+import SafeImage from '@/components/SafeImage';
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -43,13 +43,12 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
             {/* Image */}
             {service.image && (
                 <div className="overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-                    <Image
+                    <SafeImage
                         src={service.image}
-                        alt={service.title}
+                        alt={`${service.title} Image`}
                         width={1200}
                         height={630}
                         className="w-full h-auto aspect-video object-cover"
-                        priority
                     />
                 </div>
             )}

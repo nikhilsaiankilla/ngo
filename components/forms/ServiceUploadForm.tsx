@@ -68,16 +68,16 @@ export default function ServiceForm() {
 
         try {
             const imageFile = values.image;
-            let imageUrl = "https://t4.ftcdn.net/jpg/02/42/52/27/360_F_242522709_ZhoDmO1L1PHkL6yvVVNutSBGsk1Ob7m0.jpg";
+            let imageUrl = "https://dummyimage.com/600x400/000/fff";
 
             if (imageFile instanceof File) {
-                const uploadResult = await uploadImageToFirebase(imageFile);
-                if (!uploadResult.success) {
-                    toast.error("Image upload failed: " + uploadResult.message);
-                    setIsLoading(false);
-                    return;
-                }
-                imageUrl = uploadResult.data?.url || "";
+                // const uploadResult = await uploadImageToFirebase(imageFile);
+                // if (!uploadResult.success) {
+                //     toast.error("Image upload failed: " + uploadResult.message);
+                //     setIsLoading(false);
+                //     return;
+                // }
+                // imageUrl = uploadResult.data?.url || "";
             } else {
                 toast.error("Please upload an image.");
                 setIsLoading(false);
@@ -147,9 +147,10 @@ export default function ServiceForm() {
                         onChange={(val) => setDescription(val || "")}
                         preview="edit"
                         height={300}
-                        style={{ borderRadius: 20, overflow: "hidden" }}
+                        style={{ borderRadius: 5, overflow: "hidden" }}
                         textareaProps={{ placeholder: "Write your service details" }}
                         previewOptions={{ disallowedElements: ["style"] }}
+                        className="mt-2"
                     />
                 </div>
 

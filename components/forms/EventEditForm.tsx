@@ -98,17 +98,17 @@ export default function EventEditForm({ eventData }: { eventData: EventDataType 
 
         try {
             const imageFile = values.image;
-            let imageUrl = eventData.image;
+            let imageUrl = eventData.image || "https://dummyimage.com/600x400/000/fff";
 
             // Upload new image if selected
             if (imageFile instanceof File) {
-                const uploadResult = await uploadImageToFirebase(imageFile);
-                if (!uploadResult.success) {
-                    toast.error("Image upload failed: " + uploadResult.message);
-                    setIsLoading(false);
-                    return;
-                }
-                imageUrl = uploadResult?.data?.url || "";
+                // const uploadResult = await uploadImageToFirebase(imageFile);
+                // if (!uploadResult.success) {
+                //     toast.error("Image upload failed: " + uploadResult.message);
+                //     setIsLoading(false);
+                //     return;
+                // }
+                // imageUrl = uploadResult?.data?.url || "";
             }
 
             const updatedData = {

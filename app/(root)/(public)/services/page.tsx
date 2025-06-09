@@ -47,9 +47,7 @@ const Page = async () => {
                 />
                 <CardContent className="space-y-1 p-4">
                   <CardTitle className="text-lg font-semibold">{service.title}</CardTitle>
-                  <CardDescription className="text-sm text-muted-foreground line-clamp-2">
-                    {service.tagline}
-                  </CardDescription>
+                  <p className="text-gray-600 text-sm line-clamp-2">{service.description}</p>
                   <p className="text-sm mt-2">{service.description}</p>
                 </CardContent>
                 <CardAction>

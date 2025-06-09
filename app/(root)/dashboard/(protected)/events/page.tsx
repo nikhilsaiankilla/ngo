@@ -1,5 +1,9 @@
+import SafeImage from "@/components/SafeImage";
+import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { Timestamp } from "firebase-admin/firestore";
+import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 export const revalidate = 60; // ISR every 60 seconds
@@ -15,21 +19,20 @@ type Event = {
     endDate: Date;
 };
 
-
 const page = async () => {
     try {
         const now = Timestamp.now();
 
-        // 1. Ongoing Events: fetch startDate <= now, limit 20, then filter client-side for endDate >= now
+        // Fetch ongoing events
         const ongoingSnapshot = await adminDb
             .collection("events")
             .where("startDate", "<=", now)
             .orderBy("startDate", "asc")
-            .limit(20) // fetch a bit more so client-side filter can work well
+            .limit(20)
             .get();
 
         const ongoingEvents: Event[] = ongoingSnapshot.docs
-            .map(doc => {
+            .map((doc) => {
                 const data = doc.data();
                 return {
                     id: doc.id,
@@ -42,10 +45,10 @@ const page = async () => {
                     endDate: data.endDate.toDate(),
                 };
             })
-            .filter(event => event.endDate >= new Date())
+            .filter((event) => event.endDate >= new Date())
             .slice(0, 10);
 
-        // 2. Upcoming Events: startDate > now, limit 10
+        // Fetch upcoming events
         const upcomingSnapshot = await adminDb
             .collection("events")
             .where("startDate", ">", now)
@@ -76,7 +79,7 @@ const page = async () => {
             };
         });
 
-        // 3. Past Events: endDate < now, limit 10
+        // Fetch past events
         const pastSnapshot = await adminDb
             .collection("events")
             .where("endDate", "<", now)
@@ -107,92 +110,72 @@ const page = async () => {
             };
         });
 
+        const renderEventCard = (event: Event) => (
+            <Card key={event.id} className="rounded-2xl shadow-md overflow-hidden transition hover:shadow-xl p-4">
+                <SafeImage
+                    src={event.image}
+                    alt={`${event.title} Image`}
+                    width={500}
+                    height={280}
+                    className="w-full aspect-video object-cover rounded-lg"
+                />
+                <CardContent className="space-y-1 p-4">
+                    <CardTitle className="text-lg font-semibold">{event.title}</CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground line-clamp-2">
+                        {event.description}
+                    </CardDescription>
+                    <span className="text-xs text-gray-500">
+                        {event.startDate.toLocaleString()} → {event.endDate.toLocaleString()}
+                    </span>
+                </CardContent>
+                <CardAction>
+                    <Link href={`/dashboard/service/${event?.id}`}>View Details</Link>
+                </CardAction>
+            </Card>
+        );
+
         return (
-            <div className="p-4 space-y-10">
+            <div className="p-6 space-y-12 max-w-7xl mx-auto">
                 {/* Ongoing Events */}
                 <section>
-                    <h2 className="text-2xl font-bold mb-4">Ongoing Events</h2>
+                    <h2 className="text-3xl font-bold mb-6">Ongoing Events</h2>
                     {ongoingEvents.length === 0 ? (
-                        <p>No ongoing events at the moment.</p>
+                        <p className="text-gray-500">No ongoing events at the moment.</p>
                     ) : (
-                        <ul>
-                            {ongoingEvents.map((event) => (
-                                <li key={event.id} className="mb-4 border p-3 rounded">
-                                    <h3 className="text-xl font-semibold">{event?.title || "N/A"}</h3>
-                                    <p>{event.tagline}</p>
-                                    <p>
-                                        <strong>Location:</strong> {event.location}
-                                    </p>
-                                    <p>
-                                        <strong>Start:</strong> {event.startDate.toLocaleString()}
-                                    </p>
-                                    <p>
-                                        <strong>End:</strong> {event.endDate.toLocaleString()}
-                                    </p>
-                                </li>
-                            ))}
-                        </ul>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {ongoingEvents.map(renderEventCard)}
+                        </div>
                     )}
                 </section>
 
                 {/* Upcoming Events */}
                 <section>
-                    <h2 className="text-2xl font-bold mb-4">Upcoming Events</h2>
+                    <h2 className="text-3xl font-bold mb-6">Upcoming Events</h2>
                     {upcomingEvents.length === 0 ? (
-                        <p>No upcoming events.</p>
+                        <p className="text-gray-500">No upcoming events.</p>
                     ) : (
-                        <ul>
-                            {upcomingEvents.map((event) => (
-                                <li key={event.id} className="mb-4 border p-3 rounded">
-                                    <h3 className="text-xl font-semibold">{event.title}</h3>
-                                    <p>{event.tagline}</p>
-                                    <p>
-                                        <strong>Location:</strong> {event.location}
-                                    </p>
-                                    <p>
-                                        <strong>Start:</strong> {event.startDate.toLocaleString()}
-                                    </p>
-                                    <p>
-                                        <strong>End:</strong> {event.endDate.toLocaleString()}
-                                    </p>
-                                </li>
-                            ))}
-                        </ul>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {upcomingEvents.map(renderEventCard)}
+                        </div>
                     )}
                 </section>
 
                 {/* Past Events */}
                 <section>
-                    <h2 className="text-2xl font-bold mb-4">Past Events</h2>
+                    <h2 className="text-3xl font-bold mb-6">Past Events</h2>
                     {pastEvents.length === 0 ? (
-                        <p>No past events.</p>
+                        <p className="text-gray-500">No past events.</p>
                     ) : (
-                        <ul>
-                            {pastEvents.map((event) => (
-                                <li key={event.id} className="mb-4 border p-3 rounded">
-                                    <h3 className="text-xl font-semibold">{event.title}</h3>
-                                    <p>{event.tagline}</p>
-                                    <p>
-                                        <strong>Location:</strong> {event.location}
-                                    </p>
-                                    <p>
-                                        <strong>Start:</strong> {event.startDate.toLocaleString()}
-                                    </p>
-                                    <p>
-                                        <strong>End:</strong> {event.endDate.toLocaleString()}
-                                    </p>
-                                </li>
-                            ))}
-                        </ul>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {pastEvents.map(renderEventCard)}
+                        </div>
                     )}
                 </section>
             </div>
         );
     } catch (error) {
         console.error("Error fetching events:", error);
-        return (
-            <h1 className="text-red-500 text-center mt-10">Error fetching events</h1>
-        );
+        return <h1 className="text-red-600 text-center mt-10">Error fetching events</h1>;
     }
 };
 

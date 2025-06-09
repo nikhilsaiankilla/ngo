@@ -1,10 +1,7 @@
 import SafeImage from "@/components/SafeImage";
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { Timestamp } from "firebase-admin/firestore";
-import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 
 export const revalidate = 60; // ISR every 60 seconds
 
@@ -111,71 +108,90 @@ const page = async () => {
         });
 
         const renderEventCard = (event: Event) => (
-            <Card key={event.id} className="rounded-2xl shadow-md overflow-hidden transition hover:shadow-xl p-4">
+            <div
+                key={event.id}
+                className="bg-white rounded-2xl shadow-sm overflow-hidden transition-transform duration-300 hover:shadow-md hover:scale-105 animate-fade-in"
+            >
                 <SafeImage
                     src={event.image}
                     alt={`${event.title} Image`}
                     width={500}
                     height={280}
-                    className="w-full aspect-video object-cover rounded-lg"
+                    className="w-full aspect-video object-cover"
                 />
-                <CardContent className="space-y-1 p-4">
-                    <CardTitle className="text-lg font-semibold">{event.title}</CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground line-clamp-2">
-                        {event.description}
-                    </CardDescription>
-                    <span className="text-xs text-gray-500">
-                        {event.startDate.toLocaleString()} → {event.endDate.toLocaleString()}
-                    </span>
-                </CardContent>
-                <CardAction>
-                    <Link href={`/dashboard/service/${event?.id}`}>View Details</Link>
-                </CardAction>
-            </Card>
+                <div className="p-6 space-y-3">
+                    <h3 className="text-xl font-semibold text-gray-900">{event.title}</h3>
+                    <p className="text-gray-600 text-sm line-clamp-2">{event.description}</p>
+                    <p className="text-xs text-gray-500">
+                        {event.startDate.toLocaleDateString()} - {event.endDate.toLocaleDateString()}
+                    </p>
+                    <Link
+                        href={`/dashboard/events/${event.id}`}
+                        className="inline-block bg-green-600 text-white font-medium py-2 px-4 rounded-full text-sm hover:bg-green-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    >
+                        View Details
+                    </Link>
+                </div>
+            </div>
         );
 
         return (
-            <div className="p-6 space-y-12 max-w-7xl mx-auto">
-                {/* Ongoing Events */}
-                <section>
-                    <h2 className="text-3xl font-bold mb-6">Ongoing Events</h2>
-                    {ongoingEvents.length === 0 ? (
-                        <p className="text-gray-500">No ongoing events at the moment.</p>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {ongoingEvents.map(renderEventCard)}
-                        </div>
-                    )}
-                </section>
+            <div className="min-h-screen">
+                <div className="max-w-7xl mx-auto px-6 py-12 space-y-16">
+                    {/* Ongoing Events */}
+                    <section className="animate-fade-in">
+                        <h2 className="text-3xl font-extrabold text-gray-900 mb-8">Ongoing Events</h2>
+                        {ongoingEvents.length === 0 ? (
+                            <p className="text-gray-500 text-center">No ongoing events at the moment.</p>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {ongoingEvents.map(renderEventCard)}
+                            </div>
+                        )}
+                    </section>
 
-                {/* Upcoming Events */}
-                <section>
-                    <h2 className="text-3xl font-bold mb-6">Upcoming Events</h2>
-                    {upcomingEvents.length === 0 ? (
-                        <p className="text-gray-500">No upcoming events.</p>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {upcomingEvents.map(renderEventCard)}
-                        </div>
-                    )}
-                </section>
+                    {/* Upcoming Events */}
+                    <section className="animate-fade-in">
+                        <h2 className="text-3xl font-extrabold text-gray-900 mb-8">Upcoming Events</h2>
+                        {upcomingEvents.length === 0 ? (
+                            <p className="text-gray-500 text-center">No upcoming events.</p>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {upcomingEvents.map(renderEventCard)}
+                            </div>
+                        )}
+                    </section>
 
-                {/* Past Events */}
-                <section>
-                    <h2 className="text-3xl font-bold mb-6">Past Events</h2>
-                    {pastEvents.length === 0 ? (
-                        <p className="text-gray-500">No past events.</p>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {pastEvents.map(renderEventCard)}
-                        </div>
-                    )}
-                </section>
+                    {/* Past Events */}
+                    <section className="animate-fade-in">
+                        <h2 className="text-3xl font-extrabold text-gray-900 mb-8">Past Events</h2>
+                        {pastEvents.length === 0 ? (
+                            <p className="text-gray-500 text-center">No past events.</p>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {pastEvents.map(renderEventCard)}
+                            </div>
+                        )}
+                    </section>
+                </div>
             </div>
         );
     } catch (error) {
         console.error("Error fetching events:", error);
-        return <h1 className="text-red-600 text-center mt-10">Error fetching events</h1>;
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-md text-center animate-fade-in">
+                    <h1 className="text-2xl font-bold text-red-600 mb-4">Error Fetching Events</h1>
+                    <p className="text-gray-600 mb-6">Something went wrong while loading events. Please try again later.</p>
+                    <Link
+                        href="/"
+                        className="inline-block bg-green-600 text-white font-medium py-2 px-6 rounded-full hover:bg-green-700 transition-all duration-200"
+                    >
+                        Go Back Home
+                    </Link>
+                </div>
+            </div>
+        );
     }
 };
 

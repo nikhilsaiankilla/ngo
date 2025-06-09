@@ -115,51 +115,56 @@ const Page = async () => {
     const requestedRole = roleUpgradeMap[user.user_type];
 
     return (
-        <div className="max-w-5xl mx-auto mt-10">
-            <h1 className="text-3xl font-semibold mb-6 text-center">User Profile</h1>
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <h1 className="text-4xl font-bold text-center mb-10 text-gray-800">User Profile</h1>
 
-            <div className="max-w-xl mx-auto shadow-md p-6 bg-white rounded-lg">
-                <div className="flex items-center space-x-6 mb-6">
-                    <Image
-                        src={
-                            user.photoURL ||
-                            'https://static.vecteezy.com/system/resources/thumbnails/000/439/863/small/Basic_Ui__28186_29.jpg'
-                        }
-                        alt={user.name || 'User'}
-                        width={100}
-                        height={100}
-                        className="w-24 h-24 rounded-full object-cover border border-gray-300"
-                    />
-                    <div>
-                        <h2 className="text-xl font-bold">{user.name || 'No name'}</h2>
-                        <p className="text-gray-600">{user.email || 'No email'}</p>
-                        <p className="text-sm text-gray-500 mt-1">
-                            Joined on {user.createdAt ? formatDate(user.createdAt._seconds) : 'N/A'}
-                        </p>
+            <div className="grid grid-cols-1 gap-8">
+                {/* Left Section - User Card */}
+                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                    <div className="flex items-center space-x-6">
+                        <Image
+                            src={
+                                user.photoURL ||
+                                "https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png"
+                            }
+                            alt={user.name || 'User'}
+                            width={100}
+                            height={100}
+                            className="w-24 h-24 rounded-full object-cover border border-gray-300"
+                        />
+                        <div>
+                            <h2 className="text-2xl font-semibold text-gray-900">{user.name || 'No name'}</h2>
+                            <p className="text-gray-600">{user.email || 'No email'}</p>
+                            <p className="text-sm text-gray-500 mt-1">
+                                Joined on {user.createdAt ? formatDate(user.createdAt._seconds) : 'N/A'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="mt-6">
+                        <h3 className="font-semibold text-gray-700 mb-1">User Role</h3>
+                        <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                            {user.user_type || 'Unknown'}
+                        </span>
+                    </div>
+
+                    <div className="mt-6 flex flex-col gap-4">
+                        <LogoutButton />
+                        {requestedRole && requestedRole !== 'REGULAR' && (
+                            <RequestRoleButton currentRole={user.user_type} requestedRole={requestedRole} />
+                        )}
                     </div>
                 </div>
 
-                <div className="mb-6">
-                    <h3 className="font-semibold mb-1">User Role</h3>
-                    <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {user.user_type || 'Unknown'}
-                    </span>
-                </div>
-
-                <div className="flex flex-col space-y-4">
-                    <LogoutButton />
-                    {requestedRole && requestedRole !== 'REGULAR' && (
-                        <RequestRoleButton currentRole={user.user_type} requestedRole={requestedRole} />
+                {/* Right Section - History Table */}
+                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                    <h2 className="text-xl font-semibold text-gray-800 mb-4">Role Request History</h2>
+                    {historyData.length > 0 ? (
+                        <DataTable columns={columns} data={historyData} />
+                    ) : (
+                        <p className="text-gray-500 text-center py-10">No role request history available.</p>
                     )}
                 </div>
-            </div>
-
-            <div className="mt-10">
-                {historyData.length > 0 ? (
-                    <DataTable columns={columns} data={historyData} />
-                ) : (
-                    <p className="text-center text-gray-500">No role request history available.</p>
-                )}
             </div>
         </div>
     );

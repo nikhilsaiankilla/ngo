@@ -53,7 +53,12 @@ const Page = async () => {
                                     <p className="text-sm mt-2">{service.description}</p>
                                 </CardContent>
                                 <CardAction>
-                                    <Link href={`/dashboard/service/${service?.id}`}>View Details</Link>
+                                    <Link
+                                        href={`/dashboard/services/${service.id}`}
+                                        className="inline-block bg-green-600 text-white font-medium py-2 px-4 rounded-full text-sm hover:bg-green-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                    >
+                                        View Details
+                                    </Link>
                                 </CardAction>
                             </Card>
                         ))}

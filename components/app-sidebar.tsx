@@ -23,6 +23,7 @@ import {
   Globe
 } from "lucide-react";
 import Link from "next/link";
+import ProfileDropDown from "./ProfileDropdown";
 
 const iconMap: Record<string, React.ReactNode> = {
   Dashboard: <LayoutDashboard className="size-4" />,
@@ -123,6 +124,7 @@ export function AppSidebar({
             ))}
           </SidebarMenu>
         </SidebarGroup>
+        <ProfileDropDown />
       </SidebarContent>
     </Sidebar>
   )

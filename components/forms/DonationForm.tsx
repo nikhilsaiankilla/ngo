@@ -55,7 +55,7 @@ interface UserData {
     name: string; // User name
     email: string; // User email
     photoURL?: string; // Optional user photo URL
-    createdAt?: { _seconds: number; _nanoseconds: number }; // Firebase Timestamp structure
+    createdAt?: string; // Firebase Timestamp structure
     user_type?: string; // Optional user type
 }
 
@@ -158,12 +158,12 @@ const DonationForm = ({ userId }: Props) => {
                         // Redirect to payment success page
                         const paymentId = paymentResponse?.data?.data?.payment_id;
                         if (paymentId) {
-                            router.push(`/payment-success/${paymentId}`);
+                            router.push(`/dashboard/payment-success/${paymentId}`);
                         }
                     } catch (error) {
                         // Handle verification failure
                         toast.error("Payment verification failed. Please contact support.");
-                        console.error("Payment verification error:", error);
+                        console.log("Payment verification error:", error);
                     }
                 },
                 prefill: {

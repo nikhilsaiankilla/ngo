@@ -24,9 +24,13 @@ export async function middleware(req: NextRequest) {
     // Get access token from cookies
     const accessToken = req.cookies.get('accessToken')?.value;
 
-    // If user is logged in and tries to access auth pages, redirect to home or dashboard
+    // Allow unauthenticated users to access auth pages without redirect
+    if (!accessToken && authPages.includes(pathname)) {
+        return NextResponse.next();
+    }
+
+    // If user is logged in and tries to access auth pages, redirect to dashboard
     if (accessToken && authPages.includes(pathname)) {
-        // You can customize this to redirect anywhere you want logged-in users to land
         return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 
@@ -40,7 +44,7 @@ export async function middleware(req: NextRequest) {
         return NextResponse.next();
     }
 
-    // If no access token, redirect to login (except for public and auth pages already handled)
+    // If no access token, redirect to login
     if (!accessToken) {
         const loginUrl = new URL('/auth/signin', req.url);
         loginUrl.searchParams.set('from', pathname);
@@ -73,7 +77,7 @@ export async function middleware(req: NextRequest) {
     }
 
     if (!userType) {
-        return NextResponse.redirect(new URL('/suth/signin', req.url));
+        return NextResponse.redirect(new URL('/auth/signin', req.url)); // Fixed typo
     }
 
     // Check role permissions on protected routes

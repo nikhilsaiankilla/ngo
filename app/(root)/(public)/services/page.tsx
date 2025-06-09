@@ -1,52 +1,70 @@
-import React from "react";
+import SafeImage from "@/components/SafeImage";
+import { Card, CardAction, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { adminDb } from "@/firebase/firebaseAdmin";
-import Image from "next/image";
+import Link from "next/link";
+import React from "react";
 
-export const revalidate = 60; // Revalidate every 60 seconds
+export const revalidate = 60;
 
-// Define the Service interface based on the provided data structure
 interface Service {
   id: string;
-  createdAt?: string; // e.g., "4 June 2025 at 20:56:41 UTC+5:30"
-  createdBy: string; // e.g., "QWLpkwNHu3YeGaAKla43RJ6Q82w2"
-  description: string; // e.g., "h"
-  image: string; // e.g., URL
-  tagline: string; // e.g., "Turning Ideas into Interactive Web Experiences..."
-  title: string; // e.g., "updated service"
-  updatedAt?: string; // e.g., "4 June 2025 at 21:18:01 UTC+5:30"
+  createdAt?: string;
+  createdBy: string;
+  description: string;
+  image: string;
+  tagline: string;
+  title: string;
+  updatedAt?: string;
 }
 
 const getServices = async (): Promise<Service[]> => {
-  const servicesSnapshot = await adminDb.collection("services").get();
-  const services = servicesSnapshot.docs.map((doc) => ({
+  const snapshot = await adminDb.collection("services").get();
+  return snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   })) as Service[];
-  return services;
 };
 
 const Page = async () => {
   const services = await getServices();
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Our Services</h1>
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {services.map((service) => (
-          <div key={service.id} className="border p-4 rounded shadow">
-            <Image
-              src={service.image}
-              alt={service.title}
-              width={100}
-              height={100}
-              className="w-full h-48 object-cover rounded mb-2"
-            />
-            <h2 className="text-xl font-semibold">{service.title}</h2>
-            <p className="text-sm text-gray-500">{service.tagline}</p>
-            <p className="mt-2">{service.description}</p>
+    <div className="p-6 space-y-12 max-w-7xl mx-auto">
+      <section>
+        <h2 className="text-3xl font-bold mb-6">Our Services</h2>
+        {services.length === 0 ? (
+          <p className="text-gray-500">No services available.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((service) => (
+              <Card key={service.id} className="rounded-2xl shadow-md overflow-hidden transition hover:shadow-xl p-4">
+                <SafeImage
+                  src={service.image}
+                  alt={service.title}
+                  width={500}
+                  height={280}
+                  className="w-full aspect-video object-cover rounded-lg"
+                />
+                <CardContent className="space-y-1 p-4">
+                  <CardTitle className="text-lg font-semibold">{service.title}</CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground line-clamp-2">
+                    {service.tagline}
+                  </CardDescription>
+                  <p className="text-sm mt-2">{service.description}</p>
+                </CardContent>
+                <CardAction>
+                  <Link
+                    href={`/services/${service.id}`}
+                    className="inline-block bg-green-600 text-white font-medium py-2 px-4 rounded-full text-sm hover:bg-green-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                  >
+                    View Details
+                  </Link>
+                </CardAction>
+              </Card>
+            ))}
           </div>
-        ))}
-      </div>
+        )}
+      </section>
     </div>
   );
 };

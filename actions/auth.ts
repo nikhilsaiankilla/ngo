@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "fire
 import { saveUser, SaveUserProps } from "@/utils/firestoreHelpers";
 import { getErrorMessage, timestampToISOString } from "@/utils/helpers";
 import { ServerActionResponse } from "@/types";
-import { date, z } from "zod";
+import {  z } from "zod";
 import { cookies } from "next/headers";
 import { auth, db } from "@/firebase/firebase";
 import { adminAuth, adminDb } from "@/firebase/firebaseAdmin";
@@ -218,7 +218,10 @@ export async function getUser(id: string) {
 
         const user = {
             id: docSnap.id,
-            ...fetchedUser,
+            name: fetchedUser?.name,
+            email: fetchedUser?.email,
+            photoURL: fetchedUser?.image,
+            user_type: fetchedUser?.user_type,
             createdAt: timestampToISOString(fetchedUser?.createdAt) || null,
         };
 
@@ -257,6 +260,45 @@ export async function getUserRole() {
         const user_type = fetchedUser?.user_type || "REGULAR";
 
         return { success: true, status: 200, message: 'Fetched Role Succcessfully', data: user_type };
+    } catch (error: unknown) {
+        return {
+            success: false,
+            status: 500,
+            message: getErrorMessage(error),
+        };
+    }
+}
+
+export async function getUserForUi() {
+    try {
+        const cookieStore = await cookies();
+        const id = cookieStore.get('userId')?.value;
+
+        if (!id) {
+            return { success: false, status: 400, message: 'User ID is required' };
+        }
+
+        const docSnap = await adminDb.collection('users').doc(id).get();
+
+        if (!docSnap.exists) {
+            return { success: false, status: 404, message: 'User not found' };
+        }
+
+        const fetchedUser = docSnap.data();
+
+        const user = {
+            id: docSnap.id,
+            name: fetchedUser?.name,
+            email: fetchedUser?.email,
+            image: fetchedUser?.image
+        };
+
+        return {
+            success: true,
+            status: 200,
+            message: 'User fetched successfully',
+            data: user,
+        };
     } catch (error: unknown) {
         return {
             success: false,

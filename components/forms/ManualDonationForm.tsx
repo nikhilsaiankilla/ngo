@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -75,24 +75,27 @@ const ManualDonationForm = () => {
 
 
     return (
-        <Card className="max-w-md mx-auto mt-10">
-            <CardContent className="p-6 space-y-4">
-                <h2 className="text-xl font-bold">📋 Record Manual Donation</h2>
+        <Card className="max-w-xl mx-auto mt-12 shadow-xl border rounded-2xl bg-white dark:bg-zinc-900">
+            <CardHeader className="text-center pb-2">
+                <h2 className="text-2xl font-bold">Manual Donation</h2>
+                <p className="text-sm text-muted-foreground">Record offline donations securely</p>
+            </CardHeader>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="space-y-2">
-                        <Label htmlFor="donorName">Donor Name</Label>
+            <CardContent className="p-6 space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="grid gap-2">
+                        <Label htmlFor="donorName" className="text-sm">Donor Name (Optional)</Label>
                         <Input
                             id="donorName"
                             name="donorName"
                             value={form.donorName}
                             onChange={handleChange}
-                            placeholder="Optional"
+                            placeholder="John Doe"
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="amount">Amount (INR)</Label>
+                    <div className="grid gap-2">
+                        <Label htmlFor="amount" className="text-sm">Amount (INR)</Label>
                         <Input
                             id="amount"
                             type="number"
@@ -100,11 +103,12 @@ const ManualDonationForm = () => {
                             value={form.amount}
                             onChange={handleChange}
                             required
+                            placeholder="500"
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="method">Donation Method</Label>
+                    <div className="grid gap-2">
+                        <Label htmlFor="method" className="text-sm">Donation Method</Label>
                         <Select value={form.method} onValueChange={handleMethodChange}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select method" />
@@ -119,18 +123,19 @@ const ManualDonationForm = () => {
                         </Select>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="notes">Notes</Label>
+                    <div className="grid gap-2">
+                        <Label htmlFor="notes" className="text-sm">Notes (Optional)</Label>
                         <Textarea
                             id="notes"
                             name="notes"
                             value={form.notes}
                             onChange={handleChange}
-                            placeholder="Optional notes"
+                            placeholder="Any additional information..."
+                            rows={3}
                         />
                     </div>
 
-                    <Button type="submit" disabled={isPending} className="w-full mt-4">
+                    <Button type="submit" disabled={isPending} className="w-full mt-2">
                         {isPending ? 'Saving...' : 'Add Donation'}
                     </Button>
                 </form>
@@ -138,5 +143,4 @@ const ManualDonationForm = () => {
         </Card>
     );
 };
-
 export default ManualDonationForm;

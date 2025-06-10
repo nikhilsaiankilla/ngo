@@ -25,6 +25,7 @@ import uploadImageToFirebase from "@/lib/uploadImageToFirebase";
 import { addService } from "@/actions/services";
 import { getErrorMessage } from "@/utils/helpers";
 import Image from "next/image";
+import { Card, CardContent, CardHeader } from "../ui/card";
 
 // Schema
 const formSchema = z.object({
@@ -110,88 +111,97 @@ export default function ServiceForm() {
     };
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-xl mx-auto p-6">
-                <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Title</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Service title" {...field} disabled={isLoading} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+        <Card className="max-w-2xl mx-auto mt-12 shadow-xl border rounded-2xl bg-white dark:bg-zinc-900">
+            <CardHeader className="text-center pb-2">
+                <h2 className="text-2xl font-bold">Add New Service</h2>
+                <p className="text-sm text-muted-foreground">Describe your service in detail</p>
+            </CardHeader>
 
-                <FormField
-                    control={form.control}
-                    name="tagline"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Tagline</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Short tagline" {...field} disabled={isLoading} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <div>
-                    <Label htmlFor="description">Description (Markdown)</Label>
-                    <MDEditor
-                        value={description}
-                        onChange={(val) => setDescription(val || "")}
-                        preview="edit"
-                        height={300}
-                        style={{ borderRadius: 5, overflow: "hidden" }}
-                        textareaProps={{ placeholder: "Write your service details" }}
-                        previewOptions={{ disallowedElements: ["style"] }}
-                        className="mt-2"
-                    />
-                </div>
-
-                <FormField
-                    control={form.control}
-                    name="image"
-                    render={() => (
-                        <FormItem>
-                            <FormLabel>Upload Image</FormLabel>
-                            <FormControl>
-                                <Input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    disabled={isLoading}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                            {imagePreview && (
-                                <Image
-                                    src={imagePreview}
-                                    alt="Preview"
-                                    width={100}
-                                    height={100}
-                                    className="mt-2 rounded-md w-full h-auto max-h-64 object-contain"
-                                />
+            <CardContent className="p-6 space-y-5">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                        <FormField
+                            control={form.control}
+                            name="title"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Title</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Service title" {...field} disabled={isLoading} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
                             )}
-                        </FormItem>
-                    )}
-                />
+                        />
 
-                <Button type="submit" className="cursor-pointer" disabled={isLoading}>
-                    {isLoading ? (
-                        <>
-                            <Loader className="animate-spin mr-2" /> Creating...
-                        </>
-                    ) : (
-                        "Add Service"
-                    )}
-                </Button>
-            </form>
-        </Form>
+                        <FormField
+                            control={form.control}
+                            name="tagline"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Tagline</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Short tagline" {...field} disabled={isLoading} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="description">Description (Markdown)</Label>
+                            <MDEditor
+                                value={description}
+                                onChange={(val) => setDescription(val || "")}
+                                preview="edit"
+                                height={300}
+                                style={{ borderRadius: 5, overflow: "hidden" }}
+                                textareaProps={{ placeholder: "Write your service details" }}
+                                previewOptions={{ disallowedElements: ["style"] }}
+                                className="mt-2"
+                            />
+                        </div>
+
+                        <FormField
+                            control={form.control}
+                            name="image"
+                            render={() => (
+                                <FormItem>
+                                    <FormLabel>Upload Image</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageChange}
+                                            disabled={isLoading}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                    {imagePreview && (
+                                        <Image
+                                            src={imagePreview}
+                                            alt="Preview"
+                                            width={100}
+                                            height={100}
+                                            className="mt-2 rounded-md w-full h-auto max-h-64 object-contain"
+                                        />
+                                    )}
+                                </FormItem>
+                            )}
+                        />
+
+                        <Button type="submit" disabled={isLoading} className="w-full mt-2">
+                            {isLoading ? (
+                                <>
+                                    <Loader className="animate-spin mr-2 h-4 w-4" /> Creating...
+                                </>
+                            ) : (
+                                "Add Service"
+                            )}
+                        </Button>
+                    </form>
+                </Form>
+            </CardContent>
+        </Card>
     );
 }

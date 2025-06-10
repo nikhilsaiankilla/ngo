@@ -4,11 +4,15 @@ import { unauthorized } from 'next/navigation';
 import { markdownToHtml } from '@/utils/helpers';
 import Image from 'next/image';
 import SafeImage from '@/components/SafeImage';
+import { cookies } from 'next/headers';
+import DeleteBtn from '@/components/buttons/DeleteBtn';
+import Link from 'next/link';
+import { PencilIcon } from 'lucide-react';
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
 
-    if (!id) return unauthorized();
+    if (!id) return <h1 className="text-xl text-center text-red-500 mt-10">Event Id is Missing</h1>
 
     const eventDoc = await adminDb.collection('events').doc(id).get();
     const event = eventDoc.data();
@@ -30,6 +34,9 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     }
 
     const descriptionHTML = await markdownToHtml(event.description || '');
+
+    const cookiesStore = await cookies();
+    const userId = cookiesStore.get('userId')?.value;
 
     return (
         <div className="w-full max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
@@ -57,7 +64,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
             )}
 
             {/* Meta Info */}
-            <section className="text-sm text-gray-500 grid sm:grid-cols-3 gap-6 border-y py-6">
+            <section className="text-sm text-gray-500 grid sm:grid-cols-4 gap-6 border-y py-6">
                 <p>
                     <span className="text-gray-700 font-medium">Created by:</span> {createdByName}
                 </p>
@@ -70,6 +77,16 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
                     <span className="text-gray-700 font-medium">Location:</span>{' '}
                     {event.location || 'N/A'}
                 </p>
+                {
+                    userId && userId === event?.createdBy && <p className='grid grid-cols-2'>
+                        <DeleteBtn type="event" id={id} />
+
+                        <Link href={`/dashboard/update-event/${id}`} className='flex items-center text-yellow-500 cursor-pointer gap-1'>
+                            <PencilIcon size={18} />
+                            Update
+                        </Link>
+                    </p>
+                }
             </section>
 
             {/* Description */}

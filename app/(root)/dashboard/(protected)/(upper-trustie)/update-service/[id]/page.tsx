@@ -33,7 +33,6 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
             updatedAt: data?.updatedAt?.toDate().toISOString() || null,
         };
 
-        console.log('Fetched Event:', serviceData);
     } catch (error) {
         console.error('Error fetching event:', error);
         return <h1 className="text-red-500 text-center mt-10">Error fetching event</h1>;

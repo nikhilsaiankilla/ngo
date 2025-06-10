@@ -24,6 +24,7 @@ import uploadImageToFirebase from "@/lib/uploadImageToFirebase";
 import { updateService } from "@/actions/services"; // adjust if needed
 import { getErrorMessage } from "@/utils/helpers";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // Schema
 const formSchema = z.object({
@@ -46,6 +47,8 @@ interface serviceDataType {
 }
 
 export default function EditServiceForm({ serviceData }: { serviceData: serviceDataType }) {
+    const router = useRouter();
+
     const [isLoading, setIsLoading] = useState(false);
     const [description, setDescription] = useState(serviceData?.description || "");
     const [imagePreview, setImagePreview] = useState(serviceData?.image || "");
@@ -94,6 +97,7 @@ export default function EditServiceForm({ serviceData }: { serviceData: serviceD
             const response = await updateService(updatedService);
 
             if (response.success) {
+                router.push(`/dashboard/services/${serviceData?.id}`)
                 toast.success("Service updated successfully!");
             } else {
                 toast.error("Update failed: " + response.message);

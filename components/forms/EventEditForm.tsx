@@ -25,6 +25,7 @@ import { getErrorMessage } from "@/utils/helpers";
 import { Loader } from "lucide-react";
 import uploadImageToFirebase from "@/lib/uploadImageToFirebase";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // Schema
 const formSchema = z.object({
@@ -52,6 +53,7 @@ export interface EventDataType {
 }
 
 export default function EventEditForm({ eventData }: { eventData: EventDataType }) {
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<FormValues>({
@@ -123,6 +125,7 @@ export default function EventEditForm({ eventData }: { eventData: EventDataType 
             const response = await updateEvent(updatedData); // update action
 
             if (response.success) {
+                router.push(`/dashboard/event/${eventData?.id}`)
                 toast.success("Event updated successfully!");
             } else {
                 toast.error("Update failed: " + response.message);

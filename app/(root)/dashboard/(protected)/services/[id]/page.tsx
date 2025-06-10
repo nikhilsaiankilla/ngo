@@ -3,6 +3,10 @@ import React from 'react';
 import { unauthorized } from 'next/navigation';
 import { markdownToHtml } from '@/utils/helpers';
 import SafeImage from '@/components/SafeImage';
+import DeleteBtn from '@/components/buttons/DeleteBtn';
+import Link from 'next/link';
+import { PencilIcon } from 'lucide-react';
+import { cookies } from 'next/headers';
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -28,8 +32,11 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
     const descriptionHTML = await markdownToHtml(service.description || '');
 
+    const cookiesStore = await cookies();
+    const userId = cookiesStore.get('userId')?.value;
+
     return (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+        <div className="w-full max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
             {/* Event Header */}
             <header className="text-center space-y-3">
                 <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -60,13 +67,16 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
                     <p className="font-semibold text-gray-900 dark:text-white">Created By</p>
                     <p>{createdByName}</p>
                 </div>
-                <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">Date</p>
-                    <p>
-                        {new Date(service.startDate).toLocaleDateString()} –{' '}
-                        {new Date(service.endDate).toLocaleDateString()}
+                {
+                    userId && userId === service?.createdBy && <p className='grid grid-cols-2'>
+                        <DeleteBtn type="service" id={id} />
+
+                        <Link href={`/dashboard/update-service/${id}`} className='flex items-center text-yellow-500 cursor-pointer gap-1'>
+                            <PencilIcon size={18} />
+                            Update
+                        </Link>
                     </p>
-                </div>
+                }
             </section>
 
             {/* Description */}

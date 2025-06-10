@@ -8,6 +8,7 @@ import { roleUpgradeMap } from '@/utils/helpers';
 import { DataTable } from '../(upper-trustie)/manage-members/data-table';
 import { columns, RoleRequestHistory } from './columns';
 import { cookies } from 'next/headers';
+import { PhoneVerification } from '@/components/PhoneVerification';
 
 // Define types for user
 type UserRole = 'REGULAR' | 'MEMBER' | 'TRUSTIE' | 'UPPER_TRUSTIE';
@@ -18,6 +19,9 @@ type User = {
     user_type: UserRole;
     name: string;
     email: string;
+    phoneNumber?: string;
+    isPhoneVerified?: boolean;
+
 };
 
 // Define type for role request data from server
@@ -119,40 +123,48 @@ const Page = async () => {
             <h1 className="text-4xl font-bold text-center mb-10 text-gray-800">User Profile</h1>
 
             <div className="grid grid-cols-1 gap-8">
-                {/* Left Section - User Card */}
-                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-                    <div className="flex items-center space-x-6">
-                        <Image
-                            src={
-                                user.photoURL ||
-                                "https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png"
-                            }
-                            alt={user.name || 'User'}
-                            width={100}
-                            height={100}
-                            className="w-24 h-24 rounded-full object-cover border border-gray-300"
-                        />
-                        <div>
-                            <h2 className="text-2xl font-semibold text-gray-900">{user.name || 'No name'}</h2>
-                            <p className="text-gray-600">{user.email || 'No email'}</p>
-                            <p className="text-sm text-gray-500 mt-1">
-                                Joined on {user.createdAt ? formatDate(user.createdAt._seconds) : 'N/A'}
-                            </p>
+                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className='w-full border-gray-100 bg-white rounded-2xl shadow-2xl p-4'>
+                        <div className="flex items-center flex-col space-x-6 ">
+                            <Image
+                                src={
+                                    user.photoURL ||
+                                    "https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png"
+                                }
+                                alt={user.name || 'User'}
+                                width={100}
+                                height={100}
+                                className="w-32 h-32 rounded-full object-cover border border-gray-300"
+                            />
+                            <div>
+                                <h2 className="text-2xl font-semibold text-gray-900">{user.name || 'No name'}</h2>
+                                <p className="text-gray-600">{user.email || 'No email'}</p>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Joined on {user.createdAt ? formatDate(user.createdAt._seconds) : 'N/A'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 text-center">
+                            <h3 className="font-semibold text-gray-700 mb-1">User Role</h3>
+                            <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {user.user_type || 'Unknown'}
+                            </span>
                         </div>
                     </div>
 
-                    <div className="mt-6">
-                        <h3 className="font-semibold text-gray-700 mb-1">User Role</h3>
-                        <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                            {user.user_type || 'Unknown'}
-                        </span>
-                    </div>
+                    <div className='w-full border-gray-100 bg-white rounded-2xl shadow-2xl p-4'>
+                        <PhoneVerification
+                            defaultPhone={user.phoneNumber}
+                            isVerified={user.isPhoneVerified}
+                        />
 
-                    <div className="mt-6 flex flex-col gap-4">
-                        <LogoutButton />
-                        {requestedRole && requestedRole !== 'REGULAR' && (
-                            <RequestRoleButton currentRole={user.user_type} requestedRole={requestedRole} />
-                        )}
+                        <div className="mt-6 flex flex-col gap-4">
+                            <LogoutButton />
+                            {requestedRole && requestedRole !== 'REGULAR' && (
+                                <RequestRoleButton currentRole={user.user_type} requestedRole={requestedRole} />
+                            )}
+                        </div>
                     </div>
                 </div>
 

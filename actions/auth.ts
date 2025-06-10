@@ -1,10 +1,10 @@
 "use server";
 
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { saveUser, SaveUserProps } from "@/utils/firestoreHelpers";
 import { getErrorMessage, timestampToISOString } from "@/utils/helpers";
 import { ServerActionResponse } from "@/types";
-import {  z } from "zod";
+import { z } from "zod";
 import { cookies } from "next/headers";
 import { auth, db } from "@/firebase/firebase";
 import { adminAuth, adminDb } from "@/firebase/firebaseAdmin";
@@ -54,6 +54,9 @@ export async function signUp(
         // Save user data in Firestore
         await saveUser(userData);
 
+        // Send email verification
+        await sendEmailVerification(user);
+
         return {
             success: true,
             status: 201,
@@ -95,6 +98,16 @@ export async function signIn(email: string, password: string): Promise<ServerAct
 
         // Sign in the user
         const result = await signInWithEmailAndPassword(auth, email, password);
+
+        const user = auth.currentUser;
+        if (user && !user.emailVerified) {
+            await signOut(auth);
+            return {
+                success: false,
+                status: 400,
+                message: 'Please verify your email to sign in',
+            };
+        }
 
         // Get the ID token
         const idToken = await result.user.getIdToken();
@@ -299,6 +312,70 @@ export async function getUserForUi() {
             message: 'User fetched successfully',
             data: user,
         };
+    } catch (error: unknown) {
+        return {
+            success: false,
+            status: 500,
+            message: getErrorMessage(error),
+        };
+    }
+}
+
+export async function savePhoneNumber(phoneNumber: string) {
+    try {
+        const cookieStore = await cookies();
+        const userId = cookieStore.get('userId')?.value;
+
+        if (!userId) {
+            return {
+                success: false,
+                status: 400,
+                message: 'unauthorized access user id not found',
+            };
+        }
+
+        if (!phoneNumber) {
+            return {
+                success: false,
+                status: 500,
+                message: 'phone number required',
+            };
+        }
+
+        const userRef = adminDb.collection('users').doc(userId)
+
+        const user = await userRef.get();
+
+        if (!user.exists) {
+            return {
+                success: false,
+                status: 404,
+                message: 'user not found',
+            };
+        }
+
+        // store phone number in user profile
+        await userRef?.update({
+            phoneNumber,
+            isPhoneVerified: true,
+        })
+
+        return {
+            success: true,
+            status: 200,
+            message: 'Phone number saved successfully',
+        };
+    } catch (error: unknown) {
+        return {
+            success: false,
+            status: 500,
+            message: getErrorMessage(error),
+        };
+    }
+}
+export async function verifyPhone() {
+    try {
+
     } catch (error: unknown) {
         return {
             success: false,

@@ -1,3 +1,4 @@
+import AttendanceStatus from '@/components/AttendanceStatus'
 import Link from 'next/link'
 import React from 'react'
 
@@ -19,6 +20,7 @@ const page = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
+      <AttendanceStatus />
       <h1 className="text-3xl font-bold mb-6">Welcome back, {user.name}!</h1>
 
       {/* Stats Cards */}

@@ -81,7 +81,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
                     {event.location || 'N/A'}
                 </p>
                 {
-                    userId && <ParticipateButton event={{ id }} />
+                    userId && userId !== event?.createdBy && <ParticipateButton event={{ id }} />
                 }
                 {
                     userId && userId === event?.createdBy && <p className='grid grid-cols-2'>

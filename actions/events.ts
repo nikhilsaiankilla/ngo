@@ -3,6 +3,7 @@
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { getErrorMessage } from "@/utils/helpers";
 import { Timestamp } from "firebase-admin/firestore";
+import { query } from "firebase/firestore";
 import { cookies } from "next/headers";
 
 interface AddEventInput {
@@ -368,6 +369,8 @@ export async function handleEventParticipate(id: string) {
             await adminDb.collection('event_attendance').add({
                 eventId: id,
                 userId,
+                eventTitle: eventData.title,
+                eventStartDate: eventData?.startDate,
                 attended: "not_confirmed",
                 confirmedAt: null,
             });
@@ -473,6 +476,118 @@ export async function handleCancelParticipation(eventId: string) {
         return {
             success: true,
             message: "Participation cancelled successfully",
+            status: 200,
+        };
+    } catch (error: unknown) {
+        console.error("Error cancelling participation:", error);
+        return {
+            success: false,
+            message: getErrorMessage(error),
+            status: 500,
+        };
+    }
+}
+
+export async function fetchThePastEvent() {
+    try {
+        const cookiesStore = await cookies();
+        const userId = cookiesStore.get("userId")?.value;
+
+        if (!userId) {
+            return {
+                success: false,
+                message: "User Id missing",
+                status: 400,
+            };
+        }
+
+        const currentDate = new Date(); // Current date: June 11, 2025, 20:42 IST
+
+        // Query event_attendance for the user's first past event
+        const eventAttendanceRef = adminDb.collection("event_attendance");
+        const attendanceQuery = eventAttendanceRef
+            .where("userId", "==", userId)
+            .where("attended", "==", "not_confirmed") // Only not_confirmed events
+            .where("eventStartDate", "<", Timestamp.fromDate(currentDate)) // Past events
+            .orderBy("eventStartDate", "asc") // Order by eventStartDate to get the earliest
+            .limit(1);
+
+        const attendanceSnapshot = await attendanceQuery.get();
+        if (attendanceSnapshot.empty) {
+            return {
+                success: false,
+                message: "No past events found with not confirmed status.",
+                status: 404,
+            };
+        }
+
+        // Get the first (earliest) attendance record
+        const attendanceDoc = attendanceSnapshot.docs[0];
+        const attendanceData = attendanceDoc.data();
+
+        // Prepare event data for validation
+        const eventResponse = {
+            id: attendanceData.eventId,
+            name: attendanceData.eventTitle, // Use eventTitle from event_attendance
+            date: attendanceData.eventStartDate?.toDate().toISOString() || null
+        };
+
+        return {
+            success: true,
+            message: "Event Fetched successsfully",
+            data: eventResponse,
+            status: 200,
+        };
+    } catch (error: unknown) {
+        console.error("Error cancelling participation:", error);
+        return {
+            success: false,
+            message: getErrorMessage(error),
+            status: 500,
+        };
+    }
+}
+
+export async function saveAttendance(eventId: string, attendance: string) {
+    try {
+        const cookiesStore = await cookies();
+
+        const userId = cookiesStore.get('userId')?.value;
+
+        if (!userId) {
+            return {
+                success: false,
+                message: "User Id missing",
+                status: 400,
+            };
+        }
+
+        if (!eventId || !attendance) {
+            return {
+                success: false,
+                message: "Event Id or options are missing",
+                status: 400,
+            };
+        }
+
+        // Check if the user already has an attendance record for the event
+        const existingAttendanceSnapshot = await adminDb
+            .collection('event_attendance')
+            .where("eventId", "==", eventId)
+            .where("userId", "==", userId)
+            .limit(1)
+            .get();
+
+        // Update existing attendance
+        const docRef = existingAttendanceSnapshot.docs[0].ref;
+        await docRef.update({
+            attended: attendance,
+            updatedAt: new Date(),
+        });
+
+        return {
+            success: true,
+            message: "Attendance updated successfully",
             status: 200,
         };
     } catch (error: unknown) {

@@ -36,6 +36,7 @@ const page = async ({ searchParams }: PageProps) => {
     .collection('event_attendance')
     .where('userId', '==', userId)
     .orderBy('confirmedAt', 'desc')
+    .select('userId', 'eventId', 'attended', 'confirmedAt')
     .limit(PAGE_SIZE);
 
   if (cursor) {

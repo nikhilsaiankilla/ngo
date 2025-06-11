@@ -115,7 +115,7 @@ export function AppSidebar({
             {routes.map(({ title, url }) => (
               <SidebarMenuItem key={title}>
                 <SidebarMenuButton asChild>
-                  <Link href={url} className={`flex items-center gap-2 font-normal text-sm`}>
+                  <Link href={url} className={`flex items-center gap-2 font-normal text-sm cursor-pointer`}>
                     {iconMap[title]}
                     {title}
                   </Link>

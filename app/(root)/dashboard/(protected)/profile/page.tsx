@@ -9,6 +9,7 @@ import { DataTable } from '../(upper-trustie)/manage-members/data-table';
 import { columns, RoleRequestHistory } from './columns';
 import { cookies } from 'next/headers';
 import { PhoneVerification } from '@/components/PhoneVerification';
+import { Verified } from 'lucide-react';
 
 // Define types for user
 type UserRole = 'REGULAR' | 'MEMBER' | 'TRUSTIE' | 'UPPER_TRUSTIE';
@@ -53,6 +54,8 @@ interface UserResponse {
         photoURL?: string;
         email: string;
         user_type: UserRole;
+        isPhoneVerified: boolean,
+        phoneNumber: string,
         createdAt: { _seconds: number; _nanoseconds: number };
     };
 }
@@ -118,6 +121,9 @@ const Page = async () => {
     // Requested role based on user_type
     const requestedRole = roleUpgradeMap[user.user_type];
 
+    console.log(user);
+    
+
     return (
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
             <h1 className="text-4xl font-bold text-center mb-10 text-gray-800">User Profile</h1>
@@ -154,10 +160,21 @@ const Page = async () => {
                     </div>
 
                     <div className='w-full border-gray-100 bg-white rounded-2xl shadow-2xl p-4'>
-                        <PhoneVerification
-                            defaultPhone={user.phoneNumber}
-                            isVerified={user.isPhoneVerified}
-                        />
+                        {
+                            user?.isPhoneVerified
+                                ?
+                                <div className="flex items-center gap-2 mt-4">
+                                    <span className="font-medium flex items-center gap-2">
+                                        {user?.phoneNumber}
+                                        <span className='test-xs font-normal flex items-center gap-1'><Verified size={16} className='text-green-400' /> Verified</span>
+                                    </span>
+                                </div>
+                                :
+                                <PhoneVerification
+                                    defaultPhone={user.phoneNumber}
+                                    isVerified={user.isPhoneVerified}
+                                />
+                        }
 
                         <div className="mt-6 flex flex-col gap-4">
                             <LogoutButton />

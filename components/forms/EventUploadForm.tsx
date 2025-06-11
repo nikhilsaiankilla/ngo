@@ -25,7 +25,7 @@ import { getErrorMessage } from "@/utils/helpers";
 import { Loader } from "lucide-react";
 import uploadImageToFirebase from "@/lib/uploadImageToFirebase";
 import Image from "next/image";
-import { Card, CardContent, CardHeader } from "../ui/card";
+import FormTemplate from "./FormTemplate";
 
 // Define schema
 const formSchema = z.object({
@@ -132,136 +132,129 @@ export default function EventUploadForm() {
     };
 
     return (
-        <Card className="max-w-2xl mx-auto mt-12 shadow-xl border rounded-2xl bg-white dark:bg-zinc-900">
-            <CardHeader className="text-center pb-2">
-                <h2 className="text-2xl font-bold">Create Event</h2>
-                <p className="text-sm text-muted-foreground">Fill in the details to publish your event</p>
-            </CardHeader>
+        <FormTemplate title="Add Event Form" description="Add your Event details">
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                    <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Title</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Event title" {...field} disabled={isLoading} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
-            <CardContent className="p-6 space-y-5">
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                        <FormField
-                            control={form.control}
-                            name="title"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Title</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Event title" {...field} disabled={isLoading} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+                    <FormField
+                        control={form.control}
+                        name="tagline"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Tagline</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Short tagline" {...field} disabled={isLoading} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="location"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Location</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Event location" {...field} disabled={isLoading} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="description">Description (Markdown)</Label>
+                        <MDEditor
+                            value={description}
+                            onChange={(val) => setDescription(val || "")}
+                            preview="edit"
+                            height={300}
+                            style={{ borderRadius: 5, overflow: "hidden" }}
+                            textareaProps={{
+                                placeholder: "Briefly describe your idea and what problem it solves",
+                            }}
+                            previewOptions={{ disallowedElements: ["style"] }}
+                            className="mt-2"
                         />
+                    </div>
 
-                        <FormField
-                            control={form.control}
-                            name="tagline"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Tagline</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Short tagline" {...field} disabled={isLoading} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                    <FormField
+                        control={form.control}
+                        name="image"
+                        render={() => (
+                            <FormItem>
+                                <FormLabel>Upload Image</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        disabled={isLoading}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                                {imagePreview && (
+                                    <Image
+                                        width={10}
+                                        height={10}
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        className="mt-2 rounded-md w-full h-auto max-h-64 object-contain"
+                                    />
+                                )}
+                            </FormItem>
+                        )}
+                    />
 
-                        <FormField
-                            control={form.control}
-                            name="location"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Location</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Event location" {...field} disabled={isLoading} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="description">Description (Markdown)</Label>
-                            <MDEditor
-                                value={description}
-                                onChange={(val) => setDescription(val || "")}
-                                preview="edit"
-                                height={300}
-                                style={{ borderRadius: 5, overflow: "hidden" }}
-                                textareaProps={{
-                                    placeholder: "Briefly describe your idea and what problem it solves",
-                                }}
-                                previewOptions={{ disallowedElements: ["style"] }}
-                                className="mt-2"
+                            <Label>Start Date</Label>
+                            <Calendar
+                                mode="single"
+                                selected={startDate}
+                                onSelect={setStartDate}
+                                className="border rounded-md p-2"
+                                disabled={(date) => (startDate ? !(date >= startDate) : false)}
                             />
                         </div>
-
-                        <FormField
-                            control={form.control}
-                            name="image"
-                            render={() => (
-                                <FormItem>
-                                    <FormLabel>Upload Image</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleImageChange}
-                                            disabled={isLoading}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                    {imagePreview && (
-                                        <Image
-                                            width={10}
-                                            height={10}
-                                            src={imagePreview}
-                                            alt="Preview"
-                                            className="mt-2 rounded-md w-full h-auto max-h-64 object-contain"
-                                        />
-                                    )}
-                                </FormItem>
-                            )}
-                        />
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <Label>Start Date</Label>
-                                <Calendar
-                                    mode="single"
-                                    selected={startDate}
-                                    onSelect={setStartDate}
-                                    className="border rounded-md p-2"
-                                    disabled={(date) => (startDate ? !(date >= startDate) : false)}
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label>End Date</Label>
-                                <Calendar
-                                    mode="single"
-                                    selected={endDate}
-                                    onSelect={setEndDate}
-                                    className="border rounded-md p-2"
-                                    disabled={(date) => (startDate ? !(date >= startDate) : false)}
-                                />
-                            </div>
+                        <div className="grid gap-2">
+                            <Label>End Date</Label>
+                            <Calendar
+                                mode="single"
+                                selected={endDate}
+                                onSelect={setEndDate}
+                                className="border rounded-md p-2"
+                                disabled={(date) => (startDate ? !(date >= startDate) : false)}
+                            />
                         </div>
+                    </div>
 
-                        <Button type="submit" disabled={isLoading} className="w-full mt-2">
-                            {isLoading ? (
-                                <>
-                                    <Loader className="animate-spin mr-2 h-4 w-4" /> Submitting...
-                                </>
-                            ) : (
-                                "Submit"
-                            )}
-                        </Button>
-                    </form>
-                </Form>
-            </CardContent>
-        </Card>
+                    <Button type="submit" disabled={isLoading} className="w-full mt-2">
+                        {isLoading ? (
+                            <>
+                                <Loader className="animate-spin mr-2 h-4 w-4" /> Submitting...
+                            </>
+                        ) : (
+                            "Submit"
+                        )}
+                    </Button>
+                </form>
+            </Form>
+        </FormTemplate>
     );
 }

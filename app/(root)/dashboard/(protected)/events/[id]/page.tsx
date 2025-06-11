@@ -1,6 +1,5 @@
 import { adminDb } from '@/firebase/firebaseAdmin';
 import React from 'react';
-import { unauthorized } from 'next/navigation';
 import { markdownToHtml } from '@/utils/helpers';
 import Image from 'next/image';
 import SafeImage from '@/components/SafeImage';
@@ -8,6 +7,7 @@ import { cookies } from 'next/headers';
 import DeleteBtn from '@/components/buttons/DeleteBtn';
 import Link from 'next/link';
 import { PencilIcon } from 'lucide-react';
+import ParticipateButton from '@/components/buttons/ParticipateButton';
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -38,6 +38,9 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const cookiesStore = await cookies();
     const userId = cookiesStore.get('userId')?.value;
 
+    console.log(userId);
+
+
     return (
         <div className="w-full max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
             {/* Title + Tagline */}
@@ -64,7 +67,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
             )}
 
             {/* Meta Info */}
-            <section className="text-sm text-gray-500 grid sm:grid-cols-4 gap-6 border-y py-6">
+            <section className="text-sm text-gray-500 grid sm:grid-cols-4 gap-6 border-y py-6 items-center">
                 <p>
                     <span className="text-gray-700 font-medium">Created by:</span> {createdByName}
                 </p>
@@ -77,6 +80,9 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
                     <span className="text-gray-700 font-medium">Location:</span>{' '}
                     {event.location || 'N/A'}
                 </p>
+                {
+                    userId && <ParticipateButton event={{ id }} />
+                }
                 {
                     userId && userId === event?.createdBy && <p className='grid grid-cols-2'>
                         <DeleteBtn type="event" id={id} />

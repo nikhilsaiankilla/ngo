@@ -260,3 +260,197 @@ export async function deleteEvent(eventId: string) {
         };
     }
 }
+
+export async function handleEventParticipate(id: string) {
+    try {
+        const cookiesStore = await cookies();
+        const userId = cookiesStore.get('userId')?.value;
+
+        if (!userId) {
+            return {
+                success: false,
+                message: "User ID is required",
+                status: 400,
+            };
+        }
+
+        if (!id) {
+            return {
+                success: false,
+                message: "Event ID is required",
+                status: 400,
+            };
+        }
+
+        // Fetch user
+        const userSnapshot = await adminDb.collection('users').doc(userId).get();
+        const userData = userSnapshot.data();
+
+        if (!userData) {
+            return {
+                success: false,
+                message: "User not found",
+                status: 404,
+            };
+        }
+
+        if (userData.user_type === "REGULAR") {
+            return {
+                success: false,
+                message: "Only Members and above can participate in events",
+                status: 403,
+            };
+        }
+
+        // Fetch event
+        const eventSnapshot = await adminDb.collection('events').doc(id).get();
+        const eventData = eventSnapshot.data();
+
+        if (!eventData) {
+            return {
+                success: false,
+                message: "Event not found",
+                status: 404,
+            };
+        }
+
+        const eventDate = eventData.startDate?.toDate?.();
+        const now = new Date();
+        const msInTwoDays = 2 * 24 * 60 * 60 * 1000;
+
+        if (!eventDate || eventDate.getTime() - now.getTime() <= msInTwoDays) {
+            return {
+                success: false,
+                message: "You can only participate in events that are at least 2 days away",
+                status: 400,
+            };
+        }
+
+        // Check for duplicate participation
+        const existingQuery = await adminDb
+            .collection('event_participants')
+            .where('eventId', '==', id)
+            .where('userId', '==', userId)
+            .limit(1)
+            .get();
+
+        if (!existingQuery.empty) {
+            return {
+                success: false,
+                message: "You have already joined this event",
+                status: 409, // Conflict
+            };
+        }
+
+        // Add participant
+        await adminDb.collection('event_participants').add({
+            eventId: id,
+            userId,
+            joinedAt: Timestamp.now(),
+            eventTitle: eventData.title,
+            eventDate: eventData.startDate,
+            userName: userData.name,
+            userEmail: userData.email,
+            notified1DayBefore: false,
+            notified2DaysBefore: false,
+        });
+
+        return {
+            success: true,
+            message: "Participation added successfully",
+            status: 200,
+        };
+    } catch (error: unknown) {
+        console.error("Error while handling participation:", error);
+        return {
+            success: false,
+            message: getErrorMessage(error),
+            status: 500,
+        };
+    }
+}
+
+export async function checkUserParticipation(eventId: string) {
+    try {
+        const cookiesStore = await cookies();
+        const userId = cookiesStore.get('userId')?.value;
+
+        if (!userId || !eventId) {
+            return {
+                success: false,
+                isParticipant: false,
+                message: 'User or Event ID missing',
+                status: 400,
+            };
+        }
+
+        const query = await adminDb
+            .collection('event_participants')
+            .where('eventId', '==', eventId)
+            .where('userId', '==', userId)
+            .limit(1)
+            .get();
+
+        return {
+            success: true,
+            isParticipant: !query.empty,
+            status: 200,
+        };
+    } catch (error) {
+        console.error('Error checking participation:', error);
+        return {
+            success: false,
+            isParticipant: false,
+            message: 'Server error',
+            status: 500,
+        };
+    }
+}
+
+export async function handleCancelParticipation(eventId: string) {
+    try {
+        const cookiesStore = await cookies();
+        const userId = cookiesStore.get("userId")?.value;
+
+        if (!userId || !eventId) {
+            return {
+                success: false,
+                message: "User or Event ID missing",
+                status: 400,
+            };
+        }
+
+        // Search for participant document
+        const snapshot = await adminDb
+            .collection("event_participants")
+            .where("eventId", "==", eventId)
+            .where("userId", "==", userId)
+            .limit(1)
+            .get();
+
+        if (snapshot.empty) {
+            return {
+                success: false,
+                message: "Participation not found",
+                status: 404,
+            };
+        }
+
+        const doc = snapshot.docs[0];
+
+        await doc.ref.delete();
+
+        return {
+            success: true,
+            message: "Participation cancelled successfully",
+            status: 200,
+        };
+    } catch (error: unknown) {
+        console.error("Error cancelling participation:", error);
+        return {
+            success: false,
+            message: getErrorMessage(error),
+            status: 500,
+        };
+    }
+}

@@ -355,6 +355,24 @@ export async function handleEventParticipate(id: string) {
             notified2DaysBefore: false,
         });
 
+
+        // Add initial attendance record
+        const attendanceQuery = await adminDb
+            .collection('event_attendance')
+            .where('eventId', '==', id)
+            .where('userId', '==', userId)
+            .limit(1)
+            .get();
+
+        if (attendanceQuery.empty) {
+            await adminDb.collection('event_attendance').add({
+                eventId: id,
+                userId,
+                attended: "not_confirmed",
+                confirmedAt: null,
+            });
+        }
+
         return {
             success: true,
             message: "Participation added successfully",
@@ -439,6 +457,18 @@ export async function handleCancelParticipation(eventId: string) {
         const doc = snapshot.docs[0];
 
         await doc.ref.delete();
+
+        // 2. Delete from event_attendance
+        const attendanceSnapshot = await adminDb
+            .collection("event_attendance")
+            .where("eventId", "==", eventId)
+            .where("userId", "==", userId)
+            .limit(1)
+            .get();
+
+        if (!attendanceSnapshot.empty) {
+            await attendanceSnapshot.docs[0].ref.delete();
+        }
 
         return {
             success: true,

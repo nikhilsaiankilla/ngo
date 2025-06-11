@@ -23,7 +23,7 @@ interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 20;
 
 const page = async ({ searchParams }: PageProps) => {
   const cookieStore = await cookies();

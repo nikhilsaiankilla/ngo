@@ -4,7 +4,7 @@ import crypto from "crypto";
 import { cookies } from "next/headers";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { getErrorMessage } from "@/utils/helpers";
-import { Timestamp } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 
 // Initialize Razorpay instance with API credentials
 const razorpay = new Razorpay({
@@ -148,6 +148,13 @@ export async function POST(request: NextRequest) {
             created_at: payment.created_at,
             timestamp: Timestamp.now(),
         } satisfies Transaction);
+
+        await adminDb.collection('totals').doc('transactions').set(
+            {
+                totalAmount: FieldValue.increment(Number(payment.amount) / 100), // ✅ rupees
+            },
+            { merge: true }
+        );
 
         return NextResponse.json({
             message: "Payment verified successfully",

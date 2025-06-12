@@ -1,27 +1,36 @@
+import React from 'react'
 import MemberGrowthChart from '@/components/charts/MemberGrowthChart'
 import TrustieGrowthChart from '@/components/charts/TrustieGrowthChart'
 import UpperTrustieGrowthChart from '@/components/charts/UpperTrustieGrowthChart'
+import UserGrowthOtherThenRegular from '@/components/charts/UserGrowthOtherThenRegular'
 import { Card } from '@/components/ui/card'
-import React from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import DonationsPerYear from '@/components/charts/DonationsPerYear'
+import UserAnalytics from '@/components/UserAnalytics'
+import DonationAnalytics from '@/components/DonationAnalytics'
 
-const page = () => {
+const AnalyticsPage = () => {
+
   return (
-    <div className='w-full'>
-      <div className='w-full grid grid-cols-1 lg:grid-cols-2 gap-5'>
-        <Card className='p-5'>
-          <MemberGrowthChart />
-        </Card>
-        <Card className='p-5'>
-          <TrustieGrowthChart />
-        </Card>
+    <div className='w-full space-y-6'>
+      {/* Toggle Buttons */}
+      <div className='flex gap-4'>
+        <Tabs defaultValue="user-analytics" className="w-full">
+          <TabsList>
+            <TabsTrigger value="user-analytics">User Analytics</TabsTrigger>
+            <TabsTrigger value="donation-analytics">Donation Analytics</TabsTrigger>
+          </TabsList>
+          <TabsContent value="user-analytics" className='w-full'>
+            <UserAnalytics />
+          </TabsContent>
+          <TabsContent value="donation-analytics" className='w-full'>
+            <DonationAnalytics />
+          </TabsContent>
+        </Tabs>
       </div>
-      <div className='w-full grid grid-cols-1 gap-5 mt-5'>
-        <Card className='p-5'>
-          <UpperTrustieGrowthChart />
-        </Card>
-      </div>
+
     </div>
   )
 }
 
-export default page
+export default AnalyticsPage

@@ -2,6 +2,7 @@
 
 import { adminDb } from '@/firebase/firebaseAdmin';
 import { getErrorMessage } from '@/utils/helpers';
+import { FieldValue } from 'firebase-admin/firestore';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 
@@ -78,6 +79,13 @@ export async function addManualDonation(formData: FormData) {
         };
 
         await adminDb.collection('transactions').add(newDonation);
+
+        await adminDb.collection('totals').doc('transactions').set(
+            {
+                totalAmount: FieldValue.increment(newDonation.amount), // correct variable
+            },
+            { merge: true } //safe update
+        );
 
         return {
             success: true,

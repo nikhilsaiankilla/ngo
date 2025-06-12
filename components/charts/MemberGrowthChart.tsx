@@ -1,61 +1,63 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Line } from "react-chartjs-2";
 import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-} from "chart.js";
-import { getUserGrowthByType } from "@/actions/analytics";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+    LineChart,
+    Line,
+    XAxis,
+    CartesianGrid,
+    ResponsiveContainer,
+} from "recharts";
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-);
+import { getUserGrowthByType } from "@/actions/analytics";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "../ui/card";
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+} from "../ui/chart";
 
 interface GrowthData {
-    month: string;
+    month: string; // format: "2024-01"
     count: number;
 }
 
-export default function MemberGrowthChart() {
+const chartConfig = {
+    count: {
+        label: "Users",
+        color: "var(--chart-1)",
+    },
+};
+
+export default function MemberGrowthChart({
+    selectedYear,
+}: {
+    selectedYear: number;
+}) {
     const [data, setData] = useState<GrowthData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear()); // Default to 2025
-
-    // Generate years (e.g., 2025 to 2020)
-    const years = Array.from({ length: 6 }, (_, i) => 2025 - i); // [2025, 2024, 2023, 2022, 2021, 2020]
 
     useEffect(() => {
         async function fetchData() {
             try {
                 setLoading(true);
                 setError(null);
-
-                const growthData = await getUserGrowthByType(selectedYear, "MEMBER");
-
-                if (!growthData?.success || !growthData.data) {
+                const res = await getUserGrowthByType(selectedYear, "MEMBER");
+                if (!res.success || !res.data) {
                     setData([]);
                     return;
                 }
-
-                setData(growthData.data);
-            } catch (err: unknown) {
-                console.log(err);
-                setError("Failed to load member growth data.");
+                setData(res.data);
+            } catch (err) {
+                console.error(err);
+                setError("Failed to load user growth data.");
             } finally {
                 setLoading(false);
             }
@@ -64,67 +66,68 @@ export default function MemberGrowthChart() {
         fetchData();
     }, [selectedYear]);
 
+    const formatMonth = (monthKey: string) => {
+        const [year, monthStr] = monthKey.split("-");
+        const date = new Date(parseInt(year), parseInt(monthStr) - 1);
+        return new Intl.DateTimeFormat("en-US", { month: "short" }).format(date);
+    };
+
+    const formattedChartData = data.map((d) => ({
+        month: formatMonth(d.month),
+        count: d.count,
+    }));
+
     if (error) return <p className="text-red-500">{error}</p>;
 
     if (loading) {
         return (
-            <div className="animate-pulse">
-                <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-                <div className="h-6 bg-gray-200 rounded w-1/4 mb-2"></div>
-                <div className="h-64 bg-gray-200 rounded"></div>
-            </div>
+            <Card className="p-5">
+                <div className="animate-pulse">
+                    <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+                    <div className="h-6 bg-gray-200 rounded w-1/4 mb-2"></div>
+                    <div className="h-64 bg-gray-200 rounded"></div>
+                </div>
+            </Card>
         );
     }
 
-    const chartData = {
-        labels: data.map((d) => d.month),
-        datasets: [
-            {
-                label: `Members Growth in ${selectedYear}`,
-                data: data.map((d) => d.count),
-                borderColor: "rgb(99, 102, 241)", // Indigo-500
-                backgroundColor: "rgba(99, 102, 241, 0.5)",
-                tension: 0.3,
-            },
-        ],
-    };
-
-    const options = {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: "top" as const,
-            },
-            title: {
-                display: true,
-                text: `Member Growth (${selectedYear})`,
-            },
-        },
-    };
-
     return (
-        <div>
-            <div className="mb-4 flex items-center gap-2">
-                <label htmlFor="year-select" className="text-gray-700">
-                    Select Year:
-                </label>
-                <Select
-                    value={selectedYear.toString()}
-                    onValueChange={(value) => setSelectedYear(Number(value))}
-                >
-                    <SelectTrigger id="year-select" className="w-32">
-                        <SelectValue placeholder="Select year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {years.map((year) => (
-                            <SelectItem key={year} value={year.toString()}>
-                                {year}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            <Line options={options} data={chartData} />
-        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>Member Growth</CardTitle>
+                <CardDescription>{`January - December ${selectedYear}`}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ChartContainer config={chartConfig}>
+                    <div className="w-full h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={formattedChartData} margin={{ left: 12, right: 12 }}>
+                                <CartesianGrid vertical={false} />
+                                <XAxis
+                                    dataKey="month"
+                                    name="Month"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickMargin={8}
+                                    minTickGap={10}
+                                    tickFormatter={(value) => value}
+                                />
+                                <ChartTooltip
+                                    cursor={false}
+                                    content={<ChartTooltipContent hideLabel />}
+                                />
+                                <Line
+                                    dataKey="count"
+                                    type="monotone"
+                                    stroke="var(--color-count)"
+                                    strokeWidth={2}
+                                    dot={false}
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </ChartContainer>
+            </CardContent>
+        </Card>
     );
 }

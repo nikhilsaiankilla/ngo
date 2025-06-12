@@ -241,7 +241,7 @@ export async function getUser(id: string) {
                 user_type: fetchedUser?.user_type,
                 phoneNumber: fetchedUser?.phoneNumber ?? null,
                 isPhoneVerified: fetchedUser?.isPhoneVerified ?? false,
-                createdAt: fetchedUser?.createdAt.timestampToISOString(),
+                createdAt: fetchedUser?.createdAt?.toDate().toISOString() || null,
             },
         };
     } catch (error: unknown) {

@@ -141,6 +141,8 @@ const DonationForm = ({ userId }: Props) => {
 
         // Validate user data
         if (!user?.userId || !user?.email || !user?.name) {
+            console.log(user);
+            
             toast.error("User data not available");
             setLoading(false);
             return;

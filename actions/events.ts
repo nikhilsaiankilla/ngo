@@ -3,7 +3,6 @@
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { getErrorMessage } from "@/utils/helpers";
 import { Timestamp } from "firebase-admin/firestore";
-import { query } from "firebase/firestore";
 import { cookies } from "next/headers";
 
 interface AddEventInput {

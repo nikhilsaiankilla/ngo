@@ -32,10 +32,27 @@ interface RazorpayError {
     };
 }
 
+interface RazorpayOptions {
+    key: string; // Razorpay public key
+    amount: number; // Amount in paise
+    currency: string; // Currency code (e.g., "INR")
+    name: string; // Organization name
+    description: string; // Payment description
+    order_id: string; // Razorpay order ID
+    handler: (response: RazorpayResponse) => void; // Success callback
+    prefill: {
+        name: string; // User name
+        email: string; // User email
+    };
+    theme: {
+        color: string; // Checkout theme color
+    };
+}
+
 // Extend Window interface to include Razorpay SDK
 declare global {
     interface Window {
-        Razorpay: new (options) => {
+        Razorpay: new (options: RazorpayOptions) => {
             open: () => void; // Opens the Razorpay checkout modal
             on: (event: string, callback: (response: RazorpayResponse | RazorpayError) => void) => void; // Event listener for payment events
         };
@@ -133,9 +150,18 @@ const DonationForm = ({ userId }: Props) => {
             // Create Razorpay order
             const orderId: string = await createOrderId(price, "INR");
 
+            // Validate Razorpay key
+            const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+            if (!razorpayKey) {
+                toast.error('Payment setup failed. Please contact support.');
+                console.error('Razorpay key is missing. Check NEXT_PUBLIC_RAZORPAY_KEY_ID in .env');
+                return;
+            }
+
+
             // Configure Razorpay checkout options
             const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Razorpay public key
+                key: razorpayKey, // Razorpay public key
                 amount: price * 100, // Convert to paise
                 currency: "INR", // Currency code
                 name: "NGO", // Organization name

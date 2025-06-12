@@ -362,9 +362,15 @@ export async function getRoleRequestHistory(userId: string) {
 
     const historyData = snapshot.docs.map((doc) => {
       const data = doc.data();
-
       return {
-        ...data,
+        userId: userId, // Assuming `id` is the parameter passed to `getRoleRequestHistory(id)`
+        name: data?.name || "", // Provide a fallback if `name` is missing
+        message: data?.message || "", // Provide a fallback if `message` is missing
+        currentRole: data?.currentRole || "", // Provide a fallback if `currentRole` is missing
+        requestedRole: data?.requestedRole || "", // Add the missing `requestedRole`
+        status: data?.status || "rejected", // Fallback to a valid status
+        reviewedBy: data?.reviewedBy,
+        rejectionReason: data?.rejectionReason || "",
         createdAt: timestampToISOString(data.createdAt) || undefined,
         reviewedAt: timestampToISOString(data.reviewedAt) || undefined,
       };

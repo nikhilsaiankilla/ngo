@@ -42,6 +42,7 @@ interface RoleRequest {
 interface HistoryResponse {
     success: boolean;
     message?: string;
+    status: number,
     data?: RoleRequest[];
 }
 
@@ -49,6 +50,7 @@ interface HistoryResponse {
 interface UserResponse {
     success: boolean;
     message?: string;
+    status: number,
     data?: {
         name: string;
         photoURL?: string;
@@ -122,7 +124,7 @@ const Page = async () => {
     const requestedRole = roleUpgradeMap[user.user_type];
 
     console.log(user);
-    
+
 
     return (
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

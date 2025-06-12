@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from './ui/card';
 import { Skeleton } from './ui/skeleton';
 import { Wallet } from 'lucide-react';
-import { getTotalDonationsTillNow } from '@/actions/analytics';
 import { toast } from 'sonner';
 
 const formatCompactAmount = (amount: number): string => {
@@ -21,15 +20,17 @@ const TotalDonationCard = () => {
     useEffect(() => {
         const fetchTotal = async () => {
             try {
-                const res = await getTotalDonationsTillNow();
+                const res = await fetch('/api/total-donations', { next: { revalidate: 60 } });
+                const data = await res.json();
 
-                if(!res?.success){
-                    return toast.error(res?.message)
+                if (!data?.success) {
+                    return toast.error(data?.message || 'Failed to fetch');
                 }
 
-                setTotalAmount(res?.data)
+                setTotalAmount(data?.data || 0);
             } catch (err) {
-                console.error('Failed to fetch total donations:', err);
+                console.error('Fetch error:', err);
+                toast.error('Something went wrong');
             } finally {
                 setLoading(false);
             }
@@ -37,9 +38,6 @@ const TotalDonationCard = () => {
 
         fetchTotal();
     }, []);
-
-    console.log(totalAmount);
-    
 
     return (
         <Card className="p-4 shadow-md rounded-2xl">
@@ -54,7 +52,7 @@ const TotalDonationCard = () => {
                     <Skeleton className="h-8 w-32 rounded-md bg-green-200" />
                 ) : (
                     <p className="text-3xl font-bold text-green-700">
-                        {formatCompactAmount(totalAmount || 0)}
+                        {formatCompactAmount(totalAmount)}
                     </p>
                 )}
             </CardContent>

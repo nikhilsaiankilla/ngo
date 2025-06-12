@@ -1,11 +1,5 @@
 import React from 'react'
-import MemberGrowthChart from '@/components/charts/MemberGrowthChart'
-import TrustieGrowthChart from '@/components/charts/TrustieGrowthChart'
-import UpperTrustieGrowthChart from '@/components/charts/UpperTrustieGrowthChart'
-import UserGrowthOtherThenRegular from '@/components/charts/UserGrowthOtherThenRegular'
-import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import DonationsPerYear from '@/components/charts/DonationsPerYear'
 import UserAnalytics from '@/components/UserAnalytics'
 import DonationAnalytics from '@/components/DonationAnalytics'
 

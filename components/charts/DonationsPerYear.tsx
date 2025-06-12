@@ -1,8 +1,8 @@
+// DonationsPerYear.tsx
+
 "use client";
 
-import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-
 import {
   Card,
   CardContent,
@@ -16,13 +16,17 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getDonationsByYear } from "@/actions/analytics"; // Adjust if in different path
 
 interface DonationData {
   month: string;
   total: number;
   count: number;
+}
+
+interface Props {
+  data: DonationData[];
+  loading: boolean;
+  selectedYear: number;
 }
 
 const chartConfig = {
@@ -32,50 +36,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const DonationsPerYear = ({ selectedYear }: { selectedYear: number }) => {
-  const currentYear = new Date().getFullYear();
-
-  const [data, setData] = useState<DonationData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await getDonationsByYear(selectedYear);
-        if (response.success && response.data) {
-          // Transform to show month name instead of YYYY-MM
-          const monthsMap = [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-          ];
-          const formattedData = response.data.map((entry: DonationData) => {
-            const [year, month] = entry.month.split("-");
-            return {
-              ...entry,
-              month: monthsMap[parseInt(month, 10) - 1],
-            };
-          });
-
-          setData(formattedData.slice(0, 12)); // Show Jan–Jun like before
-        } else {
-          setData([]);
-          setError("No data available.");
-        }
-      } catch (err) {
-        console.error(err);
-        setError("Failed to fetch donation data.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [selectedYear]);
-
-
+const DonationsPerYear = ({ data, loading, selectedYear }: Props) => {
   if (loading) {
     return (
       <Card className="p-5">

@@ -30,7 +30,7 @@ interface GrowthData {
     count: number;
 }
 
-export default function MemberGrowthChart() {
+export default function TrustieGrowthChart() {
     const [data, setData] = useState<GrowthData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export default function MemberGrowthChart() {
                 setLoading(true);
                 setError(null);
 
-                const growthData = await getUserGrowthByType(selectedYear, "MEMBER");
+                const growthData = await getUserGrowthByType(selectedYear, "TRUSTIE");
 
                 if (!growthData?.success || !growthData.data) {
                     setData([]);
@@ -55,7 +55,7 @@ export default function MemberGrowthChart() {
                 setData(growthData.data);
             } catch (err: unknown) {
                 console.log(err);
-                setError("Failed to load member growth data.");
+                setError("Failed to load Trustie growth data.");
             } finally {
                 setLoading(false);
             }
@@ -80,7 +80,7 @@ export default function MemberGrowthChart() {
         labels: data.map((d) => d.month),
         datasets: [
             {
-                label: `Members Growth in ${selectedYear}`,
+                label: `Trustie Growth in ${selectedYear}`,
                 data: data.map((d) => d.count),
                 borderColor: "rgb(99, 102, 241)", // Indigo-500
                 backgroundColor: "rgba(99, 102, 241, 0.5)",
@@ -97,7 +97,7 @@ export default function MemberGrowthChart() {
             },
             title: {
                 display: true,
-                text: `Member Growth (${selectedYear})`,
+                text: `Trustie Growth (${selectedYear})`,
             },
         },
     };

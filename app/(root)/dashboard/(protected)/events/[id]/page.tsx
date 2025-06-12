@@ -38,8 +38,13 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const cookiesStore = await cookies();
     const userId = cookiesStore.get('userId')?.value;
 
-    console.log(userId);
+    const todayDate = new Date(); // Current date: June 12, 2025, 2:22 PM IST
 
+    // Convert startDate (string or null) to Date or null
+    const startDate = event.startDate ? new Date(event.startDate) : null;
+    const isTwoDaysOrMore = startDate && !isNaN(startDate.getTime())
+        ? (startDate.getTime() - todayDate.getTime()) >= 2 * 24 * 60 * 60 * 1000
+        : false;
 
     return (
         <div className="w-full max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
@@ -80,19 +85,23 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
                     <span className="text-gray-700 font-medium">Location:</span>{' '}
                     {event.location || 'N/A'}
                 </p>
-                {
-                    userId && userId !== event?.createdBy && <ParticipateButton event={{ id }} />
-                }
-                {
-                    userId && userId === event?.createdBy && <p className='grid grid-cols-2'>
-                        <DeleteBtn type="event" id={id} />
-
-                        <Link href={`/dashboard/update-event/${id}`} className='flex items-center text-yellow-500 cursor-pointer gap-1'>
-                            <PencilIcon size={18} />
-                            Update
-                        </Link>
-                    </p>
-                }
+                <>
+                    {isTwoDaysOrMore && userId && userId !== event?.createdBy && event?.startDate && (
+                        <ParticipateButton event={{ id }} />
+                    )}
+                    {isTwoDaysOrMore && userId && userId === event?.createdBy && (
+                        <p className="grid grid-cols-2">
+                            <DeleteBtn type="event" id={id} />
+                            <Link
+                                href={`/dashboard/update-event/${id}`}
+                                className="flex items-center text-yellow-500 cursor-pointer gap-1"
+                            >
+                                <PencilIcon size={18} />
+                                Update
+                            </Link>
+                        </p>
+                    )}
+                </>
             </section>
 
             {/* Description */}

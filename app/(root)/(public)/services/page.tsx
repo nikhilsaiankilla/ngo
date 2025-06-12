@@ -47,12 +47,14 @@ const Page = async () => {
                 />
                 <CardContent className="space-y-1 p-4">
                   <CardTitle className="text-lg font-semibold">{service.title}</CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground line-clamp-2">
+                    {service.tagline}
+                  </CardDescription>
                   <p className="text-gray-600 text-sm line-clamp-2">{service.description}</p>
-                  <p className="text-sm mt-2">{service.description}</p>
                 </CardContent>
                 <CardAction>
                   <Link
-                    href={`/services/${service.id}`}
+                    href={`/dashboard/services/${service.id}`}
                     className="inline-block bg-green-600 text-white font-medium py-2 px-4 rounded-full text-sm hover:bg-green-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                   >
                     View Details

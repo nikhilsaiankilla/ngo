@@ -52,13 +52,6 @@ export async function POST(request: NextRequest) {
             razorpay_signature,
         }: VerifyBody = await request.json();
 
-        // Log incoming request data for debugging
-        console.log("Verification request:", {
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature,
-        });
-
         // Retrieve userId from cookies
         const cookiesStore = await cookies();
         const userId = cookiesStore.get("userId")?.value || null;
@@ -180,7 +173,6 @@ export async function POST(request: NextRequest) {
             timestamp: Timestamp.now(),
         } satisfies Transaction);
 
-        console.error("Verification error:", error);
         return NextResponse.json(
             { error: getErrorMessage(error), success: false },
             { status: 500 }

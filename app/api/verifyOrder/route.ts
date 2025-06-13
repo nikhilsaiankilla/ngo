@@ -5,12 +5,22 @@ import { cookies } from "next/headers";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { getErrorMessage } from "@/utils/helpers";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import { createZohoInvoice, getZohoAccessToken, sendInvoiceViaZohoMail } from "@/utils/zoho";
 
 // Initialize Razorpay instance with API credentials
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID!,
     key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
+
+interface invoice {
+    userId: string,
+    zohoInvoiceId: string,
+    invoiceNumber: string,
+    invoiceUrl: string,
+    amount: number,
+    createdAt: string,
+}
 
 // Define interface for the request body
 interface VerifyBody {
@@ -26,6 +36,7 @@ export interface Transaction {
     razorpay_payment_id?: string;
     razorpay_signature?: string;
     status: "success" | "failed" | "pending";
+    invoiceId?: string,
     reason?: string;
     amount?: number;
     currency?: string;
@@ -130,7 +141,7 @@ export async function POST(request: NextRequest) {
         const payment = await razorpay.payments.fetch(razorpay_payment_id);
 
         // Save successful transaction
-        await transactionsRef.add({
+        const donation = await transactionsRef.add({
             userId,
             razorpay_order_id,
             razorpay_payment_id: payment.id,
@@ -151,10 +162,58 @@ export async function POST(request: NextRequest) {
 
         await adminDb.collection('totals').doc('transactions').set(
             {
-                totalAmount: FieldValue.increment(Number(payment.amount) / 100), // ✅ rupees
+                totalAmount: FieldValue.increment(Number(payment.amount) / 100),
             },
             { merge: true }
         );
+
+        try {
+            //1. Generate Zoho invoice
+            const accessToken = await getZohoAccessToken();
+            
+            const invoice = await createZohoInvoice({
+                accessToken,
+                customerEmail: payment.email,
+                customerName: user.name || "Donor",
+                amount: Number(payment.amount) / 100,
+                paymentId: payment.id,
+            });
+
+            console.log(invoice);
+            
+            if (invoice && invoice.invoice_id) {
+                await adminDb.collection("invoices").add({
+                    userId,
+                    zohoInvoiceId: invoice.invoice_id,
+                    invoiceNumber: invoice.invoice_number,
+                    pdfUrl: `https://invoice.zoho.in/api/v3/invoices/${invoice.invoice_id}?accept=pdf&organization_id=${process.env.ZOHO_ORG_ID}`,
+                    amount: Number(payment.amount) / 100,
+                    createdAt: Timestamp.now(),
+                });
+
+                await sendInvoiceViaZohoMail(invoice.invoice_id, accessToken, payment.email)
+            }
+
+            await donation.update({
+                invoiceId: invoice.invoice_id
+            })
+        } catch (error) {
+            return NextResponse.json({
+                message: "Payment verified successfully but failed to generate invoice",
+                success: true,
+                status: 200,
+                data: {
+                    payment_id: payment.id,
+                    amount: Number(payment.amount) / 100,
+                    currency: payment.currency,
+                    status: payment.status,
+                    method: payment.method,
+                    email: payment.email,
+                    contact: payment.contact,
+                    notes: payment.notes,
+                },
+            });
+        }
 
         return NextResponse.json({
             message: "Payment verified successfully",

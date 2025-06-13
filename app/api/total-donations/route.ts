@@ -3,8 +3,6 @@ import { adminDb } from '@/firebase/firebaseAdmin';
 import { getErrorMessage } from '@/utils/helpers';
 import { NextResponse } from 'next/server';
 
-export const revalidate = 60; // Enable ISR (caches for 60 seconds)
-
 export async function GET() {
     try {
         const doc = await adminDb.collection('totals').doc('transactions').get();

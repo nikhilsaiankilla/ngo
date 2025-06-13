@@ -168,9 +168,7 @@ export async function POST(request: NextRequest) {
         );
 
         try {
-            //1. Generate Zoho invoice
             const accessToken = await getZohoAccessToken();
-            
             const invoice = await createZohoInvoice({
                 accessToken,
                 customerEmail: payment.email,
@@ -178,9 +176,6 @@ export async function POST(request: NextRequest) {
                 amount: Number(payment.amount) / 100,
                 paymentId: payment.id,
             });
-
-            console.log(invoice);
-            
             if (invoice && invoice.invoice_id) {
                 await adminDb.collection("invoices").add({
                     userId,
@@ -190,16 +185,15 @@ export async function POST(request: NextRequest) {
                     amount: Number(payment.amount) / 100,
                     createdAt: Timestamp.now(),
                 });
-
-                await sendInvoiceViaZohoMail(invoice.invoice_id, accessToken, payment.email)
+                await sendInvoiceViaZohoMail(invoice.invoice_id, accessToken, payment.email);
+                await donation.update({
+                    invoiceId: invoice.invoice_id,
+                });
             }
-
-            await donation.update({
-                invoiceId: invoice.invoice_id
-            })
         } catch (error) {
+            console.error("Invoice generation or email sending failed:", error);
             return NextResponse.json({
-                message: "Payment verified successfully but failed to generate invoice",
+                message: "Payment verified successfully but failed to generate or send invoice",
                 success: true,
                 status: 200,
                 data: {

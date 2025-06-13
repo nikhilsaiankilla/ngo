@@ -14,6 +14,7 @@ import {
     SelectValue,
 } from "./ui/select";
 import { LineChart } from "lucide-react";
+import UserTypeDistribution from "./charts/UserTypeDistribution";
 
 const UserAnalytics = () => {
     const [selectedYear, setSelectedYear] = useState<number>(
@@ -63,6 +64,10 @@ const UserAnalytics = () => {
                 <UpperTrustieGrowthChart selectedYear={selectedYear} />
                 <TrustieGrowthChart selectedYear={selectedYear} />
                 <MemberGrowthChart selectedYear={selectedYear} />
+            </div>
+
+            <div className="mt-5">
+                <UserTypeDistribution selectedYear={selectedYear} />
             </div>
         </div>
     );

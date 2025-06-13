@@ -3,6 +3,7 @@
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { getErrorMessage } from "@/utils/helpers";
 import { Timestamp } from "firebase-admin/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 export async function getUserGrowthByType(year: number, type: string) {
     try {
@@ -76,7 +77,6 @@ export async function getUserGrowth(year: number) {
     }
 }
 
-
 type DonationStats = {
     month: string;
     total: number;
@@ -134,6 +134,52 @@ export async function getDonationsByYear(year: number) {
             success: false,
             message: getErrorMessage(error),
             status: 500,
+        };
+    }
+}
+
+type UserTypeDistributionTypes = {
+    userType: string,
+    count: number
+}
+
+export async function getUserTypeCounts(year: number) {
+    try {
+        const start = Timestamp.fromDate(new Date(`${year}-01-01T00:00:00Z`));
+        const end = Timestamp.fromDate(new Date(`${year + 1}-01-01T00:00:00Z`));
+
+        const usersQuery = adminDb
+            .collection("users")
+            .where("createdAt", ">=", start)
+            .where("createdAt", "<", end);
+
+        const snapshot = await usersQuery.get();
+
+        // Use a temporary map to count first
+        const typeMap: Record<string, number> = {};
+
+        snapshot.forEach((doc) => {
+            const type = doc.data().user_type || "REGULAR";
+            typeMap[type] = (typeMap[type] || 0) + 1;
+        });
+
+        // Convert to array format
+        const counts: UserTypeDistributionTypes[] = Object.entries(typeMap).map(
+            ([userType, count]) => ({ userType, count })
+        );
+        
+        return {
+            success: true,
+            status: 200,
+            message: `User type counts for ${year} fetched`,
+            data: counts,
+        };
+    } catch (error: unknown) {
+        console.error("Error fetching user type counts:", error);
+        return {
+            success: false,
+            status: 500,
+            message: getErrorMessage(error),
         };
     }
 }

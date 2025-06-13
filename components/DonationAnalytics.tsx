@@ -11,6 +11,7 @@ import { Label } from "./ui/label";
 import { getDonationsByYear } from "@/actions/analytics"; // Make sure this path is correct
 import { toast } from "sonner";
 import TotalDonationPerYear from "./charts/TotalDonationPerYear";
+import DonationsPerLineChart from "./charts/DonationsPerLineChart";
 
 interface DonationData {
     month: string;
@@ -113,6 +114,13 @@ const DonationAnalytics = () => {
                     <TotalDonationCard />
                     <TotalDonationCard />
                 </div>
+            </div>
+            <div className="mt-5">
+                <DonationsPerLineChart
+                    selectedYear={selectedYear}
+                    data={data}
+                    loading={loading}
+                />
             </div>
         </div>
     );

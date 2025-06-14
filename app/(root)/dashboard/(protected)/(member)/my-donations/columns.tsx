@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { Download } from "lucide-react";
 
 export interface Payment {
     razorpay_payment_id: string;
@@ -9,6 +10,7 @@ export interface Payment {
     status: string;
     timestamp: string;
     amount: number;
+    invoice_url: string,
 }
 
 // Define columns for the payments table
@@ -76,4 +78,26 @@ export const columns: ColumnDef<Payment>[] = [
         accessorKey: "timestamp",
         header: "Time",
     },
+    {
+        accessorKey: "invoice_url",
+        header: "Invoice",
+        cell: ({ getValue }) => {
+            const url = getValue<string>();
+
+            if (!url) return "-";
+
+            return (
+                <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-blue-600 hover:underline space-x-1"
+                    download
+                >
+                    <Download className="w-4 h-4" />
+                    <span className="text-sm">Download</span>
+                </a>
+            );
+        },
+    }
 ];

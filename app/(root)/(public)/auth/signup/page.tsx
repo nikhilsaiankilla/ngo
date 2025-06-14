@@ -1,6 +1,6 @@
 "use client";
 
-import { signUp } from '@/actions/auth';
+import { signUp, checkUsername } from '@/actions/auth';
 import SignWithGoogle from '@/components/SignWithGoogle';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -9,20 +9,49 @@ import { Label } from '@/components/ui/label';
 import { Loader } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import { debounce } from '@/lib/utils'; // Adjust import based on your utils location
 
 const SignUpPage = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [nameStatus, setNameStatus] = useState<{ available: boolean; message: string } | null>(null);
     const router = useRouter();
+
+    // Debounced function to check username availability
+    const debouncedCheckUsername = useCallback(
+        debounce(async (name: string) => {
+            if (name.trim().length === 0) {
+                setNameStatus(null);
+                return;
+            }
+
+            const res = await checkUsername(name);
+            if (res.success && res.data) {
+                setNameStatus({ available: res.data.available, message: res.message });
+            } else {
+                setNameStatus({ available: false, message: res.message || 'Failed to check username' });
+            }
+        }, 500), // 500ms debounce delay
+        []
+    );
+
+    // Check username availability when name changes
+    useEffect(() => {
+        debouncedCheckUsername(name);
+    }, [name, debouncedCheckUsername]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
+        if (!nameStatus?.available) {
+            toast.error('Please choose a unique name');
+            return;
+        }
 
+        setLoading(true);
         try {
             const res = await signUp(name, email, password);
 
@@ -59,8 +88,16 @@ const SignUpPage = () => {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 required
-                                className='mt-2'
+                                className="mt-2"
                             />
+                            {nameStatus && (
+                                <p
+                                    className={`text-sm mt-1 ${nameStatus.available ? 'text-green-600' : 'text-red-600'
+                                        }`}
+                                >
+                                    {nameStatus.message}
+                                </p>
+                            )}
                         </div>
 
                         <div>
@@ -72,7 +109,7 @@ const SignUpPage = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                className='mt-2'
+                                className="mt-2"
                             />
                         </div>
 
@@ -85,11 +122,15 @@ const SignUpPage = () => {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                className='mt-2'
+                                className="mt-2"
                             />
                         </div>
 
-                        <Button type="submit" className="w-full" disabled={loading}>
+                        <Button
+                            type="submit"
+                            className="w-full"
+                            disabled={loading || !nameStatus?.available}
+                        >
                             {loading ? (
                                 <span className="flex items-center gap-2">
                                     <Loader className="w-4 h-4 animate-spin" />

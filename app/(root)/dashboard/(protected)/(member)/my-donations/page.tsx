@@ -16,6 +16,7 @@ interface Transaction {
   status: string;
   timestamp: string;
   amount: number;
+  invoice_url: string,
 }
 
 // Define props type for Next.js App Router
@@ -50,13 +51,13 @@ const page = async ({ searchParams }: PageProps) => {
   if (!userType || !["REGULAR", "MEMBER", "TRUSTIE", "UPPER_TRUSTIE"].includes(userType)) {
     return notFound(); // Restrict to MEMBER and above
   }
-
   // Build Firestore query
   let query = adminDb
     .collection("transactions")
     .where("userId", "==", userId)
     .orderBy("timestamp", "desc")
-    .limit(ITEMS_PER_PAGE + 1);
+    .limit(ITEMS_PER_PAGE + 1)
+    .select('razorpay_payment_id', 'captured', 'method', 'status', 'amount', 'invoice_url', 'timestamp')
 
   if (cursor) {
     try {
@@ -90,6 +91,7 @@ const page = async ({ searchParams }: PageProps) => {
         method: data.method || "N/A",
         status: data.status || "N/A",
         timestamp: data.timestamp ? Timestamp.fromMillis(data.timestamp._seconds * 1000).toDate().toISOString() : "",
+        invoice_url: data?.invoice_url ? data?.invoice_url : "",
       };
     });
 

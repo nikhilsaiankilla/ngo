@@ -25,7 +25,6 @@ export async function getZohoAccessToken(): Promise<string> {
 
     // If a fetch is already in progress, wait for it
     if (ongoingFetchPromise) {
-        console.log("Waiting for ongoing Zoho token fetch");
         return ongoingFetchPromise;
     }
 
@@ -40,14 +39,12 @@ export async function getZohoAccessToken(): Promise<string> {
             tokenData.expiresAt &&
             now < tokenData.expiresAt - buffer
         ) {
-            console.log("Returning Zoho access token from Firestore");
             return tokenData.accessToken;
         }
 
         // Fetch a new token
         ongoingFetchPromise = (async () => {
             try {
-                console.log("Fetching new Zoho access token");
                 const res = await fetch("https://accounts.zoho.in/oauth/v2/token", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -60,7 +57,6 @@ export async function getZohoAccessToken(): Promise<string> {
                 });
 
                 const data = await res.json();
-                console.log("Zoho token response:", JSON.stringify(data, null, 2));
 
                 if (!res.ok || !data.access_token) {
                     throw new Error(`Failed to refresh Zoho token: ${data.error || "Unknown error"}`);
@@ -74,10 +70,8 @@ export async function getZohoAccessToken(): Promise<string> {
                     updatedAt: Timestamp.fromMillis(now),
                 });
 
-                console.log(`New Zoho token stored in Firestore, expires at: ${new Date(expiresAt).toISOString()}`);
                 return data.access_token;
             } catch (error) {
-                console.error("getZohoAccessToken error:", error);
                 throw error;
             } finally {
                 // Clear the fetch promise
@@ -111,7 +105,9 @@ export async function createZohoInvoice({
             customerEmail,
             customerName,
         });
+
         if (!contactId) throw new Error("No Zoho contact ID found");
+
         const invoiceRes = await fetch(
             `https://invoice.zoho.in/api/v3/invoices?organization_id=${process.env.ZOHO_ORG_ID}`,
             {
@@ -124,12 +120,14 @@ export async function createZohoInvoice({
                     customer_id: contactId,
                     line_items: [
                         {
-                            name: `Donation - Payment ID: ${paymentId}`,
+                            name: `Donation to Hussani Welfare Association – Payment ID: ${paymentId}`,
                             rate: amount,
                             quantity: 1,
                         },
                     ],
                     payment_terms: 0,
+                    status: "sent", // <-- This ensures invoice isn't left in draft
+                    send: true,     // <-- This triggers email to customer (if configured)
                     notes: "Thank you for your generous donation!",
                 }),
             }
@@ -140,12 +138,6 @@ export async function createZohoInvoice({
         }
         return invoiceData;
     } catch (error: unknown) {
-        console.error("Zoho invoice generation failed:", {
-            error: error instanceof Error ? error.message : String(error),
-            customerEmail,
-            customerName,
-            paymentId,
-        });
         throw error;
     }
 }
@@ -176,7 +168,6 @@ export async function sendInvoiceViaZohoMail(invoiceId: string, accessToken: str
         }
         return true;
     } catch (error: unknown) {
-        console.error("Zoho email sending failed:", error);
         throw error; // Propagate error
     }
 }

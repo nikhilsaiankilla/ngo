@@ -37,6 +37,7 @@ export interface Transaction {
     razorpay_signature?: string;
     status: "success" | "failed" | "pending";
     invoiceId?: string,
+    invoice_url?: string,
     reason?: string;
     amount?: number;
     currency?: string;
@@ -176,22 +177,27 @@ export async function POST(request: NextRequest) {
                 amount: Number(payment.amount) / 100,
                 paymentId: payment.id,
             });
-            if (invoice && invoice.invoice_id) {
+
+            const invoiceRef = invoice.invoice;
+
+            if (invoiceRef && invoiceRef.invoice_id) {
                 await adminDb.collection("invoices").add({
                     userId,
-                    zohoInvoiceId: invoice.invoice_id,
-                    invoiceNumber: invoice.invoice_number,
-                    pdfUrl: `https://invoice.zoho.in/api/v3/invoices/${invoice.invoice_id}?accept=pdf&organization_id=${process.env.ZOHO_ORG_ID}`,
+                    zohoInvoiceId: invoiceRef.invoice_id,
+                    invoiceNumber: invoiceRef.invoice_number,
+                    pdfUrl: `https://invoice.zoho.in/api/v3/invoices/${invoiceRef.invoice_id}?accept=pdf&organization_id=${process.env.ZOHO_ORG_ID}`,
                     amount: Number(payment.amount) / 100,
                     createdAt: Timestamp.now(),
                 });
-                await sendInvoiceViaZohoMail(invoice.invoice_id, accessToken, payment.email);
-                await donation.update({
-                    invoiceId: invoice.invoice_id,
+
+                await sendInvoiceViaZohoMail(invoiceRef.invoice_id, accessToken, payment.email);
+
+                await transactionsRef.doc(donation.id).update({
+                    invoiceId: invoiceRef.invoice_id,
+                    invoice_url: `https://invoice.zoho.in/api/v3/invoices/${invoiceRef.invoice_id}?accept=pdf&organization_id=${process.env.ZOHO_ORG_ID}`,
                 });
             }
         } catch (error) {
-            console.error("Invoice generation or email sending failed:", error);
             return NextResponse.json({
                 message: "Payment verified successfully but failed to generate or send invoice",
                 success: true,

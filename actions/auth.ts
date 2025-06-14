@@ -2,7 +2,7 @@
 
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { saveUser, SaveUserProps } from "@/utils/firestoreHelpers";
-import { getErrorMessage, timestampToISOString } from "@/utils/helpers";
+import { getErrorMessage } from "@/utils/helpers";
 import { ServerActionResponse } from "@/types";
 import { z } from "zod";
 import { cookies } from "next/headers";
@@ -15,6 +15,34 @@ const signUpSchema = z.object({
     password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
     name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
 });
+export async function checkUsername(name: string): Promise<ServerActionResponse<{ available: boolean }>> {
+    try {
+        if (!name || name.trim().length === 0) {
+            return {
+                success: false,
+                status: 400,
+                message: 'Name is required',
+            };
+        }
+
+        const usersRef = adminDb.collection('users');
+        const nameQuery = usersRef.where('name', '==', name.trim());
+        const querySnapshot = await nameQuery.get();
+
+        return {
+            success: true,
+            status: 200,
+            data: { available: querySnapshot.empty },
+            message: querySnapshot.empty ? 'Name is available' : 'Name is already taken',
+        };
+    } catch (error: unknown) {
+        return {
+            success: false,
+            status: 500,
+            message: 'Failed to check username availability',
+        };
+    }
+}
 
 export async function signUp(
     name: string,
@@ -46,7 +74,7 @@ export async function signUp(
         // Prepare user data for Firestore save
         const userData: SaveUserProps = {
             id: user.uid,
-            name,
+            name: name.trim(),
             email: user.email || email,
             image: user.photoURL || '',
         };
@@ -373,14 +401,39 @@ export async function savePhoneNumber(phoneNumber: string) {
         };
     }
 }
-export async function verifyPhone() {
-    try {
 
-    } catch (error: unknown) {
-        return {
-            success: false,
-            status: 500,
-            message: getErrorMessage(error),
-        };
+
+
+// Function to generate a random 4-digit number
+function getRandomFourDigits(): string {
+    return Math.floor(1000 + Math.random() * 9000).toString().padStart(4, '0');
+}
+
+// Function to generate a unique name by appending a random 4-digit number
+export async function generateUniqueName(baseName: string): Promise<string> {
+    let name = baseName.trim().toLowerCase(); // Normalize to lowercase
+    if (!name) {
+        name = 'user'; // Fallback if displayName is empty
     }
+
+    let uniqueName = name;
+    let attempts = 0;
+    const maxAttempts = 10; // Limit retries to avoid excessive Firestore reads
+
+    // Query Firestore to check if name exists
+    while (attempts < maxAttempts) {
+        const usersRef = adminDb.collection('users');
+        const nameQuery = usersRef.where('name', '==', uniqueName);
+        const querySnapshot = await nameQuery.get();
+
+        if (querySnapshot.empty) {
+            return uniqueName; // Name is unique
+        }
+
+        // Append random 4-digit number and try again
+        uniqueName = `${name}${getRandomFourDigits()}`;
+        attempts++;
+    }
+
+    throw new Error('Unable to generate a unique name after maximum attempts');
 }

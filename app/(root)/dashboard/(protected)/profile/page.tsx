@@ -122,10 +122,7 @@ const Page = async () => {
 
     // Requested role based on user_type
     const requestedRole = roleUpgradeMap[user.user_type];
-
-    console.log(user);
-
-
+    
     return (
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
             <h1 className="text-4xl font-bold text-center mb-10 text-gray-800">User Profile</h1>

@@ -1,9 +1,10 @@
-import { handleTokenForGoogleAuth } from "@/actions/auth";
+import { generateUniqueName, handleTokenForGoogleAuth } from "@/actions/auth";
 import { db } from "@/firebase/firebase";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { store } from "./store";
 import { setUser } from "./features/users/userSlice";
+import { adminDb } from "@/firebase/firebaseAdmin";
 
 // Interface for the user data we handle
 export interface SaveUserProps {
@@ -39,12 +40,15 @@ export async function signInWithGoogleClient(): Promise<SaveUserProps | null> {
     let userType = "REGULAR";
 
     if (!existingUser.exists()) {
-      // New user: create Firestore entry
+      // New user: ensure unique name and create Firestore entry
+      userData.name = await generateUniqueName(firebaseUser.displayName || '');
+
       await setDoc(userRef, {
         ...userData,
         user_type: userType,
         createdAt: serverTimestamp(),
       });
+      
     } else {
       // Existing user: fetch user_type from Firestore
       const userDocData = existingUser.data();

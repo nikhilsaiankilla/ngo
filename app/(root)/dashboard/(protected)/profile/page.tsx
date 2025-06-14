@@ -10,6 +10,7 @@ import { columns, RoleRequestHistory } from './columns';
 import { cookies } from 'next/headers';
 import { PhoneVerification } from '@/components/PhoneVerification';
 import { Verified } from 'lucide-react';
+import ProfilePicture from '@/components/ProfilePicture';
 
 // Define types for user
 type UserRole = 'REGULAR' | 'MEMBER' | 'TRUSTIE' | 'UPPER_TRUSTIE';
@@ -122,7 +123,7 @@ const Page = async () => {
 
     // Requested role based on user_type
     const requestedRole = roleUpgradeMap[user.user_type];
-    
+
     return (
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
             <h1 className="text-4xl font-bold text-center mb-10 text-gray-800">User Profile</h1>
@@ -131,16 +132,7 @@ const Page = async () => {
                 <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className='w-full border-gray-100 bg-white rounded-2xl shadow-2xl p-4'>
                         <div className="flex items-center flex-col space-x-6 ">
-                            <Image
-                                src={
-                                    user.photoURL ||
-                                    "https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png"
-                                }
-                                alt={user.name || 'User'}
-                                width={100}
-                                height={100}
-                                className="w-32 h-32 rounded-full object-cover border border-gray-300"
-                            />
+                            <ProfilePicture imageUrl={user?.photoURL} name={user?.name} />
                             <div>
                                 <h2 className="text-2xl font-semibold text-gray-900">{user.name || 'No name'}</h2>
                                 <p className="text-gray-600">{user.email || 'No email'}</p>

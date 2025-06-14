@@ -27,6 +27,8 @@ import uploadImageToFirebase from "@/lib/uploadImageToFirebase";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import FormTemplate from "./FormTemplate";
+import { uploadImageToCloudinary } from "@/lib/uploadImageToCloudinary";
+import ImageCropper from "../ImageCropper";
 
 // Schema
 const formSchema = z.object({
@@ -75,14 +77,38 @@ export default function EventEditForm({ eventData }: { eventData: EventDataType 
     const [endDate, setEndDate] = useState<Date | undefined>(
         eventData?.endDate ? new Date(eventData.endDate) : undefined
     );
+    const [showCropper, setShowCropper] = useState(false);
+    const [tempImageBase64, setTempImageBase64] = useState<string | null>(null);
+    const [croppedImageBase64, setCroppedImageBase64] = useState<string | null>(null);
+
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+        if (!file) return;
+
         if (file) {
             form.setValue("image", file);
             setImagePreview(URL.createObjectURL(file));
         }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setTempImageBase64(reader.result as string);
+            setShowCropper(true);
+        };
+        reader.readAsDataURL(file);
     };
+
+    const handleCropComplete = (croppedBase64: string) => {
+        setCroppedImageBase64(croppedBase64);
+        setImagePreview(croppedBase64);
+        setShowCropper(false);
+    };
+
+    const handleCancel = () => {
+        setImagePreview(eventData?.image || "")
+        setShowCropper(false)
+    }
 
     const onSubmit = async (values: FormValues) => {
         setIsLoading(true);
@@ -100,18 +126,15 @@ export default function EventEditForm({ eventData }: { eventData: EventDataType 
         }
 
         try {
-            const imageFile = values.image;
-            let imageUrl = eventData.image || "https://dummyimage.com/600x400/000/fff";
+            let imageUrl = eventData.image
 
-            // Upload new image if selected
-            if (imageFile instanceof File) {
-                // const uploadResult = await uploadImageToFirebase(imageFile);
-                // if (!uploadResult.success) {
-                //     toast.error("Image upload failed: " + uploadResult.message);
-                //     setIsLoading(false);
-                //     return;
-                // }
-                // imageUrl = uploadResult?.data?.url || "";
+            if (croppedImageBase64) {
+                const uploadedUrl = await uploadImageToCloudinary(croppedImageBase64, "/events");
+                if (!uploadedUrl) {
+                    toast.error("Failed to upload image.");
+                    return;
+                }
+                imageUrl = uploadedUrl;
             }
 
             const updatedData = {
@@ -226,6 +249,14 @@ export default function EventEditForm({ eventData }: { eventData: EventDataType 
                             </FormItem>
                         )}
                     />
+
+                    {showCropper && tempImageBase64 && (
+                        <ImageCropper
+                            imageSrc={tempImageBase64}
+                            onComplete={handleCropComplete}
+                            onCancel={handleCancel}
+                        />
+                    )}
 
                     <div className="space-y-2">
                         <Label>Select Event Dates</Label>

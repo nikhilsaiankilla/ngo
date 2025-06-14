@@ -26,6 +26,8 @@ import { getErrorMessage } from "@/utils/helpers";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import FormTemplate from "./FormTemplate";
+import { uploadImageToCloudinary } from "@/lib/uploadImageToCloudinary";
+import ImageCropper from "../ImageCropper";
 
 // Schema
 const formSchema = z.object({
@@ -53,6 +55,9 @@ export default function EditServiceForm({ serviceData }: { serviceData: serviceD
     const [isLoading, setIsLoading] = useState(false);
     const [description, setDescription] = useState(serviceData?.description || "");
     const [imagePreview, setImagePreview] = useState(serviceData?.image || "");
+    const [showCropper, setShowCropper] = useState(false);
+    const [tempImageBase64, setTempImageBase64] = useState<string | null>(null);
+    const [croppedImageBase64, setCroppedImageBase64] = useState<string | null>(null);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -65,26 +70,45 @@ export default function EditServiceForm({ serviceData }: { serviceData: serviceD
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+        if (!file) return;
+
         if (file) {
             form.setValue("image", file);
             setImagePreview(URL.createObjectURL(file));
         }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setTempImageBase64(reader.result as string);
+            setShowCropper(true);
+        };
+        reader.readAsDataURL(file);
     };
+
+    const handleCropComplete = (croppedBase64: string) => {
+        setCroppedImageBase64(croppedBase64);
+        setImagePreview(croppedBase64);
+        setShowCropper(false);
+    };
+
+    const handleCancel = () => {
+        setImagePreview(serviceData?.image)
+        setShowCropper(false)
+    }
 
     const onSubmit = async (values: FormValues) => {
         setIsLoading(true);
 
         try {
-            let imageUrl = serviceData.image || "https://dummyimage.com/600x400/000/fff";
+            let imageUrl = serviceData.image
 
-            if (values.image instanceof File) {
-                // const uploadResult = await uploadImageToFirebase(values.image);
-                // if (!uploadResult.success) {
-                //     toast.error("Image upload failed: " + uploadResult.message);
-                //     setIsLoading(false);
-                //     return;
-                // }
-                // imageUrl = uploadResult?.data?.url || "";
+            if (croppedImageBase64) {
+                const uploadedUrl = await uploadImageToCloudinary(croppedImageBase64, "/events");
+                if (!uploadedUrl) {
+                    toast.error("Failed to upload image.");
+                    return;
+                }
+                imageUrl = uploadedUrl;
             }
 
             const updatedService = {
@@ -188,6 +212,14 @@ export default function EditServiceForm({ serviceData }: { serviceData: serviceD
                             </FormItem>
                         )}
                     />
+
+                    {showCropper && tempImageBase64 && (
+                        <ImageCropper
+                            imageSrc={tempImageBase64}
+                            onComplete={handleCropComplete}
+                            onCancel={handleCancel}
+                        />
+                    )}
 
                     {/* Submit Button */}
                     <Button type="submit" className="w-full mt-4" disabled={isLoading}>

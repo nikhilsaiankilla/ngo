@@ -4,6 +4,7 @@
 import Cropper, { Area } from "react-easy-crop";
 import { useCallback, useState } from "react";
 import getCroppedImg from "@/lib/getCroppedImage";
+import { Button } from "./ui/button";
 
 interface Props {
     imageSrc: string;
@@ -44,12 +45,20 @@ export default function ImageCropper({ imageSrc, onComplete, onCancel }: Props) 
                 />
             </div>
             <div className="flex gap-4 mt-4">
-                <button onClick={handleDone} className="bg-green-500 px-4 py-2 rounded text-white">
+                <Button
+                    type="button"
+                    onClick={handleDone}
+                    className="bg-green-500 px-4 py-2 rounded text-white"
+                >
                     Crop
-                </button>
-                <button onClick={onCancel} className="bg-red-500 px-4 py-2 rounded text-white">
+                </Button>
+                <Button
+                    type="button"
+                    onClick={onCancel}
+                    className="bg-red-500 px-4 py-2 rounded text-white"
+                >
                     Cancel
-                </button>
+                </Button>
             </div>
         </div>
     );

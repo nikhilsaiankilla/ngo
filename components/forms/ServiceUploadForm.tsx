@@ -21,11 +21,12 @@ import MDEditor from "@uiw/react-md-editor";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
 
-import uploadImageToFirebase from "@/lib/uploadImageToFirebase";
 import { addService } from "@/actions/services";
 import { getErrorMessage } from "@/utils/helpers";
 import Image from "next/image";
 import FormTemplate from "./FormTemplate";
+import { uploadImageToCloudinary } from "@/lib/uploadImageToCloudinary";
+import ImageCropper from "../ImageCropper";
 
 // Schema
 const formSchema = z.object({
@@ -40,6 +41,9 @@ export default function ServiceForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [description, setDescription] = useState("");
     const [imagePreview, setImagePreview] = useState("");
+    const [showCropper, setShowCropper] = useState(false);
+    const [tempImageBase64, setTempImageBase64] = useState<string | null>(null);
+    const [croppedImageBase64, setCroppedImageBase64] = useState<string | null>(null);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -52,10 +56,20 @@ export default function ServiceForm() {
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            form.setValue("image", file);
-            setImagePreview(URL.createObjectURL(file));
-        }
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setTempImageBase64(reader.result as string);
+            setShowCropper(true);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleCropComplete = (croppedBase64: string) => {
+        setCroppedImageBase64(croppedBase64);
+        setImagePreview(croppedBase64);
+        setShowCropper(false);
     };
 
     const onSubmit = async (values: FormValues) => {
@@ -67,21 +81,18 @@ export default function ServiceForm() {
             return;
         }
 
-        try {
-            const imageFile = values.image;
-            let imageUrl = "https://dummyimage.com/600x400/000/fff";
+        let imageUrl = "";
 
-            if (imageFile instanceof File) {
-                // const uploadResult = await uploadImageToFirebase(imageFile);
-                // if (!uploadResult.success) {
-                //     toast.error("Image upload failed: " + uploadResult.message);
-                //     setIsLoading(false);
-                //     return;
-                // }
-                // imageUrl = uploadResult.data?.url || "";
+        try {
+            if (croppedImageBase64) {
+                const uploadedUrl = await uploadImageToCloudinary(croppedImageBase64, "/events");
+                if (!uploadedUrl) {
+                    toast.error("Failed to upload image.");
+                    return;
+                }
+                imageUrl = uploadedUrl;
             } else {
-                toast.error("Please upload an image.");
-                setIsLoading(false);
+                toast.error("Please upload and crop an image.");
                 return;
             }
 
@@ -183,6 +194,14 @@ export default function ServiceForm() {
                             </FormItem>
                         )}
                     />
+
+                    {showCropper && tempImageBase64 && (
+                        <ImageCropper
+                            imageSrc={tempImageBase64}
+                            onComplete={handleCropComplete}
+                            onCancel={() => setShowCropper(false)}
+                        />
+                    )}
 
                     <Button type="submit" disabled={isLoading} className="w-full mt-2">
                         {isLoading ? (

@@ -23,11 +23,12 @@ import { toast } from "sonner";
 import { addEvent } from "@/actions/events";
 import { getErrorMessage } from "@/utils/helpers";
 import { Loader } from "lucide-react";
-import uploadImageToFirebase from "@/lib/uploadImageToFirebase";
 import Image from "next/image";
 import FormTemplate from "./FormTemplate";
+import { uploadImageToCloudinary } from "@/lib/uploadImageToCloudinary";
+import ImageCropper from "../ImageCropper";
 
-// Define schema
+// Schema & types
 const formSchema = z.object({
     title: z.string().min(1, "Title is required"),
     tagline: z.string().min(1, "Tagline is required"),
@@ -35,11 +36,18 @@ const formSchema = z.object({
     image: z.any(),
 });
 
-// Infer TypeScript type from schema
 type FormValues = z.infer<typeof formSchema>;
 
 export default function EventUploadForm() {
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [description, setDescription] = useState("");
+    const [imagePreview, setImagePreview] = useState("");
+    const [startDate, setStartDate] = useState<Date>();
+    const [endDate, setEndDate] = useState<Date>();
+    const [showCropper, setShowCropper] = useState(false);
+    const [tempImageBase64, setTempImageBase64] = useState<string | null>(null);
+    const [croppedImageBase64, setCroppedImageBase64] = useState<string | null>(null);
+
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -50,55 +58,48 @@ export default function EventUploadForm() {
         },
     });
 
-    const [description, setDescription] = useState("");
-    const [image, setImage] = useState<File | null>(null)
-    const [imagePreview, setImagePreview] = useState<string>("");
-    const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-    const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setImage(file);
-            setImagePreview(URL.createObjectURL(file));
-        }
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setTempImageBase64(reader.result as string);
+            setShowCropper(true);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleCropComplete = (croppedBase64: string) => {
+        setCroppedImageBase64(croppedBase64);
+        setImagePreview(croppedBase64);
+        setShowCropper(false);
     };
 
     const onSubmit = async (values: FormValues) => {
-        setIsLoading(true);
         if (!startDate || !endDate) {
-            setIsLoading(false)
             toast.error("Please select both start and end dates.");
             return;
         }
 
         if (endDate < startDate) {
-            setIsLoading(false)
             toast.error("End date must be after start date.");
             return;
         }
 
-        let imageUrl = ""
+        setIsLoading(true);
+        let imageUrl = "";
 
         try {
-            TODO:// we have to fix this later IMAGE UPLOAD PROBLEM
-            if (image) {
-                // const res = await uploadImageToFirebase(image);
-
-                // if (!res.success) {
-                //     toast.error(res?.message);
-                //     return;
-                // }
-
-                // if (!res?.data?.url) {
-                //     toast.error("something went wrong while uploading");
-                //     return;
-                // }
-
-                imageUrl = "https://dummyimage.com/600x400/000/fff" //|| res?.data?.url ||
+            if (croppedImageBase64) {
+                const uploadedUrl = await uploadImageToCloudinary(croppedImageBase64, "/events");
+                if (!uploadedUrl) {
+                    toast.error("Failed to upload image.");
+                    return;
+                }
+                imageUrl = uploadedUrl;
             } else {
-                toast.error("Image is required.");
-                setIsLoading(false)
+                toast.error("Please upload and crop an image.");
                 return;
             }
 
@@ -121,14 +122,13 @@ export default function EventUploadForm() {
                 setImagePreview("");
             } else {
                 toast.error("Failed to add event: " + response.message);
-                setIsLoading(false)
             }
-            setIsLoading(false)
         } catch (error: unknown) {
             console.error(error);
             toast.error(getErrorMessage(error));
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false)
     };
 
     return (
@@ -184,7 +184,6 @@ export default function EventUploadForm() {
                             onChange={(val) => setDescription(val || "")}
                             preview="edit"
                             height={300}
-                            style={{ borderRadius: 5, overflow: "hidden" }}
                             textareaProps={{
                                 placeholder: "Briefly describe your idea and what problem it solves",
                             }}
@@ -220,6 +219,14 @@ export default function EventUploadForm() {
                             </FormItem>
                         )}
                     />
+
+                    {showCropper && tempImageBase64 && (
+                        <ImageCropper
+                            imageSrc={tempImageBase64}
+                            onComplete={handleCropComplete}
+                            onCancel={() => setShowCropper(false)}
+                        />
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="grid gap-2">

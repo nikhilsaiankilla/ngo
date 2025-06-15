@@ -7,12 +7,13 @@ import getCroppedImg from "@/lib/getCroppedImage";
 import { Button } from "./ui/button";
 
 interface Props {
+    ratio?: number,
     imageSrc: string;
     onComplete: (croppedBase64: string) => void;
     onCancel: () => void;
 }
 
-export default function ImageCropper({ imageSrc, onComplete, onCancel }: Props) {
+export default function ImageCropper({ ratio, imageSrc, onComplete, onCancel }: Props) {
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -38,7 +39,7 @@ export default function ImageCropper({ imageSrc, onComplete, onCancel }: Props) 
                     image={imageSrc}
                     crop={crop}
                     zoom={zoom}
-                    aspect={4 / 3}
+                    aspect={ratio ? ratio : 4 / 3}
                     onCropChange={setCrop}
                     onZoomChange={setZoom}
                     onCropComplete={onCropComplete}

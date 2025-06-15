@@ -1,6 +1,5 @@
 import { LogoutButton } from '@/components/buttons/LogoutButton';
 import { RequestRoleButton } from '@/components/buttons/RequestRoleButton';
-import Image from 'next/image';
 import React from 'react';
 import { getRoleRequestHistory } from '@/actions/requestRoleUpgrade';
 import { getUser } from '@/actions/auth';
@@ -12,18 +11,16 @@ import { PhoneVerification } from '@/components/PhoneVerification';
 import { Verified } from 'lucide-react';
 import ProfilePicture from '@/components/ProfilePicture';
 
-// Define types for user
 type UserRole = 'REGULAR' | 'MEMBER' | 'TRUSTIE' | 'UPPER_TRUSTIE';
 
 type User = {
     photoURL?: string;
-    createdAt: { _seconds: number; _nanoseconds: number };
+    createdAt: string | null; // changed from timestamp object to ISO string
     user_type: UserRole;
     name: string;
     email: string;
-    phoneNumber?: string;
+    phoneNumber?: string | undefined;
     isPhoneVerified?: boolean;
-
 };
 
 // Define type for role request data from server
@@ -53,23 +50,16 @@ interface UserResponse {
     message?: string;
     status: number,
     data?: {
-        name: string;
-        photoURL?: string;
-        email: string;
-        user_type: UserRole;
-        isPhoneVerified: boolean,
-        phoneNumber: string,
-        createdAt: { _seconds: number; _nanoseconds: number };
+        id: string,
+        name: string,
+        email: string,
+        photoURL: string,
+        user_type: UserRole,
+        phoneNumber?: string,
+        isPhoneVerified?: boolean,
+        createdAt: string,
     };
 }
-
-const formatDate = (seconds: number) => {
-    return new Date(seconds * 1000).toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
-};
 
 const Page = async () => {
     const cookiesStore = await cookies();
@@ -110,16 +100,15 @@ const Page = async () => {
             : undefined,
     })) ?? [];
 
-    // Construct user with all needed props including createdAt
-    const user: User = userRes?.data
-        ? {
-            name: userRes.data.name,
-            photoURL: userRes.data.photoURL,
-            email: userRes.data.email,
-            user_type: userRes.data.user_type,
-            createdAt: userRes.data.createdAt,
-        }
-        : ({} as User);
+    const user: User = {
+        name: userRes?.data?.name || "",
+        photoURL: userRes?.data?.photoURL,
+        email: userRes?.data?.email || "",
+        user_type: userRes?.data?.user_type || "REGULAR",
+        createdAt: userRes?.data?.createdAt || "",
+        phoneNumber: userRes?.data?.phoneNumber || "",
+        isPhoneVerified: userRes?.data?.isPhoneVerified || false,
+    }
 
     // Requested role based on user_type
     const requestedRole = roleUpgradeMap[user.user_type];
@@ -137,8 +126,13 @@ const Page = async () => {
                                 <h2 className="text-2xl font-semibold text-gray-900">{user.name || 'No name'}</h2>
                                 <p className="text-gray-600">{user.email || 'No email'}</p>
                                 <p className="text-sm text-gray-500 mt-1">
-                                    Joined on {user.createdAt ? formatDate(user.createdAt._seconds) : 'N/A'}
+                                    Joined on {user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                    }) : 'N/A'}
                                 </p>
+
                             </div>
                         </div>
 
@@ -162,7 +156,7 @@ const Page = async () => {
                                 </div>
                                 :
                                 <PhoneVerification
-                                    defaultPhone={user.phoneNumber}
+                                    defaultPhone={user?.phoneNumber}
                                     isVerified={user.isPhoneVerified}
                                 />
                         }

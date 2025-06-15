@@ -1,6 +1,7 @@
 "use server";
 
 import { adminDb } from "@/firebase/firebaseAdmin";
+import { extractCloudinaryPublicId } from "@/lib/utils";
 import { cloudinary } from "@/utils/cloudinaryConfig";
 import { getErrorMessage } from "@/utils/helpers";
 import { cookies } from "next/headers";
@@ -21,8 +22,22 @@ export async function uploadProfilePicture(imageUrl: string) {
             return { success: false, message: "User not found", status: 404 };
         }
 
+        const user = userDoc.data();
+
+        if (imageUrl !== user?.photoURL) {
+            if (user) {
+                if (user?.photoURLphotoURL !== imageUrl) {
+                    const publicId = extractCloudinaryPublicId(user?.photoURL);
+
+                    if (publicId) {
+                        await deleteCloudinaryImage(publicId);
+                    }
+                }
+            }
+        }
+
         await userRef.update({
-            profilePicture: imageUrl,
+            photoURL: imageUrl,
         });
 
         return {

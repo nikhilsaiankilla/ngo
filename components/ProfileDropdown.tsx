@@ -76,7 +76,7 @@ const ProfileDropDown = () => {
                                         alt="User avatar"
                                         width={34}
                                         height={34}
-                                        className="rounded-full"
+                                        className="rounded-full border-2 border-gray-400"
                                     />
                                     <div className='flex flex-col items-start justify-start pl-3'>
                                         <span className="text-sm font-medium">{memoizedUser?.name}</span>
@@ -90,9 +90,9 @@ const ProfileDropDown = () => {
                                 <Image
                                     src={memoizedUser?.image || "https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png"}
                                     alt="User avatar"
-                                    width={32}
-                                    height={32}
-                                    className="rounded-full"
+                                    width={36}
+                                    height={36}
+                                    className="rounded-full border-2 border-gray-400"
                                 />
                                 <DropdownMenuLabel className="flex flex-col gap-1">
                                     <span className="text-sm font-medium">{memoizedUser?.name}</span>

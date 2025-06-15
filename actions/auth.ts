@@ -257,20 +257,22 @@ export async function getUser(id: string) {
 
         const fetchedUser = docSnap.data();
 
+        const user = {
+            id: docSnap.id,
+            name: fetchedUser?.name,
+            email: fetchedUser?.email,
+            photoURL: fetchedUser?.photoURL,
+            user_type: fetchedUser?.user_type,
+            phoneNumber: fetchedUser?.phoneNumber ?? null,
+            isPhoneVerified: fetchedUser?.isPhoneVerified ?? false,
+            createdAt: fetchedUser?.createdAt?.toDate().toISOString() || null,
+        }
+
         return {
             success: true,
             status: 200,
             message: 'User fetched successfully',
-            data: {
-                id: docSnap.id,
-                name: fetchedUser?.name,
-                email: fetchedUser?.email,
-                photoURL: fetchedUser?.image,
-                user_type: fetchedUser?.user_type,
-                phoneNumber: fetchedUser?.phoneNumber ?? null,
-                isPhoneVerified: fetchedUser?.isPhoneVerified ?? false,
-                createdAt: fetchedUser?.createdAt?.toDate().toISOString() || null,
-            },
+            data: user,
         };
     } catch (error: unknown) {
         return {
@@ -331,7 +333,7 @@ export async function getUserForUi() {
             id: docSnap.id,
             name: fetchedUser?.name,
             email: fetchedUser?.email,
-            image: fetchedUser?.image
+            image: fetchedUser?.photoURL
         };
 
         return {

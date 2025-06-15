@@ -32,23 +32,29 @@ const ProfilePicture = ({
         reader.onloadend = () => {
             setTempImageBase64(reader.result as string);
             setShowCropper(true);
+            setIsEditing(true); // ✅ this makes the cropper open
         };
         reader.readAsDataURL(file);
     };
 
-    const handleCropComplete = (croppedBase64: string) => {
-        setCroppedImageBase64(croppedBase64);
+    const handleCropComplete = async (croppedBase64: string) => {
         setShowCropper(false);
         setIsEditing(false);
-        uploadImage();
+        await uploadImage(croppedBase64); // pass directly
     };
 
-    const uploadImage = async () => {
-        if (!croppedImageBase64) return;
+    const uploadImage = async (croppedBase64: string) => {
+        if (!croppedBase64) {
+            toast.error("Cropped image is missing")
+            return;
+        }
 
         setLoading(true);
         try {
-            const uploadedUrl = await uploadImageToCloudinary(croppedImageBase64, "/profile");
+            const uploadedUrl = await uploadImageToCloudinary(
+                croppedBase64,
+                "/profile"
+            );
 
             if (!uploadedUrl) {
                 toast.error("Failed to upload image.");
@@ -71,8 +77,10 @@ const ProfilePicture = ({
             toast.error("Something went wrong while uploading image");
         } finally {
             setLoading(false);
+            setIsEditing(false);
         }
     };
+
 
     return (
         <div className="w-32 h-32 relative">
@@ -88,16 +96,17 @@ const ProfilePicture = ({
                 className="w-full h-full rounded-full object-cover border border-gray-300"
             />
 
-            {/* Loading spinner overlay */}
+            {/* Loading spinner */}
             {loading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-full">
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-5 rounded-full">
                     <Loader2 className="h-6 w-6 text-white animate-spin" />
                 </div>
             )}
 
-            {/* Cropper UI */}
+            {/* Cropper */}
             {isEditing && showCropper && tempImageBase64 && (
                 <ImageCropper
+                    ratio={1}
                     imageSrc={tempImageBase64}
                     onComplete={handleCropComplete}
                     onCancel={() => {

@@ -12,6 +12,7 @@ import { getDonationsByYear } from "@/actions/analytics"; // Make sure this path
 import { toast } from "sonner";
 import TotalDonationPerYear from "./charts/TotalDonationPerYear";
 import DonationsPerLineChart from "./charts/DonationsPerLineChart";
+import DonationsThisMonthCard from "./DonationsThisMonthCard";
 
 interface DonationData {
     month: string;
@@ -24,6 +25,7 @@ const DonationAnalytics = () => {
     const [data, setData] = useState<DonationData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [totalAmount, setTotalAmount] = useState<number>(0);
+    const [thisMonthDonations, setThisMonthDonations] = useState<number>(0);
 
     const years = Array.from({ length: 6 }, (_, i) => 2025 - i);
 
@@ -53,6 +55,14 @@ const DonationAnalytics = () => {
                         month: monthsMap[parseInt(month, 10) - 1],
                     };
                 });
+
+                // setting this month donations in the setThisMonthDonations
+                const currentMonthIndex = new Date().getMonth();
+                const currentMonth = monthsMap[currentMonthIndex];
+
+                const currentMonthData = formattedData.find((entry) => entry.month === currentMonth);
+
+                setThisMonthDonations(currentMonthData?.total || 0);
                 setData(formattedData);
                 setTotalAmount(res?.data?.totalAmountThisYear);
             } catch (err) {
@@ -108,11 +118,12 @@ const DonationAnalytics = () => {
                     loading={loading}
                 />
 
-                <div className="w-full grid grid-cols-2 gap-3">
-                    <TotalDonationCard />
-                    <TotalDonationPerYear loading={loading} totalAmount={totalAmount} year={selectedYear} />
-                    <TotalDonationCard />
-                    <TotalDonationCard />
+                <div className="w-full grid grid-cols-1 gap-3">
+                    <div className="w-full grid grid-cols-2 gap-3">
+                        <TotalDonationCard />
+                        <TotalDonationPerYear loading={loading} totalAmount={totalAmount} year={selectedYear} />
+                    </div>
+                    <DonationsThisMonthCard loading={loading} totalAmount={thisMonthDonations} />
                 </div>
             </div>
             <div className="mt-5">

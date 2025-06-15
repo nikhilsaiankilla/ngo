@@ -2,6 +2,8 @@
 
 import { userSignOut } from '@/actions/auth'
 import { Button } from '@/components/ui/button'
+import { auth } from '@/firebase/firebase'
+import { signOut } from 'firebase/auth'
 import { Loader } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -13,6 +15,7 @@ export const LogoutButton = () => {
     const handleLogout = async () => {
         setIsLoading(true)
         try {
+            signOut(auth);
             await userSignOut()
             router.push('/auth/signin') // Redirect after logout
         } catch (error) {

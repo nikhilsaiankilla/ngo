@@ -36,3 +36,24 @@ export const getBase64FromFile = (file: File): Promise<string> => {
     reader.onerror = error => reject(error);
   });
 };
+
+export function extractCloudinaryPublicId(url: string) {
+  try {
+    // Remove the Cloudinary upload prefix
+    const parts = url.split('/upload/');
+    if (parts.length < 2) return null;
+
+    // Get the path after upload/
+    const path = parts[1];
+
+    // Remove versioning (e.g., v1234567890/)
+    const pathWithoutVersion = path.replace(/^v\d+\//, '');
+
+    // Remove file extension
+    const publicId = pathWithoutVersion.replace(/\.[^/.]+$/, '');
+
+    return publicId;
+  } catch (error: unknown) {
+    return null;
+  }
+}

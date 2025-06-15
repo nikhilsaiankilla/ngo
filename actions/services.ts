@@ -4,6 +4,8 @@ import { adminDb } from "@/firebase/firebaseAdmin";
 import { cookies } from "next/headers";
 import { getErrorMessage } from "@/utils/helpers";
 import { Timestamp } from "firebase-admin/firestore";
+import { extractCloudinaryPublicId } from "@/lib/utils";
+import { deleteCloudinaryImage } from "./imageUpload";
 
 interface AddServiceInput {
     title: string;
@@ -131,6 +133,18 @@ export async function updateService(data: UpdateServiceInput): Promise<ServerRes
             };
         }
 
+        const serviceData = serviceDoc.data();
+
+        if (serviceData) {
+            if (serviceData?.image !== image) {
+                const publicId = extractCloudinaryPublicId(serviceData?.image);
+
+                if (publicId) {
+                    await deleteCloudinaryImage(publicId);
+                }
+            }
+        }
+
         await serviceRef.update({
             title,
             tagline,
@@ -204,6 +218,19 @@ export async function deleteService(serviceId: string): Promise<ServerResponse> 
                 message: "Unauthorized: You can only delete your own services",
                 status: 403,
             };
+        }
+
+        // Attempt to delete Cloudinary image without throwing in production
+        const publicId = extractCloudinaryPublicId(serviceData?.image);
+        if (publicId) {
+            try {
+                await deleteCloudinaryImage(publicId);
+            } catch (error) {
+                if (process.env.NODE_ENV !== 'production') {
+                    console.error("Cloudinary deletion error:", error);
+                }
+                // Optionally log to a monitoring service here (e.g., Sentry, LogRocket)
+            }
         }
 
         await serviceRef.delete();

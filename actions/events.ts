@@ -4,6 +4,8 @@ import { adminDb } from "@/firebase/firebaseAdmin";
 import { getErrorMessage } from "@/utils/helpers";
 import { Timestamp } from "firebase-admin/firestore";
 import { cookies } from "next/headers";
+import { deleteCloudinaryImage } from "./imageUpload";
+import { extractCloudinaryPublicId } from "@/lib/utils";
 
 interface AddEventInput {
     title: string;
@@ -158,6 +160,18 @@ export async function updateEvent(data: UpdateEventInput): Promise<ServerRespons
             };
         }
 
+        const eventData = eventDoc.data();
+
+        if (eventData) {
+            if (eventData?.image !== image) {
+                const publicId = extractCloudinaryPublicId(eventData?.image);
+
+                if (publicId) {
+                    await deleteCloudinaryImage(publicId);
+                }
+            }
+        }
+
         await eventRef.update({
             title,
             tagline,
@@ -241,6 +255,18 @@ export async function deleteEvent(eventId: string) {
                 message: "Unauthorized: You can only delete your own events",
                 status: 403,
             };
+        }
+
+        const publicId = extractCloudinaryPublicId(eventData?.image);
+        if (publicId) {
+            try {
+                await deleteCloudinaryImage(publicId);
+            } catch (error) {
+                if (process.env.NODE_ENV !== 'production') {
+                    console.error("Cloudinary deletion error:", error);
+                }
+                // Optionally log to a monitoring service here (e.g., Sentry, LogRocket)
+            }
         }
 
         // Step 7: Delete the event

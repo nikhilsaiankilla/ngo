@@ -35,24 +35,17 @@ const teamMembers = [
             email: 'mailto:arjun@example.org',
         },
     },
-    {
-        name: 'Sneha Desai',
-        role: 'Media & Communications',
-        image: 'https://randomuser.me/api/portraits/women/23.jpg',
-        socials: {
-            linkedin: '#',
-            twitter: '#',
-            email: 'mailto:sneha@example.org',
-        },
-    },
 ];
 
 const TeamSection = () => {
+
+    const cardColors = ["#1E3A8A", "#DC2626", "#F97316"];
+
     return (
         <section className="py-22 bg-light flex items-center justify-center">
             <div className="w-full md:w-7xl mx-auto px-6 sm:px-8">
                 <h3 className="text-lg md:text-2xl font-bold text-warn capitalize text-center">
-                    meet our team
+                    Meet Our Team
                 </h3>
                 <h1 className="text-3xl md:text-5xl font-extrabold capitalize text-brand text-center">
                     Our Organization Members
@@ -62,44 +55,57 @@ const TeamSection = () => {
                     heart behind the mission.
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-10">
                     {teamMembers.map((member, index) => (
                         <div
                             key={index}
-                            className="rounded-2xl w-full shadow-md grid grid-cols-2 gap-4 overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300"
+                            style={{ 'color': cardColors[index % cardColors.length] }}
+                            className={`rounded-2xl shadow-sm hover:shadow-md transition duration-300 overflow-hidden flex flex-col items-center text-center border border-gray-200`}
                         >
-                            {/* Image Section */}
-                            <div className="relative w-full aspect-[2/3]">
-                                <Image
-                                    src={member.image}
-                                    alt={member.name}
-                                    fill
-                                    unoptimized
-                                    className="object-cover"
-                                />
-                            </div>
+                            <Image
+                                src={member.image}
+                                alt={`${member.name} Image`}
+                                width={300}
+                                height={300}
+                                className="w-full h-72 object-cover"
+                            />
 
-                            {/* Content Section */}
-                            <div className="flex flex-col justify-center px-4 py-6 text-center">
-                                <div>
-                                    <h3 className="text-xl font-semibold text-dark">{member.name}</h3>
-                                    <p className="text-sm text-muted mt-1">{member.role}</p>
-                                </div>
+                            <div
+                                className="w-full p-5 rounded-b-2xl border-[2px] border-t-0"
+                                style={{
+                                    borderColor: cardColors[index % cardColors.length],
+                                }}
+                            >
+                                <h2 className="text-lg font-semibold text-dark">{member.name}</h2>
+                                <p className="text-sm text-muted">{member.role}</p>
 
-                                <div className="flex justify-center gap-4 mt-4">
-                                    <Link href={member.socials.linkedin} target="_blank">
-                                        <Linkedin className="text-brand hover:text-dark transition-colors" size={22} />
-                                    </Link>
-                                    <Link href={member.socials.twitter} target="_blank">
-                                        <Twitter className="text-brand hover:text-dark transition-colors" size={22} />
-                                    </Link>
-                                    <Link href={member.socials.email}>
-                                        <Mail className="text-brand hover:text-dark transition-colors" size={22} />
-                                    </Link>
-                                </div>
+                                <ul className="flex items-center justify-center gap-4 mt-4"
+                                    style={{ 'color': cardColors[index % cardColors.length] }}
+                                >
+                                    {member.socials?.email && (
+                                        <li>
+                                            <Link href={member.socials.email} target="_blank">
+                                                <Mail size={20} />
+                                            </Link>
+                                        </li>
+                                    )}
+                                    {member.socials?.linkedin && (
+                                        <li>
+                                            <Link href={member.socials.linkedin} target="_blank">
+                                                <Linkedin size={20} />
+                                            </Link>
+                                        </li>
+                                    )}
+                                    {member.socials?.twitter && (
+                                        <li>
+                                            <Link href={member.socials.twitter} target="_blank">
+                                                <Twitter size={20} />
+                                            </Link>
+                                        </li>
+                                    )}
+                                </ul>
                             </div>
                         </div>
-
                     ))}
                 </div>
             </div>

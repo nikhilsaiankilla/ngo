@@ -1,5 +1,6 @@
-import { BookOpenTextIcon, GlassWater, Hospital, TrendingUpIcon } from 'lucide-react'
+import { BookOpenTextIcon, GlassWater, Heart, Hospital, TrendingUpIcon } from 'lucide-react'
 import React from 'react'
+import CustomBtn from '../buttons/CustomBtn'
 
 const ServiceSection = () => {
     return (
@@ -56,8 +57,18 @@ const ServiceSection = () => {
                     </div>
 
                 </div>
+
+                {/* CTA Section */}
+                <div className="mt-12 w-full flex justify-center">
+                    <CustomBtn
+                        label="Join Our Mission"
+                        href="/donate"
+                        icon={<Heart className="w-4 h-4" />}
+                    />
+                </div>
             </div>
         </section>
+
     )
 }
 

@@ -45,7 +45,7 @@ const TestimonialSection = () => {
                                     height={100}
                                     src={testimonial.image}
                                     alt={testimonial.name}
-                                    className="w-20 h-20 rounded-full object-cover border-4 border-brand"
+                                    className="w-24 h-24 rounded-full object-cover border-4 border-brand"
                                 />
                                 <Quote className="absolute -top-3 -right-3 text-warn opacity-80" size={24} />
                             </div>

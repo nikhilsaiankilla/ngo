@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Menu, Phone, X } from 'lucide-react';
+import { Heart, Menu, Phone, X } from 'lucide-react';
 import Image from 'next/image';
-import DonateBtn from './buttons/DonateBtn';
+import CustomBtn from './buttons/CustomBtn';
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -41,7 +41,7 @@ export default function Navbar() {
                 </Link>
 
                 {/* Desktop Menu */}
-                <div className='hidden md:flex items-center gap-6 text-sm font-medium'>
+                <div className='hidden lg:flex items-center gap-6 text-sm font-medium'>
                     {navItems.map(({ label, href }) => {
                         const isActive = pathname === href;
                         return (
@@ -49,15 +49,15 @@ export default function Navbar() {
                                 key={href}
                                 href={href}
                                 className={`relative transition-all duration-300 group ${isActive
-                                        ? 'text-brand font-semibold'
-                                        : 'text-dark hover:text-brand hover:scale-105'
+                                    ? 'text-brand font-semibold'
+                                    : 'text-dark hover:text-brand hover:scale-105'
                                     }`}
                             >
                                 {label}
                                 <span
                                     className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ${isActive
-                                            ? 'w-full bg-brand'
-                                            : 'w-0 group-hover:w-full bg-brand'
+                                        ? 'w-full bg-brand'
+                                        : 'w-0 group-hover:w-full bg-brand'
                                         }`}
                                 />
                             </Link>
@@ -66,17 +66,17 @@ export default function Navbar() {
                 </div>
 
                 {/* Contact + Donate (Desktop only) */}
-                <div className='hidden md:flex items-center gap-5'>
+                <div className='hidden lg:flex items-center gap-5'>
                     <span className='flex items-center gap-2 text-xs font-semibold text-dark'>
                         <Phone size={14} className='text-warn' />
                         +91 99999 99999
                     </span>
-                    <DonateBtn />
+                    <CustomBtn label='Donate' icon={<Heart size={18} />} href='/donate' />
                 </div>
 
                 {/* Mobile Menu Toggle */}
                 <button
-                    className='md:hidden text-dark focus:outline-none focus:ring-2 focus:ring-warn rounded-md p-1'
+                    className='lg:hidden text-dark focus:outline-none focus:ring-2 focus:ring-warn rounded-md p-1'
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     aria-label='Toggle mobile menu'
                 >
@@ -86,7 +86,7 @@ export default function Navbar() {
 
             {/* Mobile Dropdown */}
             <div
-                className={`md:hidden fixed inset-x-0 top-16 bg-light glass border-t border-white/20 transform transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-y-0 opacity-100 max-h-screen' : '-translate-y-full opacity-0 max-h-0'
+                className={`lg:hidden fixed inset-x-0 top-16 bg-light glass border-t border-white/20 transform transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-y-0 opacity-100 max-h-screen' : '-translate-y-full opacity-0 max-h-0'
                     } overflow-hidden z-40`}
             >
                 <div className='px-6 py-6 space-y-4 flex flex-col'>
@@ -97,16 +97,16 @@ export default function Navbar() {
                                 key={href}
                                 href={href}
                                 className={`relative transition-all duration-300 group ${isActive
-                                        ? 'text-brand font-semibold'
-                                        : 'text-dark hover:text-brand hover:scale-105'
+                                    ? 'text-brand font-semibold'
+                                    : 'text-dark hover:text-brand hover:scale-105'
                                     }`}
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 {label}
                                 <span
                                     className={`absolute bottom-0 left-0 h-0.5 transition-all duration-300 ${isActive
-                                            ? 'w-full bg-brand'
-                                            : 'w-0 group-hover:w-full bg-warn'
+                                        ? 'w-full bg-brand'
+                                        : 'w-0 group-hover:w-full bg-warn'
                                         }`}
                                 />
                             </Link>
@@ -120,7 +120,7 @@ export default function Navbar() {
                         <Phone size={14} className='text-warn' />
                         +91 99999 99999
                     </span>
-                    <DonateBtn />
+                    <CustomBtn label='Donate' icon={<Heart size={18} />} href='/donate' />
                 </div>
             </div>
         </nav>

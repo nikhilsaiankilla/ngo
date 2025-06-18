@@ -1,6 +1,16 @@
+import CustomBtn from "@/components/buttons/CustomBtn";
+import ServiceCard from "@/components/cards/ServiceCard";
 import SafeImage from "@/components/SafeImage";
-import { Card, CardAction, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import FooterSection from "@/components/sections/FooterSection";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardTitle,
+} from "@/components/ui/card";
 import { adminDb } from "@/firebase/firebaseAdmin";
+import { Calendar, CalendarRange } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -26,45 +36,85 @@ const getServices = async (): Promise<Service[]> => {
 };
 
 const Page = async () => {
-  const services = await getServices();
+  let services: Service[] = [];
+  let error = null;
+
+  try {
+    services = await getServices();
+  } catch (err) {
+    console.error("Error fetching services:", err);
+    error = err;
+  }
 
   return (
-    <div className="p-6 space-y-12 max-w-7xl mx-auto">
-      <section>
-        <h2 className="text-3xl font-bold mb-6">Our Services</h2>
-        {services.length === 0 ? (
-          <p className="text-gray-500">No services available.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service) => (
-              <Card key={service.id} className="rounded-2xl shadow-md overflow-hidden transition hover:shadow-xl p-4">
-                <SafeImage
-                  src={service.image}
-                  alt={service.title}
-                  width={500}
-                  height={280}
-                  className="w-full aspect-video object-cover rounded-lg"
-                />
-                <CardContent className="space-y-1 p-4">
-                  <CardTitle className="text-lg font-semibold">{service.title}</CardTitle>
-                  <CardDescription className="text-sm text-muted-foreground line-clamp-2">
-                    {service.tagline}
-                  </CardDescription>
-                  <p className="text-gray-600 text-sm line-clamp-2">{service.description}</p>
-                </CardContent>
-                <CardAction>
-                  <Link
-                    href={`/dashboard/services/${service.id}`}
-                    className="inline-block bg-green-600 text-white font-medium py-2 px-4 rounded-full text-sm hover:bg-green-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                  >
-                    View Details
-                  </Link>
-                </CardAction>
-              </Card>
-            ))}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Section - Services Page */}
+      <div
+        className="relative w-full py-20 bg-cover bg-center px-6 sm:px-8"
+        style={{ backgroundImage: "url('/donation.jpeg')" }}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-brand opacity-50 z-0" />
+
+        {/* Content Wrapper */}
+        <div className="relative z-10 h-full flex items-start justify-center">
+          <div className="max-w-2xl text-white text-center">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Calendar size={32} className="text-white" />
+              <h3 className="text-xl font-bold uppercase tracking-wide">
+                Our Services, Your Support
+              </h3>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-extrabold leading-tight text-warn">
+              Making Impact Possible
+            </h2>
+            <p className="mt-4 text-sm md:text-base">
+              From organizing medical camps to running free skill training programs,
+              our services aim to uplift the underserved and build stronger communities.
+            </p>
+            <p className="mt-2 text-xs md:text-sm italic text-gray-100">
+              Every service we offer is powered by the kindness of people like you.
+            </p>
+
+            <div className="mt-6">
+              <CustomBtn
+                label="Support Our Mission"
+                href="/donate"
+                icon={<CalendarRange />}
+                variant="warn"
+              />
+            </div>
           </div>
+        </div>
+      </div>
+
+
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-16">
+        {error ? (
+          <div className="w-full text-center">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Error Fetching Events</h2>
+            <p className="text-gray-600 mb-6">
+              Something went wrong while loading events. Please try again later.
+            </p>
+            <Link
+              href="/"
+              className="inline-block bg-green-600 text-white font-medium py-2 px-6 rounded-full hover:bg-green-700 transition-all duration-200"
+            >
+              Go Back Home
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {services.map((service, index) => (
+                <ServiceCard service={service} key={index} />
+              ))}
+            </div>
+          </>
         )}
-      </section>
+      </div>
+
+      <FooterSection />
     </div>
   );
 };

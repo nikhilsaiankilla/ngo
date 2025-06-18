@@ -61,7 +61,7 @@ const EventsSection = async () => {
           Join us as we plan our next steps in serving the community — from organizing free health camps to supporting underprivileged students. Your involvement can turn these plans into powerful realities.
         </p>
 
-        <div className='w-full grid grid-cols-1 md:grid-cols-3 gap-5 mt-10'>
+        <div className='w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-10'>
           {events.map(event => (
             <EventCard event={event} key={event?.id} />
           ))}

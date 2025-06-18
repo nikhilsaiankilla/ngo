@@ -49,6 +49,27 @@
 }
 
 :root {
+
+  --color-bg: #D1F8EF;
+
+  --color-primary: #1E3A8A;
+  /* Deep Royal Blue */
+  --color-secondary: #DC2626;
+  /* Crimson Red */
+  --color-accent: #F97316;
+  /* Warm Orange */
+  --color-bg-light: #F9FAFB;
+  /* Soft Gray */
+  --color-text-dark: #1F2937;
+  /* Slate Black */
+  --color-text-soft: #6B7280;
+  /* Cool Gray */
+  --color-success: #10B981;
+  /* Emerald Green */
+  --color-highlight: #FCD34D;
+  /* Glow Yellow */
+
+
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -84,6 +105,27 @@
 }
 
 .dark {
+
+  --color-bg: #D1F8EF;
+
+  --color-primary: #1E3A8A;
+  /* Deep Royal Blue */
+  --color-secondary: #DC2626;
+  /* Crimson Red */
+  --color-accent: #F97316;
+  /* Warm Orange */
+  --color-bg-light: #F9FAFB;
+  /* Soft Gray */
+  --color-text-dark: #1F2937;
+  /* Slate Black */
+  --color-text-soft: #6B7280;
+  /* Cool Gray */
+  --color-success: #10B981;
+  /* Emerald Green */
+  --color-highlight: #FCD34D;
+  /* Glow Yellow */
+
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -124,5 +166,64 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+
+  /* Primary theme colors */
+  .bg-regular{
+    background-color: var(--color-bg);
+  }
+  .bg-brand {
+    background-color: var(--color-primary);
+  }
+
+  .text-brand {
+    color: var(--color-primary);
+  }
+
+  .bg-danger {
+    background-color: var(--color-secondary);
+  }
+
+  .text-danger {
+    color: var(--color-secondary);
+  }
+
+  .bg-warn {
+    background-color: var(--color-accent);
+  }
+
+  .text-warn {
+    color: var(--color-accent);
+  }
+
+  .bg-success {
+    background-color: var(--color-success);
+  }
+
+  .text-success {
+    color: var(--color-success);
+  }
+
+  .bg-glow {
+    background-color: var(--color-highlight);
+  }
+
+  .text-glow {
+    color: var(--color-highlight);
+  }
+
+  .bg-light {
+    background-color: var(--color-bg-light);
+  }
+
+  .text-body {
+    color: var(--color-text-dark);
+  }
+
+  .text-muted {
+    color: var(--color-text-soft);
   }
 }

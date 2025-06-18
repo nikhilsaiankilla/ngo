@@ -1,3 +1,4 @@
+import { markdownToHtml } from "@/utils/helpers";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -56,4 +57,22 @@ export function extractCloudinaryPublicId(url: string) {
   } catch (error: unknown) {
     return null;
   }
+}
+
+
+export async function markdownToHtmlText(text: string): Promise<string> {
+  // Convert markdown to HTML
+  const html: string = await markdownToHtml(text);
+
+  // Strip all HTML tags
+  let strippedText: string = html.replace(/<[^>]*>?/gm, '');
+
+  // Remove emojis using regex (covers most common emojis)
+  strippedText = strippedText.replace(
+    /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uD000-\uDFFF]|\uD83D[\uD000-\uDFFF]|\uFE0F|\u200D)/g,
+    ''
+  );
+
+
+  return strippedText.trim();
 }

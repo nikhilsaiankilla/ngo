@@ -1,4 +1,4 @@
-import SafeImage from "@/components/SafeImage";
+import EventCard from "@/components/cards/EventCard";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { Timestamp } from "firebase-admin/firestore";
 import Link from "next/link";
@@ -12,8 +12,8 @@ type Event = {
   location: string;
   description: string;
   image: string;
-  startDate: Date;
-  endDate: Date;
+  startDate: Timestamp;
+  endDate: Timestamp;
 };
 
 const page = async () => {
@@ -38,8 +38,8 @@ const page = async () => {
           location: data.location,
           description: data.description,
           image: data.image,
-          startDate: data.startDate.toDate(),
-          endDate: data.endDate.toDate(),
+          startDate: data.startDate,
+          endDate: data.endDate,
         };
       })
       .filter((event) => event.endDate >= new Date())
@@ -71,8 +71,8 @@ const page = async () => {
         location: data.location,
         description: data.description,
         image: data.image,
-        startDate: data.startDate.toDate(),
-        endDate: data.endDate.toDate(),
+        startDate: data.startDate,
+        endDate: data.endDate,
       };
     });
 
@@ -102,38 +102,12 @@ const page = async () => {
         location: data.location,
         description: data.description,
         image: data.image,
-        startDate: data.startDate.toDate(),
-        endDate: data.endDate.toDate(),
+        startDate: data.startDate,
+        endDate: data.endDate,
       };
     });
 
-    const renderEventCard = (event: Event) => (
-      <div
-        key={event.id}
-        className="bg-white rounded-2xl shadow-sm overflow-hidden transition-transform duration-300 hover:shadow-md hover:scale-105 animate-fade-in"
-      >
-        <SafeImage
-          src={event.image}
-          alt={`${event.title} Image`}
-          width={500}
-          height={280}
-          className="w-full aspect-video object-cover"
-        />
-        <div className="p-6 space-y-3">
-          <h3 className="text-xl font-semibold text-gray-900">{event.title}</h3>
-          <p className="text-gray-600 text-sm line-clamp-2">{event.description}</p>
-          <p className="text-xs text-gray-500">
-            {event.startDate.toLocaleDateString()} - {event.endDate.toLocaleDateString()}
-          </p>
-          <Link
-            href={`/events/${event.id}`}
-            className="inline-block bg-green-600 text-white font-medium py-2 px-4 rounded-full hover:bg-green-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-          >
-            View Details
-          </Link>
-        </div>
-      </div>
-    );
+    const renderEventCard = (event: Event) => (<EventCard event={event} key={event?.id} />);
 
     return (
       <div className="min-h-screen bg-gray-50">

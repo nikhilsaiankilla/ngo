@@ -16,7 +16,7 @@ const page = () => {
                     className="w-full object-contain hidden lg:block"
                 />
 
-                <div className="w-full flex flex-col justify-center space-y-8">
+                <div className="w-full flex flex-col justify-center items-center space-y-8">
                     <ContactForm />
                 </div>
             </div >

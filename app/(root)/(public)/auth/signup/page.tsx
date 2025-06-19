@@ -12,6 +12,8 @@ import { useRouter } from 'next/navigation';
 import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { debounce } from '@/lib/utils'; // Adjust import based on your utils location
+import FooterSection from '@/components/sections/FooterSection';
+import Image from 'next/image';
 
 const SignUpPage = () => {
     const [name, setName] = useState('');
@@ -71,96 +73,110 @@ const SignUpPage = () => {
     };
 
     return (
-        <div className="min-h-[60vh] flex justify-center items-center mt-14 px-4">
-            <Card className="w-full max-w-md shadow-md border-none">
-                <CardHeader className="text-center">
-                    <h2 className="text-2xl font-bold tracking-tight">Create an account</h2>
-                    <p className="text-sm text-muted-foreground">Join us today, it's quick and easy.</p>
-                </CardHeader>
+        <section className="w-full bg-light font-sans">
+            <div className="w-full min-h-[95vh] grid grid-cols-1 lg:grid-cols-2 items-center gap-5 max-w-7xl mx-auto px-6 md:px-8 py-10">
+                <Image
+                    alt="image"
+                    src="/image1.png"
+                    width={100}
+                    unoptimized
+                    height={100}
+                    className="w-full object-contain hidden lg:block"
+                />
 
-                <form onSubmit={handleSubmit}>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <Label htmlFor="name">Name</Label>
-                            <Input
-                                id="name"
-                                placeholder="Your name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                required
-                                className="mt-2"
-                            />
-                            {nameStatus && (
-                                <p
-                                    className={`text-sm mt-1 ${nameStatus.available ? 'text-green-600' : 'text-red-600'
-                                        }`}
+                <div className="w-full flex flex-col justify-center items-center space-y-8">
+                    <Card className="w-full max-w-md shadow-md border-none">
+                        <CardHeader className="text-center">
+                            <h2 className="text-2xl font-bold tracking-tight">Create an account</h2>
+                            <p className="text-sm text-muted-foreground">Join us today, it's quick and easy.</p>
+                        </CardHeader>
+
+                        <form onSubmit={handleSubmit}>
+                            <CardContent className="space-y-4">
+                                <div>
+                                    <Label htmlFor="name">Name</Label>
+                                    <Input
+                                        id="name"
+                                        placeholder="Your name"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        required
+                                        className="mt-2"
+                                    />
+                                    {nameStatus && (
+                                        <p
+                                            className={`text-sm mt-1 ${nameStatus.available ? 'text-green-600' : 'text-red-600'
+                                                }`}
+                                        >
+                                            {nameStatus.message}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="email">Email</Label>
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        placeholder="you@example.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        className="mt-2"
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="password">Password</Label>
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        className="mt-2"
+                                    />
+                                </div>
+
+                                <Button
+                                    type="submit"
+                                    className="w-full"
+                                    disabled={loading || !nameStatus?.available}
                                 >
-                                    {nameStatus.message}
+                                    {loading ? (
+                                        <span className="flex items-center gap-2">
+                                            <Loader className="w-4 h-4 animate-spin" />
+                                            Signing up...
+                                        </span>
+                                    ) : (
+                                        'Sign Up'
+                                    )}
+                                </Button>
+                            </CardContent>
+
+                            <CardFooter className="flex flex-col gap-4 mt-4">
+                                <div className="flex items-center w-full gap-2 text-xs text-muted-foreground">
+                                    <div className="flex-1 h-px bg-border" />
+                                    or
+                                    <div className="flex-1 h-px bg-border" />
+                                </div>
+
+                                <SignWithGoogle />
+
+                                <p className="text-sm text-muted-foreground text-center">
+                                    Already have an account?{' '}
+                                    <Link href="/auth/signin" className="text-primary hover:underline">
+                                        Sign In
+                                    </Link>
                                 </p>
-                            )}
-                        </div>
-
-                        <div>
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="you@example.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                className="mt-2"
-                            />
-                        </div>
-
-                        <div>
-                            <Label htmlFor="password">Password</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                placeholder="••••••••"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                className="mt-2"
-                            />
-                        </div>
-
-                        <Button
-                            type="submit"
-                            className="w-full"
-                            disabled={loading || !nameStatus?.available}
-                        >
-                            {loading ? (
-                                <span className="flex items-center gap-2">
-                                    <Loader className="w-4 h-4 animate-spin" />
-                                    Signing up...
-                                </span>
-                            ) : (
-                                'Sign Up'
-                            )}
-                        </Button>
-                    </CardContent>
-
-                    <CardFooter className="flex flex-col gap-4 mt-4">
-                        <div className="flex items-center w-full gap-2 text-xs text-muted-foreground">
-                            <div className="flex-1 h-px bg-border" />
-                            or
-                            <div className="flex-1 h-px bg-border" />
-                        </div>
-
-                        <SignWithGoogle />
-
-                        <p className="text-sm text-muted-foreground text-center">
-                            Already have an account?{' '}
-                            <Link href="/auth/signin" className="text-primary hover:underline">
-                                Sign In
-                            </Link>
-                        </p>
-                    </CardFooter>
-                </form>
-            </Card>
-        </div>
+                            </CardFooter>
+                        </form>
+                    </Card>
+                </div>
+            </div >
+            <FooterSection />
+        </section>
     );
 };
 

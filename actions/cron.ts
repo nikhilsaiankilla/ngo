@@ -1,6 +1,8 @@
 "use server"
 
 import { adminDb } from "@/firebase/firebaseAdmin";
+import { sendEmail } from "@/utils/mail";
+import { DaysBeforeMailTemplate } from "@/utils/MailTemplates";
 import { differenceInCalendarDays } from "date-fns";
 
 export async function runDailyCleanup() {
@@ -14,12 +16,21 @@ export async function runDailyCleanup() {
             const daysUntilEvent = differenceInCalendarDays(eventDate, now);
 
             if (daysUntilEvent === 2 && !data.notified2DaysBefore) {
-                console.log(`2-day reminder: ${data.userEmail} for event: ${data.eventTitle}`);
+
+                const link = `https://ngo-two-ivory.vercel.app/events/${data?.eventLink}`
+
+                const mailTemplate = DaysBeforeMailTemplate(2, data?.eventTitle, data?.userName, data?.eventDate, link)
+
+                await sendEmail(data?.userEmail, "Just 2 Days Left! Your Spot is Confirmed for the Hussaini Welfare Campaign", mailTemplate);
 
                 await doc.ref.update({ notified2DaysBefore: true });
 
             } else if (daysUntilEvent === 1 && !data.notified1DayBefore) {
-                console.log(`1-day reminder: ${data.userEmail} for event: ${data.eventTitle}`);
+                const link = `https://ngo-two-ivory.vercel.app/events/${data?.eventLink}`
+
+                const mailTemplate = DaysBeforeMailTemplate(1, data?.eventTitle, data?.userName, data?.eventDate, link)
+
+                await sendEmail(data?.userEmail, "Just 1 Days Left! Your Spot is Confirmed for the Hussaini Welfare Campaign", mailTemplate);
 
                 // Update field and then delete the document
                 await doc.ref.update({ notified1DayBefore: true });

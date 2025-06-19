@@ -50,7 +50,7 @@ const Page = async () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Section - Services Page */}
-      <div className="w-full bg-[#A9E7DA] py-10 px-6 md:px-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center rounded-2xl">
+      <div className="w-[95%] mx-auto bg-[#A9E7DA] py-10 px-6 md:px-8 max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-10 items-center rounded-2xl">
         {/* Left: Headings + CTA */}
         <div className="space-y-6">
           <h3 className="text-warn font-semibold text-xl flex items-center gap-2">

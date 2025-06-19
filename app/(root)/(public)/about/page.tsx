@@ -43,97 +43,94 @@ const AboutPage = () => {
 
   return (
     <section className="w-full bg-light font-sans">
-      <div className="max-w-7xl mx-auto w-full px-6 md:px-8">
+      <div className="max-w-7xl mx-auto w-full">
 
-        {/* Hero Section */}
-        <div className="w-full py-10">
-          <div className="flex flex-col-reverse lg:flex-row items-center gap-10">
-            {/* Text */}
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-brand">Who Are We</h2>
-              <h1 className="text-5xl font-extrabold text-dark leading-tight mt-2">
-                Hussaini Welfare Association
-              </h1>
-              <p className="text-sm text-muted mt-4">
-                Hussaini Welfare Association is a nonprofit, volunteer-led organization committed to uplifting underserved communities with compassion, dignity, and action. From education and healthcare to food security and emergency relief, we strive to create lasting impact in the lives of those who need it most.
-              </p>
-              <p className="text-sm text-muted mt-4">
-                We believe that small acts of kindness can create powerful ripples. Our members — students, professionals, homemakers, retirees — are united by one mission: to serve humanity, selflessly and sustainably.
-              </p>
-              <blockquote className="text-muted italic text-sm mt-6 border-l-4 pl-4 border-warn">
-                “Service to others is the rent you pay for your room here on earth.” — Muhammad Ali
-              </blockquote>
-              <div className="mt-6">
-                <CustomBtn
-                  label="Join As Member"
-                  icon={<ArrowRight size={18} />}
-                  href="/auth/signin"
-                />
-              </div>
-            </div>
-
-            {/* Image */}
-            <div className="flex-1 relative aspect-square">
-              <Image
-                src="/about.png"
-                alt="Indian map with children"
-                fill
-                className="object-contain"
-                unoptimized
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-10 py-10 px-6 md:px-8">
+          {/* Text */}
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-brand">Who Are We</h2>
+            <h1 className="text-5xl font-extrabold text-dark leading-tight mt-2">
+              Hussaini Welfare Association
+            </h1>
+            <p className="text-sm text-muted mt-4">
+              Hussaini Welfare Association is a nonprofit, volunteer-led organization committed to uplifting underserved communities with compassion, dignity, and action. From education and healthcare to food security and emergency relief, we strive to create lasting impact in the lives of those who need it most.
+            </p>
+            <p className="text-sm text-muted mt-4">
+              We believe that small acts of kindness can create powerful ripples. Our members — students, professionals, homemakers, retirees — are united by one mission: to serve humanity, selflessly and sustainably.
+            </p>
+            <blockquote className="text-muted italic text-sm mt-6 border-l-4 pl-4 border-warn">
+              “Service to others is the rent you pay for your room here on earth.” — Muhammad Ali
+            </blockquote>
+            <div className="mt-6">
+              <CustomBtn
+                label="Join As Member"
+                icon={<ArrowRight size={18} />}
+                href="/auth/signin"
               />
             </div>
+          </div>
+
+          {/* Image */}
+          <div className="flex-1 aspect-square hidden lg:block">
+            <Image
+              src="/image2.png"
+              alt="Indian map with children"
+              width={100}
+              height={100}
+              className="object-contain w-full h-full"
+              unoptimized
+            />
           </div>
         </div>
 
         {/* Mission Section */}
-        <div className="w-full py-10">
-          <div className="flex flex-col-reverse lg:flex-row items-center gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-10 py-10 px-6 md:px-8">
 
-            {/* Image */}
-            <div className="flex-1 relative aspect-square">
-              <Image
-                src="/hero.png" // update to an actual mission-related image
-                alt="HWA volunteers serving food to the needy"
-                fill
-                className="object-contain rounded-xl"
-                unoptimized
+          {/* Image */}
+          <div className="w-full aspect-square">
+            <Image
+              src="/image1.png" // update to an actual mission-related image
+              alt="HWA volunteers serving food to the needy"
+              width={100}
+              height={100}
+              className="object-contain w-full h-full"
+              unoptimized
+            />
+          </div>
+
+          {/* Text */}
+          <div className="flex-1">
+            {/* Mission Heading */}
+            <h2 className="text-2xl font-bold text-brand">Our Mission</h2>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-dark leading-tight mt-2">
+              Serving with Dignity, Uplifting with Purpose
+            </h1>
+
+            <p className="text-sm text-muted mt-4">
+              Our mission is simple yet powerful — to serve those in need with compassion, dignity, and urgency. We are committed to uplifting communities through initiatives like medical camps, food relief drives, educational sponsorships, and rapid emergency response.
+            </p>
+            <p className="text-sm text-muted mt-4">
+              At Hussaini Welfare Association, we believe every human deserves a fair chance at life — and we exist to help make that a reality through direct action and collective care.
+            </p>
+
+            {/* Quote */}
+            <blockquote className="text-muted italic text-sm mt-6 border-l-4 pl-4 border-warn">
+              “The best way to find yourself is to lose yourself in the service of others.” — Mahatma Gandhi
+            </blockquote>
+
+            {/* Optional CTA – Keep if needed */}
+            <div className="mt-6">
+              <CustomBtn
+                label="Support Our Mission"
+                icon={<ArrowRight size={18} />}
+                href="/donate"
               />
-            </div>
-
-            {/* Text */}
-            <div className="flex-1">
-              {/* Mission Heading */}
-              <h2 className="text-2xl font-bold text-brand">Our Mission</h2>
-              <h1 className="text-4xl md:text-5xl font-extrabold text-dark leading-tight mt-2">
-                Serving with Dignity, Uplifting with Purpose
-              </h1>
-
-              <p className="text-sm text-muted mt-4">
-                Our mission is simple yet powerful — to serve those in need with compassion, dignity, and urgency. We are committed to uplifting communities through initiatives like medical camps, food relief drives, educational sponsorships, and rapid emergency response.
-              </p>
-              <p className="text-sm text-muted mt-4">
-                At Hussaini Welfare Association, we believe every human deserves a fair chance at life — and we exist to help make that a reality through direct action and collective care.
-              </p>
-
-              {/* Quote */}
-              <blockquote className="text-muted italic text-sm mt-6 border-l-4 pl-4 border-warn">
-                “The best way to find yourself is to lose yourself in the service of others.” — Mahatma Gandhi
-              </blockquote>
-
-              {/* Optional CTA – Keep if needed */}
-              <div className="mt-6">
-                <CustomBtn
-                  label="Support Our Mission"
-                  icon={<ArrowRight size={18} />}
-                  href="/donate"
-                />
-              </div>
             </div>
           </div>
         </div>
 
         {/* History & Vision Section */}
-        <div className="w-full bg-light py-14">
+        <div className="w-full bg-light py-14 px-6 md:px-8">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center text-center">
 
             {/* Left: History */}

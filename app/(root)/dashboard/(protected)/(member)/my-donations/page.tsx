@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import { adminDb } from "@/firebase/firebaseAdmin";
-import { notFound } from "next/navigation";
+import { notFound, unauthorized } from "next/navigation";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Shadcn UI Card
+import { Card, CardContent } from "@/components/ui/card"; // Shadcn UI Card
 import { Button } from "@/components/ui/button"; // Shadcn UI Button
 import { Timestamp } from "firebase-admin/firestore"; // For Firestore Timestamp
 import { DataTable } from "../../(upper-trustie)/manage-members/data-table";
@@ -37,7 +37,7 @@ const page = async ({ searchParams }: PageProps) => {
 
   // Check authentication
   if (!userId) {
-    return notFound();
+    return unauthorized();
   }
 
   // Verify user exists and has appropriate role
@@ -51,10 +51,14 @@ const page = async ({ searchParams }: PageProps) => {
   if (!userType || !["REGULAR", "MEMBER", "TRUSTIE", "UPPER_TRUSTIE"].includes(userType)) {
     return notFound(); // Restrict to MEMBER and above
   }
+
+  const user = userSnap.data();
+  const email = user?.email
+
   // Build Firestore query
   let query = adminDb
     .collection("transactions")
-    .where("userId", "==", userId)
+    .where("email", "==", email)
     .orderBy("timestamp", "desc")
     .limit(ITEMS_PER_PAGE + 1)
     .select('razorpay_payment_id', 'captured', 'method', 'status', 'amount', 'invoice_url', 'timestamp')

@@ -3,7 +3,8 @@ import EventCard from "@/components/cards/EventCard";
 import FooterSection from "@/components/sections/FooterSection";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { Timestamp } from "firebase-admin/firestore";
-import { Calendar, CalendarRange } from "lucide-react";
+import { Calendar, CalendarRange, Heart } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 export const revalidate = 60;
@@ -32,7 +33,7 @@ const page = async () => {
       .collection("events")
       .where("startDate", "<=", now)
       .orderBy("startDate", "asc")
-      .limit(20)
+      .limit(9)
       .get();
 
     ongoingEvents = ongoingSnapshot.docs
@@ -56,7 +57,7 @@ const page = async () => {
       .collection("events")
       .where("startDate", ">", now)
       .orderBy("startDate", "asc")
-      .limit(10)
+      .limit(6)
       .get();
 
     upcomingEvents = upcomingSnapshot.docs.map((doc) => {
@@ -77,7 +78,7 @@ const page = async () => {
       .collection("events")
       .where("endDate", "<", now)
       .orderBy("endDate", "desc")
-      .limit(10)
+      .limit(6)
       .get();
 
     pastEvents = pastSnapshot.docs.map((doc) => {
@@ -103,40 +104,69 @@ const page = async () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Section - Events Page */}
-      <div
-        className="relative w-full py-20 bg-cover bg-center px-6 sm:px-8"
-        style={{ backgroundImage: "url('/donation.jpeg')" }}
-      >
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-brand opacity-50 z-0" />
+      <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-5 px-6 md:px-8 max-w-7xl mx-auto py-10">
+        <div className="w-full grid grid-cols-1 gap-5">
+          <div className="w-full grid grid-cols-2 gap-5">
+            <Image
+              src="https://pehchaanstreetschool.org/wp-content/uploads/2021/03/IMG_20201108_155431_Bokeh-scaled.jpg"
+              alt="Indian map with children"
+              width={100}
+              height={100}
+              className="object-cover w-full h-full aspect-video rounded-2xl"
+              unoptimized
+            />
 
-        {/* Content Wrapper */}
-        <div className="relative z-10 h-full flex items-start justify-center">
-          <div className="max-w-2xl text-white text-center">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <Calendar size={32} className="text-white" />
-              <h3 className="text-xl font-bold uppercase tracking-wide">
-                Join the Movement
-              </h3>
-            </div>
-            <h2 className="text-4xl md:text-6xl font-extrabold leading-tight text-warn">
-              Participate. Volunteer. Create Impact.
-            </h2>
-            <p className="mt-4 text-sm md:text-base">
-              Explore upcoming and ongoing events organized by Hussaini Welfare Association. Every event is an opportunity to give back, connect, and drive real change in our communities.
-            </p>
-            <p className="mt-2 text-xs md:text-sm italic text-gray-100">
-              Because showing up is the first step to transforming lives.
-            </p>
+            <Image
+              src="https://pehchaanstreetschool.org/wp-content/uploads/2021/03/IMG_20201108_155431_Bokeh-scaled.jpg"
+              alt="Indian map with children"
+              width={100}
+              height={100}
+              className="object-cover w-full h-full aspect-video rounded-2xl"
+              unoptimized
+            />
+          </div>
+          <div className="w-full">
+            <Image
+              src="https://pehchaanstreetschool.org/wp-content/uploads/2021/03/IMG_20201108_155431_Bokeh-scaled.jpg"
+              alt="Indian map with children"
+              width={100}
+              height={100}
+              className="w-full object-cover h-full aspect-video rounded-2xl"
+              unoptimized
+            />
+          </div>
+        </div>
+        <div className="w-full flex-col justify-center flex lg:ml-10">
+          <div className="flex items-center gap-2 mb-3">
+            <Calendar size={32} className="text-warn" />
+            <h3 className="text-xl font-bold uppercase tracking-wide text-warn">
+              Join the Movement
+            </h3>
+          </div>
+          <h2 className="text-4xl md:text-6xl font-extrabold leading-tight text-brand">
+            Participate. Volunteer. Create Impact.
+          </h2>
+          <p className="mt-1 text-sm md:text-base">
+            Explore upcoming and ongoing events organized by Hussaini Welfare Association. Every event is an opportunity to give back, connect, and drive real change in our communities.
+          </p>
+          <p className="mt-2 text-xs md:text-sm italic text-gray-100">
+            Because showing up is the first step to transforming lives.
+          </p>
 
-            <div className="mt-6">
-              <CustomBtn
-                label="See Events"
-                href="#events"
-                icon={<CalendarRange />}
-                variant="warn"
-              />
-            </div>
+          <div className="flex items-center gap-3">
+            <CustomBtn
+              label="Donate"
+              href="/donate"
+              icon={<Heart />}
+              variant="warn"
+            />
+
+            <CustomBtn
+              label="See Events"
+              href="#events"
+              icon={<CalendarRange />}
+              variant="warn"
+            />
           </div>
         </div>
       </div>

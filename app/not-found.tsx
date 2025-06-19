@@ -7,7 +7,7 @@ export default function NotFoundPage() {
     return (
         <>
             <Navbar />
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6 py-16">
+            <div className="min-h-[90vh] flex items-center justify-center px-6 py-16">
                 <div className="text-center max-w-xl space-y-6">
                     <div className="flex items-center justify-center text-warn">
                         <AlertTriangle size={48} className="text-warn" />

@@ -60,21 +60,18 @@ const TeamSection = () => {
                         <div
                             key={index}
                             style={{ 'color': cardColors[index % cardColors.length] }}
-                            className={`rounded-2xl shadow-sm hover:shadow-md transition duration-300 overflow-hidden flex flex-col items-center text-center border border-gray-200`}
+                            className={`shadow-xl rounded-tr-2xl rounded-b-2xl hover:shadow-2xl transition duration-300 overflow-hidden flex flex-col items-center text-center border border-gray-200`}
                         >
                             <Image
                                 src={member.image}
                                 alt={`${member.name} Image`}
                                 width={300}
                                 height={300}
-                                className="w-full h-72 object-cover"
+                                className="w-full h-72 object-cover rounded-bl-2xl"
                             />
 
                             <div
-                                className="w-full p-5 rounded-b-2xl border-[2px] border-t-0"
-                                style={{
-                                    borderColor: cardColors[index % cardColors.length],
-                                }}
+                                className="w-full p-5 rounded-b-2xl"
                             >
                                 <h2 className="text-lg font-semibold text-dark">{member.name}</h2>
                                 <p className="text-sm text-muted">{member.role}</p>

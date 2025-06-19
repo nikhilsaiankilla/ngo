@@ -10,7 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { adminDb } from "@/firebase/firebaseAdmin";
-import { Calendar, CalendarRange } from "lucide-react";
+import { ArrowRight, Calendar, CalendarRange, HandHeart, MessageCircle } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -49,44 +50,48 @@ const Page = async () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Section - Services Page */}
-      <div
-        className="relative w-full py-20 bg-cover bg-center px-6 sm:px-8"
-        style={{ backgroundImage: "url('/donation.jpeg')" }}
-      >
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-brand opacity-50 z-0" />
-
-        {/* Content Wrapper */}
-        <div className="relative z-10 h-full flex items-start justify-center">
-          <div className="max-w-2xl text-white text-center">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <Calendar size={32} className="text-white" />
-              <h3 className="text-xl font-bold uppercase tracking-wide">
-                Our Services, Your Support
-              </h3>
-            </div>
-            <h2 className="text-4xl md:text-6xl font-extrabold leading-tight text-warn">
-              Making Impact Possible
-            </h2>
-            <p className="mt-4 text-sm md:text-base">
-              From organizing medical camps to running free skill training programs,
-              our services aim to uplift the underserved and build stronger communities.
-            </p>
-            <p className="mt-2 text-xs md:text-sm italic text-gray-100">
-              Every service we offer is powered by the kindness of people like you.
-            </p>
-
-            <div className="mt-6">
-              <CustomBtn
-                label="Support Our Mission"
-                href="/donate"
-                icon={<CalendarRange />}
-                variant="warn"
-              />
-            </div>
+      <div className="w-full bg-[#A9E7DA] py-10 px-6 md:px-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center rounded-2xl">
+        {/* Left: Headings + CTA */}
+        <div className="space-y-6">
+          <h3 className="text-warn font-semibold text-xl flex items-center gap-2">
+            <HandHeart className="text-warn" size={28} />
+            Our Services
+          </h3>
+          <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight">
+            Making Help Accessible, One Service at a Time.
+          </h1>
+          <p className="text-gray-700 text-base md:text-lg">
+            Discover the range of services we offer—from educational support to medical aid. Our mission is simple: to uplift communities through consistent, compassionate action.
+          </p>
+          <div className="flex flex-wrap gap-4 pt-2">
+            <CustomBtn
+              label="Explore Services"
+              href="#services"
+              icon={<ArrowRight />}
+              variant="warn"
+            />
+            <CustomBtn
+              label="Contact Us"
+              href="/contact"
+              icon={<MessageCircle />}
+              variant="brand"
+            />
           </div>
         </div>
+
+        {/* Right: Visual (icon grid or illustrative image) */}
+        <div className="w-full flex justify-center items-center">
+          <Image
+            src="/service.png" // Use a meaningful custom illustration or icon cluster
+            alt="Helping hands illustration"
+            width={500}
+            height={500}
+            className="w-full aspect-square object-contain"
+          />
+        </div>
+
       </div>
+
 
 
       <div className="max-w-7xl mx-auto px-6 py-12 space-y-16">

@@ -83,7 +83,7 @@ const page = async ({ searchParams }: PageProps) => {
     );
   } catch (error: unknown) {
     return (
-      <div className="max-w-3xl mx-auto py-10">
+      <div className="w-full max-w-7xl mx-auto py-10">
         <h1 className="text-2xl font-semibold mb-4">Your Participations</h1>
         <p className="text-red-500">Something went Wrong while Fetching</p>
       </div>
@@ -91,7 +91,7 @@ const page = async ({ searchParams }: PageProps) => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="w-full max-w-7xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">My Event Attendance</h1>
 
       <DataTable columns={attendanceColumns} data={enrichedEvents} />

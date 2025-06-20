@@ -92,7 +92,7 @@ export default function MemberGrowthChart({
     }
 
     return (
-        <Card>
+        <Card className="border-[#F97316] border-2">
             <CardHeader>
                 <CardTitle>Member Growth</CardTitle>
                 <CardDescription>{`January - December ${selectedYear}`}</CardDescription>

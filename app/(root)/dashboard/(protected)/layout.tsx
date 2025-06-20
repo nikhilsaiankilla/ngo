@@ -28,10 +28,11 @@ const ProtectedLayout = async ({
       style={{
         "--sidebar-width": "19rem",
       } as React.CSSProperties}
+      className="bg-light"
     >
       <AppSidebar role={role} />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 px-4">
+        <header className="flex h-16 shrink-0 items-center gap-2 px-4 bg-light">
           <SidebarTrigger className="-ml-1" />
           <Separator
             orientation="vertical"
@@ -39,7 +40,7 @@ const ProtectedLayout = async ({
           />
           <BreadcrumbDynamic />
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <div className="flex flex-1 flex-col items-start justify-start gap-4 pt-0 bg-light">
           {children}
         </div>
       </SidebarInset>

@@ -171,9 +171,7 @@ const page = async () => {
         </div>
       </div>
 
-
-
-      <div className="max-w-7xl mx-auto px-6 py-12 space-y-16">
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-16" id="events">
         {hasError ? (
           <div className="w-full text-center">
             <h2 className="text-2xl font-bold text-red-600 mb-4">Error Fetching Events</h2>

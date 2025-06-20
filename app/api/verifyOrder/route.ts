@@ -13,15 +13,6 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
 
-interface invoice {
-    userId: string,
-    zohoInvoiceId: string,
-    invoiceNumber: string,
-    invoiceUrl: string,
-    amount: number,
-    createdAt: string,
-}
-
 // Define interface for the request body
 interface VerifyBody {
     razorpay_order_id: string;
@@ -168,6 +159,8 @@ export async function POST(request: NextRequest) {
             { merge: true }
         );
 
+        let invoice_url = "";
+
         try {
             const accessToken = await getZohoAccessToken();
             const invoice = await createZohoInvoice({
@@ -196,6 +189,8 @@ export async function POST(request: NextRequest) {
                     invoiceId: invoiceRef.invoice_id,
                     invoice_url: `https://invoice.zoho.in/api/v3/invoices/${invoiceRef.invoice_id}?accept=pdf&organization_id=${process.env.ZOHO_ORG_ID}`,
                 });
+
+                invoice_url = `https://invoice.zoho.in/api/v3/invoices/${invoiceRef.invoice_id}?accept=pdf&organization_id=${process.env.ZOHO_ORG_ID}`
             }
         } catch (error) {
             return NextResponse.json({
@@ -228,6 +223,7 @@ export async function POST(request: NextRequest) {
                 email: payment.email,
                 contact: payment.contact,
                 notes: payment.notes,
+                invoice_url: invoice_url
             },
         });
     } catch (error: unknown) {

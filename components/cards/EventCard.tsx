@@ -18,9 +18,10 @@ type Event = {
 
 type EventCardProps = {
     event: Event;
+    isDashboard?: boolean; // optional, defaults to false
 };
 
-const EventCard: React.FC<EventCardProps> = async ({ event }) => {
+const EventCard: React.FC<EventCardProps> = async ({ event, isDashboard = false }) => {
     const desc = await markdownToHtmlText(event.description);
 
     const formatDate = (timestamp: Timestamp) =>
@@ -29,6 +30,8 @@ const EventCard: React.FC<EventCardProps> = async ({ event }) => {
             month: 'short',
             year: 'numeric',
         });
+
+    const eventLink = isDashboard ? `/dashboard/events/${event.id}` : `/events/${event.id}`;
 
     return (
         <div className="bg-white rounded-tr-3xl rounded-b-3xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden group">
@@ -71,7 +74,7 @@ const EventCard: React.FC<EventCardProps> = async ({ event }) => {
                 {/* CTA */}
                 <div className="flex justify-end">
                     <Link
-                        href={`/events/${event.id}`}
+                        href={eventLink}
                         className="flex items-center gap-1 text-sm font-medium text-warn hover:underline"
                     >
                         View Details

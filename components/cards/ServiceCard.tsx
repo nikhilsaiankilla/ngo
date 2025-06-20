@@ -17,12 +17,16 @@ interface Service {
 
 type ServiceCardProps = {
   service: Service;
+  isDashboard: boolean
 };
 
 
-const ServiceCard: React.FC<ServiceCardProps> = async ({ service }) => {
+const ServiceCard: React.FC<ServiceCardProps> = async ({ service, isDashboard = false }) => {
 
   const desc = await markdownToHtmlText(service.description);
+
+  const serviceLink = isDashboard ? `/dashboard/services/${service.id}` : `/services/${service.id}`;
+
   return (
     <div className="bg-white rounded-tr-3xl rounded-b-3xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden group">
       <SafeImage
@@ -47,7 +51,7 @@ const ServiceCard: React.FC<ServiceCardProps> = async ({ service }) => {
         {/* CTA */}
         <div className="flex justify-end">
           <Link
-            href={`/events/${service.id}`}
+            href={serviceLink}
             className="flex items-center gap-1 text-sm font-medium text-warn hover:underline"
           >
             View Details

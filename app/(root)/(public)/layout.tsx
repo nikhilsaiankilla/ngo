@@ -6,7 +6,7 @@ export default function PublicLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <div className="min-h-screen bg-light text-gray-800 font-sans">
+        <div className="min-h-screen bg-light text-gray-800 font-sans bg-light">
             {/* Navbar */}
             <Navbar />
             {children}

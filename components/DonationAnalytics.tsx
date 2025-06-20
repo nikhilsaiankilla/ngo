@@ -1,5 +1,3 @@
-// DonationAnalytics.tsx
-
 "use client";
 
 import { Wallet } from "lucide-react";
@@ -8,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import DonationsPerYear from "./charts/DonationsPerYear";
 import TotalDonationCard from "./TotalDonationCard";
 import { Label } from "./ui/label";
-import { getDonationsByYear } from "@/actions/analytics"; // Make sure this path is correct
+import { getDonationsByYear } from "@/actions/analytics";
 import { toast } from "sonner";
 import TotalDonationPerYear from "./charts/TotalDonationPerYear";
 import DonationsPerLineChart from "./charts/DonationsPerLineChart";
@@ -34,7 +32,8 @@ const DonationAnalytics = () => {
             setLoading(true);
             try {
                 const res = await getDonationsByYear(selectedYear);
-                if (!res.success) {
+                if (!res.success || !res?.data) {
+                    toast.error("Something went wrong");
                     setData([]);
                     return;
                 }
@@ -44,11 +43,7 @@ const DonationAnalytics = () => {
                     "July", "August", "September", "October", "November", "December",
                 ];
 
-                if (!res?.data) {
-                    return toast.error('Something went wrong')
-                }
-
-                const formattedData = res?.data.results.map((entry: DonationData) => {
+                const formattedData = res.data.results.map((entry: DonationData) => {
                     const [, month] = entry.month.split("-");
                     return {
                         ...entry,
@@ -56,15 +51,12 @@ const DonationAnalytics = () => {
                     };
                 });
 
-                // setting this month donations in the setThisMonthDonations
-                const currentMonthIndex = new Date().getMonth();
-                const currentMonth = monthsMap[currentMonthIndex];
-
-                const currentMonthData = formattedData.find((entry) => entry.month === currentMonth);
+                const currentMonth = monthsMap[new Date().getMonth()];
+                const currentMonthData = formattedData.find(entry => entry.month === currentMonth);
 
                 setThisMonthDonations(currentMonthData?.total || 0);
                 setData(formattedData);
-                setTotalAmount(res?.data?.totalAmountThisYear);
+                setTotalAmount(res.data.totalAmountThisYear);
             } catch (err) {
                 console.error(err);
                 setData([]);
@@ -77,11 +69,11 @@ const DonationAnalytics = () => {
     }, [selectedYear]);
 
     return (
-        <div className="w-full">
-            {/* Section Heading */}
-            <div className="mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <h2 className="text-xl font-semibold tracking-tight text-gray-900 flex items-center gap-2">
-                    <Wallet size={24} /> Donation Analytics
+        <div className="w-full space-y-6">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <h2 className="text-2xl font-semibold tracking-tight text-gray-900 flex items-center gap-2">
+                    <Wallet size={26} /> Donation Analytics
                 </h2>
 
                 {/* Year Selector */}
@@ -112,21 +104,23 @@ const DonationAnalytics = () => {
 
             {/* Analytics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <DonationsPerYear
-                    selectedYear={selectedYear}
-                    data={data}
-                    loading={loading}
-                />
+                <DonationsPerYear selectedYear={selectedYear} data={data} loading={loading} />
 
-                <div className="w-full grid grid-cols-1 gap-3">
-                    <div className="w-full grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                         <TotalDonationCard />
-                        <TotalDonationPerYear loading={loading} totalAmount={totalAmount} year={selectedYear} />
+                        <TotalDonationPerYear
+                            loading={loading}
+                            totalAmount={totalAmount}
+                            year={selectedYear}
+                        />
                     </div>
                     <DonationsThisMonthCard loading={loading} totalAmount={thisMonthDonations} />
                 </div>
             </div>
-            <div className="mt-5">
+
+            <div className="pb-10">
+                {/* Line Chart */}
                 <DonationsPerLineChart
                     selectedYear={selectedYear}
                     data={data}

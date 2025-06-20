@@ -90,7 +90,7 @@ export default function UserGrowthOtherThanRegular({ selectedYear }: { selectedY
     }
 
     return (
-        <Card>
+        <Card className="border-[#F97316] border-2">
             <CardHeader>
                 <CardTitle>User Growth</CardTitle>
                 <CardDescription>{`January - December ${selectedYear}`}</CardDescription>

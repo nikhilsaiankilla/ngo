@@ -6,7 +6,7 @@ import DonationAnalytics from '@/components/DonationAnalytics'
 const AnalyticsPage = () => {
 
   return (
-    <div className='w-full space-y-6'>
+    <div className='w-full max-w-7xl m-auto space-y-6'>
       {/* Toggle Buttons */}
       <div className='flex gap-4'>
         <Tabs defaultValue="user-analytics" className="w-full">

@@ -75,7 +75,7 @@ const ManualDonationForm = () => {
 
 
     return (
-        <Card className="max-w-xl mx-auto mt-12 shadow-xl border rounded-2xl bg-white dark:bg-zinc-900">
+        <Card className="mt-12 max-w-xl mx-auto shadow-xl border rounded-2xl bg-white dark:bg-zinc-900">
             <CardHeader className="text-center pb-2">
                 <h2 className="text-2xl font-bold">Manual Donation</h2>
                 <p className="text-sm text-muted-foreground">Record offline donations securely</p>

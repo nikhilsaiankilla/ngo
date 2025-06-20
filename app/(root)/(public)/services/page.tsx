@@ -50,7 +50,7 @@ const Page = async () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Section - Services Page */}
-      <div className="w-[95%] mx-auto bg-[#A9E7DA] py-10 px-6 md:px-8 max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-10 items-center rounded-2xl">
+      <div className="w-[95%] mx-auto py-10 px-6 md:px-8 max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-10 items-center rounded-2xl">
         {/* Left: Headings + CTA */}
         <div className="space-y-6">
           <h3 className="text-warn font-semibold text-xl flex items-center gap-2">
@@ -65,8 +65,8 @@ const Page = async () => {
           </p>
           <div className="flex flex-wrap gap-4 pt-2">
             <CustomBtn
-              label="Explore Services"
-              href="#services"
+              label="Contribute To our Services"
+              href="/donate"
               icon={<ArrowRight />}
               variant="warn"
             />
@@ -95,6 +95,8 @@ const Page = async () => {
 
 
       <div className="max-w-7xl mx-auto px-6 py-12 space-y-16">
+
+        <h1 className="text-2xl font-bold">Our Services</h1>
         {error ? (
           <div className="w-full text-center">
             <h2 className="text-2xl font-bold text-red-600 mb-4">Error Fetching Events</h2>
@@ -112,7 +114,7 @@ const Page = async () => {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {services.map((service, index) => (
-                <ServiceCard service={service} key={index} />
+                <ServiceCard service={service} key={index} isDashboard={false} />
               ))}
             </div>
           </>

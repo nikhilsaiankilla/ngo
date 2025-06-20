@@ -3,6 +3,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { markdownToHtml } from '@/utils/helpers';
 import SafeImage from '@/components/SafeImage';
+import FooterSection from '@/components/sections/FooterSection';
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -31,49 +32,50 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const descriptionHTML = await markdownToHtml(event.description || '');
 
     return (
-        <div className="w-full max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-            {/* Title + Tagline */}
-            <header className="text-center space-y-3">
-                <h1 className="text-4xl font-bold tracking-tight leading-tight text-gray-900">
-                    {event.title}
-                </h1>
-                {event.tagline && (
-                    <p className="text-gray-500 text-base sm:text-lg">{event.tagline}</p>
-                )}
-            </header>
-
-            {/* Image */}
-            {event.image && (
-                <div className="rounded-2xl overflow-hidden shadow-sm border bg-gray-50 hover:shadow-md transition-shadow">
-                    <SafeImage
-                        src={event.image}
-                        alt={`${event.title} Image`}
-                        width={1200}
-                        height={630}
-                        className="w-full h-auto aspect-video object-cover"
-                    />
+        <section className='w-full'>
+            <div className="w-full max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+                {/* Title + Tagline */}
+                <div className="text-center space-y-3">
+                    <h1 className="text-4xl font-bold tracking-tight leading-tight text-gray-900">
+                        {event.title}
+                    </h1>
+                    {event.tagline && (
+                        <p className="text-gray-500 text-base sm:text-lg">{event.tagline}</p>
+                    )}
                 </div>
-            )}
 
-            {/* Meta Info */}
-            <section className="text-sm text-gray-500 grid sm:grid-cols-3 gap-6 border-y py-6">
-                <p>
-                    <span className="text-gray-700 font-medium">Created by:</span> {createdByName}
-                </p>
-                <p>
-                    <span className="text-gray-700 font-medium">Date:</span>{' '}
-                    {new Date(event.startDate).toLocaleDateString()} –{' '}
-                    {new Date(event.endDate).toLocaleDateString()}
-                </p>
-                <p>
-                    <span className="text-gray-700 font-medium">Location:</span>{' '}
-                    {event.location || 'N/A'}
-                </p>
-            </section>
+                {/* Image */}
+                {event.image && (
+                    <div className="rounded-2xl overflow-hidden shadow-sm border bg-gray-50 hover:shadow-md transition-shadow">
+                        <SafeImage
+                            src={event.image}
+                            alt={`${event.title} Image`}
+                            width={1200}
+                            height={630}
+                            className="w-full h-auto aspect-video object-cover"
+                        />
+                    </div>
+                )}
 
-            {/* Description */}
-            <section
-                className="prose prose-neutral dark:prose-invert max-w-none
+                {/* Meta Info */}
+                <div className="text-sm text-gray-500 grid sm:grid-cols-3 gap-6 border-y py-6">
+                    <p>
+                        <span className="text-gray-700 font-medium">Created by:</span> {createdByName}
+                    </p>
+                    <p>
+                        <span className="text-gray-700 font-medium">Date:</span>{' '}
+                        {new Date(event.startDate).toLocaleDateString()} –{' '}
+                        {new Date(event.endDate).toLocaleDateString()}
+                    </p>
+                    <p>
+                        <span className="text-gray-700 font-medium">Location:</span>{' '}
+                        {event.location || 'N/A'}
+                    </p>
+                </div>
+
+                {/* Description */}
+                <div
+                    className="prose prose-neutral dark:prose-invert max-w-none
                     prose-headings:scroll-mt-20
                     prose-headings:mt-6 prose-headings:mb-3
                     prose-p:leading-relaxed prose-p:my-4 prose-p:text-gray-700
@@ -81,11 +83,14 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
                     prose-blockquote:border-l-4 prose-blockquote:pl-4 prose-blockquote:text-gray-600 prose-blockquote:border-gray-300
                     prose-img:rounded-lg prose-img:shadow-sm
                     prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-pink-600"
-            >
-                <article dangerouslySetInnerHTML={{ __html: descriptionHTML }} />
-            </section>
+                >
+                    <article dangerouslySetInnerHTML={{ __html: descriptionHTML }} />
+                </div>
 
-        </div>
+            </div>
+
+            <FooterSection/>
+        </section>
     );
 };
 

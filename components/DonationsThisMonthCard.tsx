@@ -1,7 +1,7 @@
-import React from 'react'
-import { Card, CardContent, CardDescription, CardTitle } from './ui/card'
-import { Wallet } from 'lucide-react'
-import { Skeleton } from './ui/skeleton'
+import React from 'react';
+import { Card, CardContent, CardDescription, CardTitle } from './ui/card';
+import { Wallet } from 'lucide-react';
+import { Skeleton } from './ui/skeleton';
 
 const formatCompactAmount = (amount: number): string => {
     if (amount >= 10000000) return `${Math.floor(amount / 10000000)}Cr+`;
@@ -10,26 +10,37 @@ const formatCompactAmount = (amount: number): string => {
     return `₹${amount}`;
 };
 
-const DonationsThisMonthCard = ({ loading, totalAmount }: { loading: boolean, totalAmount: number }) => {
+const DonationsThisMonthCard = ({
+    loading,
+    totalAmount,
+}: {
+    loading: boolean;
+    totalAmount: number;
+}) => {
     return (
-        <Card className="p-4 shadow-md rounded-2xl">
-            <CardTitle className="text-lg font-semibold text-gray-800 mb-1 flex items-center gap-2">
-                <Wallet size={22} /> Total Donations Collected This Month
-            </CardTitle>
-            <CardDescription className="text-sm text-gray-500 mb-4">
-                we collected This much amount
-            </CardDescription>
-            <CardContent>
+        <Card className="rounded-2xl border border-[#F97316] bg-white shadow-sm hover:shadow-md transition-shadow duration-300 w-full">
+            <CardContent className="p-5 space-y-2">
+                <div className="flex items-center gap-2">
+                    <Wallet size={20} className="text-warn shrink-0" />
+                    <CardTitle className="text-base md:text-lg font-semibold text-gray-800 truncate">
+                        This Month's Donations
+                    </CardTitle>
+                </div>
+
+                <CardDescription className="text-sm text-muted leading-relaxed break-words">
+                    Total donations collected this month from online contributions.
+                </CardDescription>
+
                 {loading ? (
-                    <Skeleton className="h-8 w-32 rounded-md bg-green-200" />
+                    <Skeleton className="h-8 w-32 rounded-md bg-warn/50" />
                 ) : (
-                    <p className="text-3xl font-bold text-green-700">
+                    <p className="text-3xl font-bold text-warn truncate max-w-full break-words">
                         {formatCompactAmount(totalAmount)}
                     </p>
                 )}
             </CardContent>
         </Card>
-    )
-}
+    );
+};
 
-export default DonationsThisMonthCard
+export default DonationsThisMonthCard;

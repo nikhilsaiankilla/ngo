@@ -50,7 +50,7 @@ const DonationsPerYear = ({ data, loading, selectedYear }: Props) => {
   }
 
   return (
-    <Card>
+    <Card className="border-[#F97316] border-2">
       <CardHeader>
         <div className="flex justify-between items-center">
           <div>

@@ -92,7 +92,7 @@ export default function TrustieGrowthChart({
     }
 
     return (
-        <Card>
+        <Card className="border-[#F97316] border-2">
             <CardHeader>
                 <CardTitle>Trustie Growth</CardTitle>
                 <CardDescription>{`January - December ${selectedYear}`}</CardDescription>

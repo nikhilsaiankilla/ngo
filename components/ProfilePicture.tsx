@@ -83,7 +83,7 @@ const ProfilePicture = ({
 
 
     return (
-        <div className="w-32 h-32 relative">
+        <div className="w-40 h-40 relative">
             {/* Profile image */}
             <Image
                 src={

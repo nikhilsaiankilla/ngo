@@ -8,7 +8,7 @@ import { DataTable } from '../(upper-trustie)/manage-members/data-table';
 import { columns, RoleRequestHistory } from './columns';
 import { cookies } from 'next/headers';
 import { PhoneVerification } from '@/components/PhoneVerification';
-import { Verified } from 'lucide-react';
+import { Users, Verified } from 'lucide-react';
 import ProfilePicture from '@/components/ProfilePicture';
 
 type UserRole = 'REGULAR' | 'MEMBER' | 'TRUSTIE' | 'UPPER_TRUSTIE';
@@ -115,70 +115,62 @@ const Page = async () => {
 
     return (
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <h1 className="text-4xl font-bold text-center mb-10 text-gray-800">User Profile</h1>
+            <h1 className="text-4xl font-bold text-left mb-10 text-gray-900 flex items-center gap-3"><Users size={25} className='text-warn'/> Your Profile</h1>
 
-            <div className="grid grid-cols-1 gap-8">
-                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className='w-full border-gray-100 bg-white rounded-2xl shadow-2xl p-4'>
-                        <div className="flex items-center flex-col space-x-6 ">
-                            <ProfilePicture imageUrl={user?.photoURL} name={user?.name} />
-                            <div>
-                                <h2 className="text-2xl font-semibold text-gray-900">{user.name || 'No name'}</h2>
-                                <p className="text-gray-600">{user.email || 'No email'}</p>
-                                <p className="text-sm text-gray-500 mt-1">
-                                    Joined on {user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                    }) : 'N/A'}
-                                </p>
-
-                            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Profile Card */}
+                <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                    <div className="flex flex-col items-center justify-center space-y-4">
+                        <ProfilePicture imageUrl={user?.photoURL} name={user?.name} />
+                        <div className="text-center">
+                            <h2 className="text-2xl font-semibold text-gray-800">{user.name || 'Unnamed User'}</h2>
+                            <p className="text-gray-600">{user.email || 'No Email'}</p>
+                            <p className="text-sm text-gray-500 mt-1">
+                                Joined on {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                            </p>
                         </div>
 
-                        <div className="mt-6 text-center">
-                            <h3 className="font-semibold text-gray-700 mb-1">User Role</h3>
+                        <div className="mt-4">
+                            <h4 className="text-sm text-gray-500 mb-1">Current Role</h4>
                             <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                                {user.user_type || 'Unknown'}
+                                {user.user_type}
                             </span>
                         </div>
                     </div>
+                </div>
 
-                    <div className='w-full border-gray-100 bg-white rounded-2xl shadow-2xl p-4'>
-                        {
-                            user?.isPhoneVerified
-                                ?
-                                <div className="flex items-center gap-2 mt-4">
-                                    <span className="font-medium flex items-center gap-2">
-                                        {user?.phoneNumber}
-                                        <span className='test-xs font-normal flex items-center gap-1'><Verified size={16} className='text-green-400' /> Verified</span>
-                                    </span>
-                                </div>
-                                :
-                                <PhoneVerification
-                                    defaultPhone={user?.phoneNumber}
-                                    isVerified={user.isPhoneVerified}
-                                />
-                        }
+                {/* Phone + Actions */}
+                <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col justify-between">
+                    <div>
+                        <h2 className="text-lg font-semibold text-gray-700 mb-4">Phone Verification</h2>
+                        {user?.isPhoneVerified ? (
+                            <div className="flex items-center gap-2 text-green-600 font-medium">
+                                {user?.phoneNumber}
+                                <Verified size={18} className="text-green-500" />
+                                Verified
+                            </div>
+                        ) : (
+                            <PhoneVerification defaultPhone={user?.phoneNumber} isVerified={user.isPhoneVerified} />
+                        )}
+                    </div>
 
-                        <div className="mt-6 flex flex-col gap-4">
-                            <LogoutButton />
-                            {requestedRole && requestedRole !== 'REGULAR' && (
-                                <RequestRoleButton currentRole={user.user_type} requestedRole={requestedRole} />
-                            )}
-                        </div>
+                    <div className="mt-6 space-y-4">
+                        <LogoutButton />
+                        {requestedRole && requestedRole !== 'REGULAR' && (
+                            <RequestRoleButton currentRole={user.user_type} requestedRole={requestedRole} />
+                        )}
                     </div>
                 </div>
+            </div>
 
-                {/* Right Section - History Table */}
-                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4">Role Request History</h2>
-                    {historyData.length > 0 ? (
-                        <DataTable columns={columns} data={historyData} />
-                    ) : (
-                        <p className="text-gray-500 text-center py-10">No role request history available.</p>
-                    )}
-                </div>
+            {/* History Table */}
+            <div className="mt-10 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Role Request History</h2>
+                {historyData.length > 0 ? (
+                    <DataTable columns={columns} data={historyData} />
+                ) : (
+                    <p className="text-gray-500 text-center py-10">No role request history available.</p>
+                )}
             </div>
         </div>
     );

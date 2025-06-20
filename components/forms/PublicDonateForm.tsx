@@ -260,6 +260,9 @@ const PublicDonateForm = () => {
                     </form>
                 </Form>
             </CardContent>
+            <p className="text-xs text-gray-400 text-center">
+                Powered by Razorpay
+            </p>
         </Card>
     )
 }

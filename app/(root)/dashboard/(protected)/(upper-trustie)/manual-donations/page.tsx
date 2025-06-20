@@ -3,7 +3,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div className="min-h-screen p-6 bg-gray-50">
+    <div className="w-full max-w-7xl mx-auto">
       <ManualDonationForm />
     </div>
   )

@@ -43,7 +43,7 @@ export default function SuccessClient() {
 
     return (
         <section>
-            <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 py-10 bg-green-50 text-center">
+            <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 py-10 text-center">
                 <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
                     <h1 className="text-2xl font-bold text-green-700 mb-4 flex items-center gap-2">
                         <PartyPopper size={20} className="text-warn" />

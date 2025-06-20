@@ -132,7 +132,7 @@ export default function EventUploadForm() {
     };
 
     return (
-        <FormTemplate title="Add Event Form" description="Add your Event details">
+        <FormTemplate title="Add Event Form" description="Add your Event details" >
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                     <FormField

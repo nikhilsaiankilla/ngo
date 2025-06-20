@@ -8,10 +8,11 @@ import { Button } from "./ui/button"; // Assuming Shadcn UI Button component
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react"; // For loading spinner
+import { ArrowRight, Loader2 } from "lucide-react"; // For loading spinner
 import { Label } from "./ui/label";
 import { fetchThePastEvent, saveAttendance } from "@/actions/events";
 import { toast } from "sonner";
+import Link from "next/link";
 
 // Form schema
 const formSchema = z.object({
@@ -45,7 +46,6 @@ const AttendanceStatus = () => {
             const res = await fetchThePastEvent();
 
             if (!res?.success) {
-                toast.error(res?.message);
                 setIsLoading(false);
                 return;
             }
@@ -87,98 +87,107 @@ const AttendanceStatus = () => {
     };
 
     return (
-        <Card className="mx-auto max-w-md shadow-sm border border-gray-200">
-            <CardHeader className="space-y-2">
-                <CardTitle className="text-xl font-semibold text-gray-800">
-                    Past Event Attendance
-                </CardTitle>
-                <CardDescription className="text-sm text-gray-600">
-                    {isLoading ? (
-                        <span className="animate-pulse">Loading event...</span>
-                    ) : event ? (
-                        `Did you attend ${event.name}?`
-                    ) : (
-                        "No past events found to confirm attendance."
-                    )}
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-4">
-                {isLoading ? (
-                    <div className="flex justify-center">
+        <>
+            {isLoading ? (
+                <Card className="mx-auto w-full shadow-sm border border-gray-200">
+                    <CardHeader className="space-y-2">
+                        <CardTitle className="text-xl font-semibold text-gray-800">
+                            Past Event Attendance
+                        </CardTitle>
+                        <CardDescription className="text-sm text-gray-600">
+                            <span className="animate-pulse">Loading event...</span>
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-4 flex justify-center">
                         <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    </CardContent>
+                </Card>
+            ) : event ? (
+                <Card className="mx-auto w-full shadow-sm border border-gray-200">
+                    <CardHeader className="space-y-2">
+                        <CardTitle className="text-xl font-semibold text-gray-800">
+                            Past Event Attendance
+                        </CardTitle>
+                        <CardDescription className="text-sm text-gray-600">
+                            {`Did you attend ${event.name}?`}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-4">
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                <FormField
+                                    control={form.control}
+                                    name="attendance"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-sm font-medium text-gray-700">
+                                                Attendance Status
+                                            </FormLabel>
+                                            <FormControl>
+                                                <RadioGroup
+                                                    onValueChange={field.onChange}
+                                                    defaultValue={field.value}
+                                                    className="flex flex-col sm:flex-row sm:space-x-6 space-y-2 sm:space-y-0"
+                                                >
+                                                    <div className="flex items-center space-x-2">
+                                                        <RadioGroupItem value="attended" id="attended" />
+                                                        <Label htmlFor="attended" className="text-sm text-gray-600 cursor-pointer">
+                                                            Attended
+                                                        </Label>
+                                                    </div>
+                                                    <div className="flex items-center space-x-2">
+                                                        <RadioGroupItem value="not_attended" id="not_attended" />
+                                                        <Label htmlFor="not_attended" className="text-sm text-gray-600 cursor-pointer">
+                                                            Not Attended
+                                                        </Label>
+                                                    </div>
+                                                </RadioGroup>
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <Button
+                                    type="submit"
+                                    className="w-full sm:w-auto px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-all duration-200"
+                                    disabled={form.formState.isSubmitting}
+                                >
+                                    {form.formState.isSubmitting ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        "Save Attendance"
+                                    )}
+                                </Button>
+                            </form>
+                        </Form>
+                    </CardContent>
+                </Card>
+            ) : (
+                <div className="flex flex-col items-center justify-center text-sm bg-warn h-full rounded-2xl text-white" >
+                    <p className="italic">“No past events found. The best way to predict the future is to create it.”</p>
+                    <div className="flex items-center justify-center gap-3 flex-wrap mt-5">
+                        <Link
+                            href={`/dashboard/events`}
+                            className="flex items-center gap-1 text-sm font-medium text-white hover:underline"
+                        >
+                            Explore the Event
+                            <ArrowRight className="h-4 w-4 -rotate-45" />
+                        </Link>
+                        <Link
+                            href={`/dashboard/participations`}
+                            className="flex items-center gap-1 text-sm font-medium text-white hover:underline"
+                        >
+                            View Past Participations
+                            <ArrowRight className="h-4 w-4 -rotate-45" />
+                        </Link>
                     </div>
-                ) : event ? (
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                            <FormField
-                                control={form.control}
-                                name="attendance"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-sm font-medium text-gray-700">
-                                            Attendance Status
-                                        </FormLabel>
-                                        <FormControl>
-                                            <RadioGroup
-                                                onValueChange={field.onChange}
-                                                defaultValue={field.value}
-                                                className="flex flex-col sm:flex-row sm:space-x-6 space-y-2 sm:space-y-0"
-                                            >
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem
-                                                        value="attended"
-                                                        id="attended"
-                                                        className="text-primary focus:ring-primary"
-                                                    />
-                                                    <Label
-                                                        htmlFor="attended"
-                                                        className="text-sm text-gray-600 cursor-pointer"
-                                                    >
-                                                        Attended
-                                                    </Label>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem
-                                                        value="not_attended"
-                                                        id="not_attended"
-                                                        className="text-primary focus:ring-primary"
-                                                    />
-                                                    <Label
-                                                        htmlFor="not_attended"
-                                                        className="text-sm text-gray-600 cursor-pointer"
-                                                    >
-                                                        Not Attended
-                                                    </Label>
-                                                </div>
-                                            </RadioGroup>
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                            <Button
-                                type="submit"
-                                className="w-full sm:w-auto px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-all duration-200"
-                                disabled={form.formState.isSubmitting}
-                            >
-                                {form.formState.isSubmitting ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Saving...
-                                    </>
-                                ) : (
-                                    "Save Attendance"
-                                )}
-                            </Button>
-                        </form>
-                    </Form>
-                ) : (
-                    <p className="text-sm text-gray-500 text-center">
-                        No past events available to confirm.
-                    </p>
-                )}
-            </CardContent>
-        </Card>
+                </div>
+            )}
+        </>
     );
+
 };
 
 export default AttendanceStatus;

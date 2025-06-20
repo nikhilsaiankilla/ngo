@@ -3,7 +3,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div>
+    <div className='w-full max-w-7xl mx-auto'>
       <EventUploadForm />
     </div>
   )

@@ -24,13 +24,13 @@ const TotalDonationCard = () => {
                 const data = await res.json();
 
                 if (!data?.success) {
-                    return toast.error(data?.message || 'Failed to fetch');
+                    return toast.error(data?.message || 'Failed to fetch donation data');
                 }
 
                 setTotalAmount(data?.data || 0);
             } catch (err) {
                 console.error('Fetch error:', err);
-                toast.error('Something went wrong');
+                toast.error('Something went wrong while fetching donation stats');
             } finally {
                 setLoading(false);
             }
@@ -40,18 +40,23 @@ const TotalDonationCard = () => {
     }, []);
 
     return (
-        <Card className="p-4 shadow-md rounded-2xl">
-            <CardTitle className="text-lg font-semibold text-gray-800 mb-1 flex items-center gap-2">
-                <Wallet size={22} /> Total Donations Collected
-            </CardTitle>
-            <CardDescription className="text-sm text-gray-500 mb-4">
-                Since going live with online deployment
-            </CardDescription>
-            <CardContent>
+        <Card className="rounded-2xl border border-[#F97316] bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
+            <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-2">
+                    <CardTitle className="text-base md:text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <Wallet size={20} className="text-warn" />
+                        Total Donations
+                    </CardTitle>
+                </div>
+
+                <CardDescription className="text-sm text-muted mb-4">
+                    This is the total amount contributed since launching online.
+                </CardDescription>
+
                 {loading ? (
-                    <Skeleton className="h-8 w-32 rounded-md bg-green-200" />
+                    <Skeleton className="h-8 w-32 rounded-md bg-warn/50" />
                 ) : (
-                    <p className="text-3xl font-bold text-green-700">
+                    <p className="text-3xl font-extrabold text-warn tracking-tight">
                         {formatCompactAmount(totalAmount)}
                     </p>
                 )}

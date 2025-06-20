@@ -9,6 +9,7 @@ import { getUser } from "@/actions/auth"; // Action to fetch user data
 import { toast } from "sonner"; // For displaying notifications
 import { useRouter } from "next/navigation"; // For client-side navigation
 import { Button } from "../ui/button"; // Custom UI button component
+import { Loader } from "lucide-react";
 
 // Define Razorpay response type for successful payments
 interface RazorpayResponse {
@@ -99,8 +100,8 @@ const DonationForm = ({ userId }: Props) => {
     // Fetch user data when userId changes
     useEffect(() => {
         const fetchUserData = async () => {
+            setLoading(true); // Set loading state
             try {
-                setLoading(true); // Set loading state
                 const res = await getUser(userId); // Fetch user data
 
                 if (res?.success && res.data) {
@@ -157,6 +158,7 @@ const DonationForm = ({ userId }: Props) => {
             if (!razorpayKey) {
                 toast.error('Payment setup failed. Please contact support.');
                 console.error('Razorpay key is missing. Check NEXT_PUBLIC_RAZORPAY_KEY_ID in .env');
+                setLoading(true); // Set loading state
                 return;
             }
 
@@ -181,13 +183,10 @@ const DonationForm = ({ userId }: Props) => {
                         // Show success toast
                         toast.success("Payment Successful!");
 
-                        console.log(paymentResponse);
-
-                        // Redirect to payment success page
-                        const paymentId = paymentResponse?.data?.data?.payment_id;
-                        if (paymentId) {
-                            router.push(`/dashboard/payment-success/${paymentId}`);
-                        }
+                        // Redirect to success page with encoded data
+                        const paymentData = paymentResponse?.data?.data
+                        const encodedData = encodeURIComponent(JSON.stringify(paymentData))
+                        router.push(`/dashboard/donate/success?data=${encodedData}`)
                     } catch (error) {
                         // Handle verification failure
                         toast.error("Payment verification failed. Please contact support.");
@@ -230,7 +229,7 @@ const DonationForm = ({ userId }: Props) => {
             {/* Razorpay script */}
             <Script id="razorpay-checkout-js" src="https://checkout.razorpay.com/v1/checkout.js" />
 
-            <div className="w-full max-w-md mx-auto">
+            <div className="w-full max-w-xl mx-auto bg-white shadow-2xl rounded-2xl">
                 <form
                     onSubmit={handlePayment}
                     className="p-8 space-y-6"
@@ -266,7 +265,7 @@ const DonationForm = ({ userId }: Props) => {
                         disabled={loading}
                         className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-300 text-center"
                     >
-                        {loading ? "Processing..." : "Donate Now"}
+                        {loading ? <><Loader size={24} className="animate-spin"/>Processing...</> : "Donate Now"}
                     </Button>
 
                     <p className="text-xs text-gray-400 text-center">

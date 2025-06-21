@@ -36,7 +36,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const userId = cookiesStore.get('userId')?.value;
 
     return (
-        <div className="w-full max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
             {/* Event Header */}
             <header className="text-center space-y-3">
                 <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">

@@ -396,6 +396,8 @@ export async function handleEventParticipate(id: string) {
                 userId,
                 eventTitle: eventData.title,
                 eventStartDate: eventData?.startDate,
+                userName: userData.name,
+                userEmail: userData.email,
                 attended: "not_confirmed",
                 confirmedAt: null,
             });

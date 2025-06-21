@@ -1,14 +1,12 @@
 import { getUser } from "@/actions/auth";
-import CustomBtn from "@/components/buttons/CustomBtn";
 import EventCard from "@/components/cards/EventCard";
 import ServiceCard from "@/components/cards/ServiceCard";
 import { CardTitle } from "@/components/ui/card";
 import { adminDb } from "@/firebase/firebaseAdmin";
-import { Timestamp } from "firebase-admin/firestore";
 import { ArrowRight, Calendar, Heart, Wallet } from "lucide-react";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { unauthorized } from "next/navigation";
+import { redirect } from "next/navigation";
 import { DataTable } from "./(upper-trustie)/manage-members/data-table";
 import { columns } from "./(member)/my-donations/columns";
 import { Transaction } from "./(member)/my-donations/page";
@@ -29,7 +27,7 @@ export default async function DashboardPage() {
   const userId = cookieStore.get("userId")?.value;
 
   if (!userId) {
-    return unauthorized();
+    return redirect('/');
   }
 
   const res = await getUser(userId);

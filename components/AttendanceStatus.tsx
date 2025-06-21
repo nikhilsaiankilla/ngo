@@ -165,7 +165,7 @@ const AttendanceStatus = () => {
                     </CardContent>
                 </Card>
             ) : (
-                <div className="flex flex-col items-center justify-center text-sm bg-warn h-full rounded-2xl text-white" >
+                <div className="flex py-10 flex-col items-center justify-center text-sm bg-warn h-full rounded-2xl text-white" >
                     <p className="italic">“No past events found. The best way to predict the future is to create it.”</p>
                     <div className="flex items-center justify-center gap-3 flex-wrap mt-5">
                         <Link

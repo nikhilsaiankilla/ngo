@@ -80,7 +80,10 @@ const Page = () => {
                                 />
                             </div>
                             <div>
-                                <Label htmlFor="password">Password</Label>
+                                <div className="w-full flex items-center justify-between">
+                                    <Label htmlFor="password">Password</Label>
+                                    <Link className="text-xs font-normal text-blue-500 text-wrap" href='/auth/forget-password'>Forget password</Link>
+                                </div>
                                 <Input
                                     id="password"
                                     type="password"

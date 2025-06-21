@@ -4,7 +4,8 @@ import { cookies } from 'next/headers'
 import { adminAuth, adminDb } from '@/firebase/firebaseAdmin'
 import { Timestamp } from 'firebase-admin/firestore'
 import { getErrorMessage, timestampToISOString } from '@/utils/helpers'
-import { RoleRequestHistory } from '@/app/(root)/dashboard/(protected)/profile/columns'
+import { RoleRequestAcceptedEmail, RoleRequestRejectedEmail } from '@/utils/MailTemplates'
+import { sendEmail } from '@/utils/mail'
 
 type RequestRoleUpgradeInput = {
   requestedRole: 'MEMBER' | 'TRUSTIE' | 'UPPER_TRUSTIE'
@@ -215,18 +216,40 @@ export async function acceptRoleRequest({
 
     const reviewedAt = new Date().toISOString();
 
-    reqSnap.forEach(async (doc) => {
+    const moveToHistory = reqSnap.docs.map((doc) => {
       const data = doc.data();
-      await adminDb.collection("role_requests_history").add({
-        ...data,
-        status: "accepted",
-        reviewedAt,
-        reviewedBy: actionPerformerId,
-      });
-      await doc.ref.delete(); // Clean up
+      return Promise.all([
+        adminDb.collection("role_requests_history").add({
+          ...data,
+          status: "accepted",
+          reviewedAt,
+          reviewedBy: actionPerformerId,
+        }),
+        doc.ref.delete(),
+      ]);
     });
 
-    // TODO: Send email/notification here
+    await Promise.all(moveToHistory);
+
+    const performer = performerSnap.data();
+    const performerName = performer?.name || 'Admin';
+    const performerEmail = performer?.email || 'not found';
+
+    const html = RoleRequestAcceptedEmail(
+      target?.name,
+      requestedRole,
+      'Your contributions have been appreciated. Welcome aboard!',
+      performerName,
+      performerEmail
+    );
+
+    if (target?.email) {
+      await sendEmail(
+        target.email,
+        'Role Request Approved – Hussaini Welfare Association',
+        html
+      );
+    }
 
     return {
       success: true,
@@ -244,6 +267,7 @@ export async function acceptRoleRequest({
     };
   }
 }
+
 
 export async function rejectRoleRequest({
   targetUserId,
@@ -308,19 +332,32 @@ export async function rejectRoleRequest({
 
     const reviewedAt = new Date().toISOString();
 
-    reqSnap.forEach(async (doc) => {
+    const promises = reqSnap.docs.map((doc) => {
       const data = doc.data();
-      await adminDb.collection("role_requests_history").add({
-        ...data,
-        status: "rejected",
-        rejectionReason: rejectReason || "No reason provided",
-        reviewedAt,
-        reviewedBy: actionPerformerId,
-      });
-      await doc.ref.delete(); // Clean up
+      return Promise.all([
+        adminDb.collection("role_requests_history").add({
+          ...data,
+          status: "rejected",
+          rejectionReason: rejectReason || "No reason provided",
+          reviewedAt,
+          reviewedBy: actionPerformerId,
+        }),
+        doc.ref.delete(),
+      ]);
     });
+    await Promise.all(promises);
 
-    // TODO: Notify user
+    const performer = performerSnap.data();
+    const performerName = performer?.name || 'Admin'
+    const performerEmail = performer?.email || 'not found'
+
+    const reason = rejectReason || 'Reason not Provided';
+
+    const html = RoleRequestRejectedEmail(target?.name, requestedRole, reason, performerName, performerEmail)
+
+    if (target?.email) {
+      await sendEmail(target?.email, 'Your Role Request has been Rejected Hussaini Welfare association', html);
+    }
 
     return {
       success: true,

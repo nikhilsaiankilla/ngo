@@ -1,16 +1,9 @@
 import CustomBtn from "@/components/buttons/CustomBtn";
 import ServiceCard from "@/components/cards/ServiceCard";
-import SafeImage from "@/components/SafeImage";
 import FooterSection from "@/components/sections/FooterSection";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card";
+
 import { adminDb } from "@/firebase/firebaseAdmin";
-import { ArrowRight, Calendar, CalendarRange, HandHeart, MessageCircle } from "lucide-react";
+import { ArrowRight, HandHeart, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -72,7 +65,7 @@ const Page = async () => {
             />
             <CustomBtn
               label="Contact Us"
-              href="/contact"
+              href="/contact-us"
               icon={<MessageCircle />}
               variant="brand"
             />

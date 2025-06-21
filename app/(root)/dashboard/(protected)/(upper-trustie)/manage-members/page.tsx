@@ -1,6 +1,7 @@
 import { getAllRoleRequests } from "@/actions/requestRoleUpgrade";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
+import ManageMembers from "@/components/sections/ManageMembers";
 
 const Page = async ({
   searchParams,
@@ -56,6 +57,10 @@ const Page = async ({
       ) : (
         <DataTable columns={columns} data={roleRequests} />
       )}
+
+      <div className="w-full">
+        <ManageMembers />
+      </div>
     </main>
   );
 };

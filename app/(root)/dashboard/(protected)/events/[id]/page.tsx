@@ -1,13 +1,13 @@
 import { adminDb } from '@/firebase/firebaseAdmin';
 import React from 'react';
 import { markdownToHtml } from '@/utils/helpers';
-import Image from 'next/image';
 import SafeImage from '@/components/SafeImage';
 import { cookies } from 'next/headers';
 import DeleteBtn from '@/components/buttons/DeleteBtn';
 import Link from 'next/link';
-import { PencilIcon } from 'lucide-react';
+import { ArrowRight, PencilIcon } from 'lucide-react';
 import ParticipateButton from '@/components/buttons/ParticipateButton';
+
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
@@ -38,6 +38,13 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const cookiesStore = await cookies();
     const userId = cookiesStore.get('userId')?.value;
 
+    if (!userId) {
+        return <h1 className='text-center text-red-500 mt-10'>user Id is missing</h1>
+    }
+
+    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const userData = userDoc.data();
+
     const todayDate = new Date(); // Current date: June 12, 2025, 2:22 PM IST
 
     // Convert startDate (string or null) to Date or null
@@ -46,8 +53,13 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
         ? (startDate.getTime() - todayDate.getTime()) >= 2 * 24 * 60 * 60 * 1000
         : false;
 
+    const isBeforeStart = startDate && new Date() < startDate;
+
+    const endDate = event.endDate ? new Date(event.startDate) : null;
+    const isAfterEnd = endDate && new Date() > endDate;
+
     return (
-        <div className="w-full max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
             {/* Title + Tagline */}
             <header className="text-center space-y-3">
                 <h1 className="text-4xl font-bold tracking-tight leading-tight text-gray-900">
@@ -72,7 +84,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
             )}
 
             {/* Meta Info */}
-            <section className="text-sm text-gray-500 grid sm:grid-cols-4 gap-6 border-y py-6 items-center">
+            <section className="text-sm text-gray-500 grid sm:grid-cols-4 gap-6 border-y pt-6 items-center">
                 <p>
                     <span className="text-gray-700 font-medium">Created by:</span> {createdByName}
                 </p>
@@ -89,8 +101,9 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
                     {isTwoDaysOrMore && userId && userId !== event?.createdBy && event?.startDate && (
                         <ParticipateButton event={{ id }} />
                     )}
+
                     {isTwoDaysOrMore && userId && userId === event?.createdBy && (
-                        <p className="grid grid-cols-2">
+                        <p className="grid grid-cols-2 items-center justify-end">
                             <DeleteBtn type="event" id={id} />
                             <Link
                                 href={`/dashboard/update-event/${id}`}
@@ -103,6 +116,26 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
                     )}
                 </>
             </section>
+
+            {
+                userData?.user_type === 'UPPER_TRUSTIE' && isBeforeStart && <span className='w-full flex justify-end'><Link
+                    href={`/dashboard/events/${id}/intrested-users`}
+                    className="flex items-center gap-1 text-sm font-medium text-warn hover:underline -mt-10"
+                >
+                    view Intrested People
+                    <ArrowRight className="h-4 w-4 -rotate-45" />
+                </Link></span>
+            }
+
+            {
+                userData?.user_type === 'UPPER_TRUSTIE' && isAfterEnd && <span className='w-full flex justify-end'><Link
+                    href={`/dashboard/events/${id}/attended-members`}
+                    className="flex items-center gap-1 text-sm font-medium text-warn hover:underline -mt-10"
+                >
+                    view attended people
+                    <ArrowRight className="h-4 w-4 -rotate-45" />
+                </Link></span>
+            }
 
             {/* Description */}
             <section

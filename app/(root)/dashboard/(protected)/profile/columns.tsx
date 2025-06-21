@@ -26,11 +26,11 @@ export const columns: ColumnDef<RoleRequestHistory>[] = [
     },
     {
         accessorKey: "currentRole",
-        header: "Current Role",
+        header: "Previous Role",
     },
     {
         accessorKey: "requestedRole",
-        header: "Requested Role",
+        header: "Upgraded To",
     },
     {
         accessorKey: "status",

@@ -17,11 +17,13 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Card, CardContent, CardHeader } from '../ui/card'
+import { toast } from 'sonner'
+import { contactFormAction } from '@/actions/mail'
 
 const formSchema = z.object({
     name: z.string().min(1, 'Enter your name'),
     email: z.string().email('Enter a valid email'),
-    message: z.string().optional(),
+    message: z.string().min(5),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -41,12 +43,16 @@ const ContactForm = () => {
     const onSubmit = async (values: FormValues) => {
         setIsLoading(true)
         try {
-            // Example: send to API
-            console.log('Form submitted:', values)
 
-            // simulate delay
-            await new Promise((res) => setTimeout(res, 1500))
+            if (!values?.message || !values?.email || !values?.name) {
+                const res = await contactFormAction(values);
 
+                if (!res?.success) {
+                    return toast.warning('something went wrong');
+                }
+
+                toast.success('message sent successfully')
+            }
             // Reset form
             form.reset()
         } catch (err) {

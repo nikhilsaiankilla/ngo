@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     };
 }
 
-export const getEventById = async (id: string) => {
+const getEventById = async (id: string) => {
     try {
         const eventDoc = await adminDb.collection('events').doc(id).get();
         const event = eventDoc.data();

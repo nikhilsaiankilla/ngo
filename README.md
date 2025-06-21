@@ -6,8 +6,7 @@ A role-based donation management app with event tracking, analytics, Razorpay do
 
 ## Preview
 
-_Add screenshots here (Dashboard, Donation Flow, Analytics, etc.)_
-
+![ngo-two-ivory vercel app_dashboard](https://github.com/user-attachments/assets/ed8f2ab3-8e33-4054-addd-ffbe290f82d7)
 ---
 
 ## Project Overview

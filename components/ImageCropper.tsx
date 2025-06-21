@@ -39,7 +39,7 @@ export default function ImageCropper({ ratio, imageSrc, onComplete, onCancel }: 
                     image={imageSrc}
                     crop={crop}
                     zoom={zoom}
-                    aspect={ratio ? ratio : 4 / 3}
+                    aspect={ratio ? ratio : 1200 / 650}
                     onCropChange={setCrop}
                     onZoomChange={setZoom}
                     onCropComplete={onCropComplete}

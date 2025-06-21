@@ -84,7 +84,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
             )}
 
             {/* Meta Info */}
-            <section className="text-sm text-gray-500 grid sm:grid-cols-4 gap-6 border-y pt-6 items-center">
+            <section className="text-sm text-gray-500 grid sm:grid-cols-4 gap-6 border-y p-6 items-center">
                 <p>
                     <span className="text-gray-700 font-medium">Created by:</span> {createdByName}
                 </p>

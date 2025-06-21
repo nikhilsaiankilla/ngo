@@ -4,36 +4,69 @@ import { notFound } from 'next/navigation';
 import { markdownToHtml } from '@/utils/helpers';
 import SafeImage from '@/components/SafeImage';
 import FooterSection from '@/components/sections/FooterSection';
+import { Metadata } from 'next';
+import { markdownToHtmlText } from '@/lib/utils';
+
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const { id } = await params;
+
+    const data = await getEventById(id);
+    if (!data) return { title: 'Not Found', description: 'No event found' };
+
+    const desc = (await markdownToHtmlText(data.event.description)).slice(0, 150);
+
+    return {
+        title: data.event.title,
+        description: desc + '...',
+        openGraph: {
+            images: [{ url: data.event.image }]
+        }
+    };
+}
+
+export const getEventById = async (id: string) => {
+    try {
+        const eventDoc = await adminDb.collection('events').doc(id).get();
+        const event = eventDoc.data();
+
+        if (!event) return null;
+
+        // Convert timestamps
+        event.createdAt = event.createdAt?.toDate().toISOString() || null;
+        event.updatedAt = event.updatedAt?.toDate().toISOString() || null;
+        event.startDate = event.startDate?.toDate().toISOString() || null;
+        event.endDate = event.endDate?.toDate().toISOString() || null;
+
+        // Fetch creator name
+        let createdByName = 'Unknown';
+        if (event.createdBy) {
+            const userDoc = await adminDb.collection('users').doc(event.createdBy).get();
+            const userData = userDoc.data();
+            if (userData?.name) createdByName = userData.name;
+        }
+
+        const descriptionHTML = await markdownToHtml(event.description || '');
+
+        return { event, createdByName, descriptionHTML };
+    } catch (error) {
+        console.error('Error fetching event:', error);
+        return null;
+    }
+};
+
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
 
-    if (!id) return notFound();
+    const data = await getEventById(id);
+    if (!data) return notFound();
 
-    const eventDoc = await adminDb.collection('events').doc(id).get();
-    const event = eventDoc.data();
-
-    if (!event) return <h1 className="text-xl text-center text-red-500 mt-10">No event found</h1>;
-
-    // Convert Firestore Timestamps to ISO strings
-    event.createdAt = event.createdAt?.toDate().toISOString() || null;
-    event.updatedAt = event.updatedAt?.toDate().toISOString() || null;
-    event.startDate = event.startDate?.toDate().toISOString() || null;
-    event.endDate = event.endDate?.toDate().toISOString() || null;
-
-    // Fetch creator's name
-    let createdByName = 'Unknown';
-    if (event.createdBy) {
-        const userDoc = await adminDb.collection('users').doc(event.createdBy).get();
-        const userData = userDoc.data();
-        if (userData?.name) createdByName = userData.name;
-    }
-
-    const descriptionHTML = await markdownToHtml(event.description || '');
+    const { event, createdByName, descriptionHTML } = data;
 
     return (
         <section className='w-full'>
-            <div className="w-full max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+            <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
                 {/* Title + Tagline */}
                 <div className="text-center space-y-3">
                     <h1 className="text-4xl font-bold tracking-tight leading-tight text-gray-900">
@@ -89,7 +122,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
             </div>
 
-            <FooterSection/>
+            <FooterSection />
         </section>
     );
 };

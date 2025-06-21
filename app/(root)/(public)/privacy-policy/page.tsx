@@ -1,4 +1,9 @@
 import FooterSection from "@/components/sections/FooterSection";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: 'Privacy Policy'
+}
 
 // app/privacy-policy/page.tsx
 export default function PrivacyPolicyPage() {

@@ -13,6 +13,11 @@ import {
 } from 'lucide-react';
 import ImpactSection from '@/components/sections/ImpactSection';
 import TeamSection from '@/components/sections/TeamSection';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title : 'About Our Ngo'
+}
 
 const AboutPage = () => {
   const values = [

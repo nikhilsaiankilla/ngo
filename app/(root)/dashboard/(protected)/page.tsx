@@ -13,8 +13,13 @@ import { Transaction } from "./(member)/my-donations/page";
 import { Service } from "./services/page";
 import { Event } from "./events/page";
 import AttendanceStatus from "@/components/AttendanceStatus";
+import { Metadata } from "next";
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+    title: 'Dashboard'
+}
 
 type User = {
   name: string;

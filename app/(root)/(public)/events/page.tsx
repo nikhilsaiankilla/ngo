@@ -4,8 +4,13 @@ import FooterSection from "@/components/sections/FooterSection";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { Timestamp } from "firebase-admin/firestore";
 import { Calendar, CalendarRange, Heart } from "lucide-react";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+    title: 'Events '
+}
 
 export const revalidate = 60;
 

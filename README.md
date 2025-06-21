@@ -1,16 +1,16 @@
-# 💰 Donation & Member Management Platform
+# Hussaini Welfare Association
 
 A role-based donation management app with event tracking, analytics, Razorpay donations, invoice generation via Zoho, and role management. Built using Firebase and Next.js.
 
 ---
 
-## 📸 Preview
+## Preview
 
 _Add screenshots here (Dashboard, Donation Flow, Analytics, etc.)_
 
 ---
 
-## 🧠 Project Overview
+## Project Overview
 
 This platform allows users to:
 

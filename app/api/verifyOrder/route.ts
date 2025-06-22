@@ -6,60 +6,31 @@ import { adminDb } from "@/firebase/firebaseAdmin";
 import { getErrorMessage } from "@/utils/helpers";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { createZohoInvoice, getZohoAccessToken, sendInvoiceViaZohoMail } from "@/utils/zoho";
+import { Transaction, VerifyBody } from "@/types";
+import { getCookiesFromServer } from "@/lib/serverUtils";
 
-// Initialize Razorpay instance with API credentials
+// Initialize Razorpay instance using environment variables
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID!,
     key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
 
-// Define interface for the request body
-interface VerifyBody {
-    razorpay_order_id: string;
-    razorpay_payment_id: string;
-    razorpay_signature: string;
-}
-
-// Define Firestore transaction document interface
-export interface Transaction {
-    userId: string | null;
-    razorpay_order_id?: string;
-    razorpay_payment_id?: string;
-    razorpay_signature?: string;
-    status: "success" | "failed" | "pending";
-    invoiceId?: string,
-    invoice_url?: string,
-    reason?: string;
-    amount?: number;
-    currency?: string;
-    method?: string;
-    email?: string;
-    contact?: string;
-    notes?: Record<string, string>;
-    fee?: number;
-    tax?: number;
-    captured?: boolean;
-    created_at?: number;
-    timestamp: Timestamp;
-}
-
-// POST handler for payment verification
+// POST handler to verify Razorpay payment and store transaction details
 export async function POST(request: NextRequest) {
     const transactionsRef = adminDb.collection("transactions");
 
     try {
-        // Parse request body
+        // Parse and destructure Razorpay fields from request body
         const {
             razorpay_order_id,
             razorpay_payment_id,
             razorpay_signature,
         }: VerifyBody = await request.json();
 
-        // Retrieve userId from cookies
-        const cookiesStore = await cookies();
-        const userId = cookiesStore.get("userId")?.value || null;
+        // Retrieve userId from cookies on the server
+        const { userId } = await getCookiesFromServer();
 
-        // Validate userId
+        // Log and return error if userId is missing
         if (!userId) {
             await transactionsRef.add({
                 userId: null,
@@ -73,10 +44,11 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Verify user exists
+        // Check if user exists in Firestore
         const userDoc = await adminDb.collection("users").doc(userId).get();
         const user = userDoc.data();
 
+        // Log and return error if user is not found
         if (!user) {
             await transactionsRef.add({
                 userId,
@@ -90,7 +62,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validate Razorpay parameters
+        // Check for all required Razorpay fields
         if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
             await transactionsRef.add({
                 userId,
@@ -107,12 +79,13 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validate Razorpay signature
+        // Generate HMAC SHA256 hash to verify Razorpay signature
         const secret = process.env.RAZORPAY_KEY_SECRET!;
         const hmac = crypto.createHmac("sha256", secret);
-        hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`); // Fixed: Removed extra space
+        hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
         const generatedSignature = hmac.digest("hex");
 
+        // Return error if signature doesn't match
         if (generatedSignature !== razorpay_signature) {
             await transactionsRef.add({
                 userId,
@@ -129,10 +102,10 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Fetch payment details from Razorpay
+        // Fetch full payment details from Razorpay server
         const payment = await razorpay.payments.fetch(razorpay_payment_id);
 
-        // Save successful transaction
+        // Store successful transaction in Firestore
         const donation = await transactionsRef.add({
             userId,
             razorpay_order_id,
@@ -152,6 +125,7 @@ export async function POST(request: NextRequest) {
             timestamp: Timestamp.now(),
         } satisfies Transaction);
 
+        // Increment the running total donation amount in Firestore
         await adminDb.collection('totals').doc('transactions').set(
             {
                 totalAmount: FieldValue.increment(Number(payment.amount) / 100),
@@ -161,6 +135,7 @@ export async function POST(request: NextRequest) {
 
         let invoice_url = "";
 
+        // Generate and email invoice using Zoho integration
         try {
             const accessToken = await getZohoAccessToken();
             const invoice = await createZohoInvoice({
@@ -173,6 +148,7 @@ export async function POST(request: NextRequest) {
 
             const invoiceRef = invoice.invoice;
 
+            // Store invoice details if invoice is successfully created
             if (invoiceRef && invoiceRef.invoice_id) {
                 await adminDb.collection("invoices").add({
                     userId,
@@ -190,9 +166,10 @@ export async function POST(request: NextRequest) {
                     invoice_url: `https://invoice.zoho.in/api/v3/invoices/${invoiceRef.invoice_id}?accept=pdf&organization_id=${process.env.ZOHO_ORG_ID}`,
                 });
 
-                invoice_url = `https://invoice.zoho.in/api/v3/invoices/${invoiceRef.invoice_id}?accept=pdf&organization_id=${process.env.ZOHO_ORG_ID}`
+                invoice_url = `https://invoice.zoho.in/api/v3/invoices/${invoiceRef.invoice_id}?accept=pdf&organization_id=${process.env.ZOHO_ORG_ID}`;
             }
         } catch (error) {
+            // If invoice creation fails, return success with a warning
             return NextResponse.json({
                 message: "Payment verified successfully but failed to generate or send invoice",
                 success: true,
@@ -210,6 +187,7 @@ export async function POST(request: NextRequest) {
             });
         }
 
+        // Final response with all payment and invoice details
         return NextResponse.json({
             message: "Payment verified successfully",
             success: true,
@@ -223,10 +201,11 @@ export async function POST(request: NextRequest) {
                 email: payment.email,
                 contact: payment.contact,
                 notes: payment.notes,
-                invoice_url: invoice_url
+                invoice_url: invoice_url,
             },
         });
     } catch (error: unknown) {
+        // Catch-all error handler that logs failure to Firestore
         const userId = (await cookies()).get("userId")?.value || null;
         await transactionsRef.add({
             userId,

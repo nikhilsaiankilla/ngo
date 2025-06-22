@@ -4,7 +4,6 @@ import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { store } from "./store";
 import { setUser } from "./features/users/userSlice";
-import { adminDb } from "@/firebase/firebaseAdmin";
 
 // Interface for the user data we handle
 export interface SaveUserProps {
@@ -48,7 +47,7 @@ export async function signInWithGoogleClient(): Promise<SaveUserProps | null> {
         user_type: userType,
         createdAt: serverTimestamp(),
       });
-      
+
     } else {
       // Existing user: fetch user_type from Firestore
       const userDocData = existingUser.data();

@@ -44,7 +44,10 @@ const ContactForm = () => {
         setIsLoading(true)
         try {
 
-            if (!values?.message || !values?.email || !values?.name) {
+            console.log(values);
+
+
+            if (values?.message && values?.email && values?.name) {
                 const res = await contactFormAction(values);
 
                 if (!res?.success) {
@@ -52,6 +55,8 @@ const ContactForm = () => {
                 }
 
                 toast.success('message sent successfully')
+            } else {
+                toast.error('all fields are required')
             }
             // Reset form
             form.reset()

@@ -130,10 +130,10 @@ const PublicDonateForm = () => {
                             name: values.name,
                         })
 
-                        toast.success("Payment Successful!")
                         // Redirect to success page with encoded data
                         const paymentData = paymentResponse?.data?.data
                         const encodedData = encodeURIComponent(JSON.stringify(paymentData))
+                        toast.success("Payment Successful!")
                         router.push(`/donate/success?data=${encodedData}`)
                     } catch (error) {
                         toast.error("Payment verification failed.")

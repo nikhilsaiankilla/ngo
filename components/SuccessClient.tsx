@@ -1,7 +1,7 @@
 // app/(root)/(public)/donate/success/SuccessClient.tsx
 "use client"
 
-import { PartyPopper } from "lucide-react"
+import { Loader, PartyPopper } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -14,14 +14,15 @@ interface Payment {
     email: string,
     contact: string,
     notes: string,
-    invoice?: string
 }
 
 export default function SuccessClient() {
     const searchParams = useSearchParams()
     const [paymentData, setPaymentData] = useState<Payment | null>(null)
+    const [loading, setIsLoading] = useState<boolean>(false)
 
     useEffect(() => {
+        setIsLoading(true);
         const data = searchParams.get("data")
         if (data) {
             try {
@@ -31,14 +32,21 @@ export default function SuccessClient() {
                 console.error("Failed to parse payment data", err)
             }
         }
+        setIsLoading(false)
     }, [searchParams])
 
     if (!paymentData) {
         return (
             <div className="flex items-center justify-center h-screen text-gray-500">
-                Loading payment details...
+                Data Not Found
             </div>
         )
+    }
+
+    if (loading) {
+        <div className="flex items-center justify-center h-screen text-gray-500">
+            <Loader size={18} className="animate-spin" /> Loading...
+        </div>
     }
 
     return (
@@ -79,26 +87,10 @@ export default function SuccessClient() {
                                 <p>{paymentData.notes}</p>
                             </>
                         )}
-
-                        {paymentData.invoice && (
-                            <>
-                                <p className="font-semibold text-warn">Invoice:</p>
-                                <p>
-                                    <a
-                                        href={paymentData.invoice}
-                                        className="text-blue-600 underline"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        Download
-                                    </a>
-                                </p>
-                            </>
-                        )}
                     </div>
 
                     <p className="mt-6 text-sm text-gray-500">
-                        You can take a screenshot of this page as confirmation or download the invoice.
+                        You can take a screenshot of this page as confirmation and check your email
                     </p>
                 </div>
             </div>

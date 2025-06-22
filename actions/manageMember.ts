@@ -1,17 +1,28 @@
 "use server";
 
 import { adminDb } from "@/firebase/firebaseAdmin";
+import { getCookiesFromServer } from "@/lib/serverUtils";
 import { getErrorMessage } from "@/utils/helpers";
 import { sendEmail } from "@/utils/mail";
 import { RoleChangeNotificationEmail } from "@/utils/MailTemplates";
 import { Timestamp } from "firebase-admin/firestore";
-import { cookies } from "next/headers";
 
+/**
+ * Searches for users by matching name or email.
+ * 
+ * - Fetches users from Firestore whose `name` or `email` fields match the provided search term.
+ * - Case-insensitive partial match using Firestore range queries.
+ * - Removes duplicates and excludes the currently logged-in user from the results.
+ * 
+ * @param searchTerm - The name or email to search for.
+ * @returns An object with a success flag, HTTP status code, message, and matching user data.
+ */
 export const findUserByNameOrEmail = async (searchTerm: string) => {
     try {
-        const cookiesStore = await cookies();
-        const userId = cookiesStore.get('userId')?.value;
+        // Get current userId from cookies
+        const { userId } = await getCookiesFromServer();
 
+        // Validate input
         if (!searchTerm) {
             return { success: false, message: "Search term required", status: 400 };
         }
@@ -19,6 +30,7 @@ export const findUserByNameOrEmail = async (searchTerm: string) => {
         const term = searchTerm.toLowerCase();
         const usersRef = adminDb.collection("users");
 
+        // Perform parallel Firestore queries for both name and email
         const [nameSnap, emailSnap] = await Promise.all([
             usersRef
                 .where("name", ">=", term)
@@ -33,6 +45,7 @@ export const findUserByNameOrEmail = async (searchTerm: string) => {
                 .get(),
         ]);
 
+        // Map Firestore documents to user objects
         const nameResults = nameSnap.docs.map((doc) => ({
             id: doc.id,
             name: doc.data().name,
@@ -40,6 +53,7 @@ export const findUserByNameOrEmail = async (searchTerm: string) => {
             user_type: doc.data().user_type,
             photoURL: doc.data().photoURL
         }));
+
         const emailResults = emailSnap.docs.map((doc) => ({
             id: doc.id,
             name: doc.data().name,
@@ -50,8 +64,7 @@ export const findUserByNameOrEmail = async (searchTerm: string) => {
 
         const combined = [...nameResults, ...emailResults];
 
-
-        // Remove duplicates and exclude current user
+        // Remove duplicates by user ID and exclude current user
         const uniqueUsers = Array.from(
             new Map(combined.map((user) => [user.id, user])).values()
         ).filter((user) => user.id !== userId);
@@ -63,6 +76,7 @@ export const findUserByNameOrEmail = async (searchTerm: string) => {
             message: uniqueUsers.length ? "Users found." : "No matching users.",
         };
     } catch (error: unknown) {
+        // Handle and log unexpected errors
         return {
             success: false,
             message: getErrorMessage(error),
@@ -72,6 +86,21 @@ export const findUserByNameOrEmail = async (searchTerm: string) => {
 };
 
 
+/**
+ * Manages a member's role within the system.
+ * 
+ * - Only users with the role "UPPER_TRUSTIE" are allowed to perform role upgrades.
+ * - Validates the current user and the targeted user.
+ * - Updates the user's role in Firestore.
+ * - Records the role change event in the `role_requests_history` collection.
+ * - Sends an email notification to the affected user.
+ * 
+ * @param targetedUserId - The ID of the user whose role is being changed.
+ * @param currentRole - The current role of the targeted user.
+ * @param upgradedRole - The new role to assign to the user.
+ * @param message - A message describing the reason for the change.
+ * @returns A response object indicating success/failure and status code.
+ */
 export const manageMemberRole = async (
     targetedUserId: string,
     currentRole: string,
@@ -79,8 +108,8 @@ export const manageMemberRole = async (
     message: string
 ) => {
     try {
-        const cookiesStore = await cookies();
-        const userId = cookiesStore.get('userId')?.value;
+        // Extract current user's ID from cookies (server-side)
+        const { userId } = await getCookiesFromServer();
 
         if (!userId) {
             return {
@@ -90,6 +119,7 @@ export const manageMemberRole = async (
             };
         }
 
+        // Fetch current user's data to verify permissions
         const userSnapshot = await adminDb.collection('users').doc(userId).get();
         const user = userSnapshot.data();
 
@@ -101,6 +131,7 @@ export const manageMemberRole = async (
             };
         }
 
+        // Only users with UPPER_TRUSTIE role can perform upgrades
         if (user.user_type !== "UPPER_TRUSTIE") {
             return {
                 success: false,
@@ -109,6 +140,7 @@ export const manageMemberRole = async (
             };
         }
 
+        // Get the targeted user's reference and snapshot
         const targetRef = adminDb.collection("users").doc(targetedUserId);
         const targetSnap = await targetRef.get();
 
@@ -122,8 +154,10 @@ export const manageMemberRole = async (
 
         const target = targetSnap.data();
 
+        // Update the targeted user's role
         await targetRef.update({ user_type: upgradedRole });
 
+        // Log the role change in the role_requests_history collection
         await adminDb.collection("role_requests_history").add({
             currentRole,
             message,
@@ -134,6 +168,7 @@ export const manageMemberRole = async (
             status: 'accepted',
         });
 
+        // Prepare and send role change notification email
         const html = RoleChangeNotificationEmail(
             target?.name,
             currentRole,
@@ -145,7 +180,7 @@ export const manageMemberRole = async (
 
         if (target?.email) {
             await sendEmail(
-                target?.email,
+                target.email,
                 'Role Update Notification - Hussaini Welfare Association',
                 html
             );
@@ -164,3 +199,4 @@ export const manageMemberRole = async (
         };
     }
 };
+

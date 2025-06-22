@@ -76,3 +76,8 @@ export async function markdownToHtmlText(text: string): Promise<string> {
 
   return strippedText.trim();
 }
+
+// Function to generate a random 4-digit number
+export function getRandomFourDigits(): string {
+  return Math.floor(1000 + Math.random() * 9000).toString().padStart(4, '0');
+}

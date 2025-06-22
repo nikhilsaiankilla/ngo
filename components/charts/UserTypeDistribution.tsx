@@ -51,7 +51,7 @@ const UserTypeDistribution = ({ selectedYear }: { selectedYear: number }) => {
                 // Ensure all types are represented even if count is 0
                 const userTypes = ["REGULAR", "MEMBER", "TRUSTIE", "UPPER_TRUSTIE"]
                 const normalizedData = userTypes.map(type => {
-                    const found = res.data.find((item: UserTypeDistributionTypes) => item.userType === type)
+                    const found = res?.data?.find((item: UserTypeDistributionTypes) => item.userType === type)
                     return {
                         userType: type,
                         count: found?.count || 0,

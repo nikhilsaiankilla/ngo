@@ -14,7 +14,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/utils/helpers";
-import { acceptRoleRequest, rejectRoleRequest, RoleRequest } from "@/actions/requestRoleUpgrade";
+import { acceptRoleRequest, rejectRoleRequest } from "@/actions/requestRoleUpgrade";
+import { RoleRequest } from "@/types";
 
 interface Props {
     request: RoleRequest;

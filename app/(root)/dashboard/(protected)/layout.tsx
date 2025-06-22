@@ -18,7 +18,7 @@ const ProtectedLayout = async ({
   const res = await getUserRole();
 
   if (!res.success) {
-    console.log(res.message);
+    // something went wrong
   }
 
   const role = res?.data;

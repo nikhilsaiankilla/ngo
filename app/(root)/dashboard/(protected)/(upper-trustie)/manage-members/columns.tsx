@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { RoleRequest } from "@/actions/requestRoleUpgrade";
 import { ColumnDef } from "@tanstack/react-table";
 import { StatusCell } from "@/components/StatusCell";
+import { RoleRequest } from "@/types";
 
 export const columns: ColumnDef<RoleRequest>[] = [
     {

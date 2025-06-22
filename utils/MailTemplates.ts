@@ -306,3 +306,57 @@ export const RoleRequestRejectedEmail = (
   </body>
 </html>`);
 };
+
+export const DonationConfirmationEmail = (
+  donorName: string,
+  donorEmail: string,
+  amount: number,
+  thankYouNote?: string
+) => {
+  return (`<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Donation Confirmation</title>
+  </head>
+  <body style="margin: 0; padding: 0; font-family: sans-serif; background-color: #F3F4F6; color: #111827;">
+    <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: auto; background: #FFFFFF; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+      <tr>
+        <td style="padding: 20px; background-color: #10B981; color: white; text-align: center; border-radius: 10px 10px 0 0;">
+          <h2 style="margin: 0;">✅ Donation Received</h2>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 30px;">
+          <p style="margin: 0 0 20px;">Dear <strong>${donorName}</strong>,</p>
+          <p style="margin: 0 0 15px;">We are deeply grateful for your generous donation. Your support means a lot to us.</p>
+
+          <table cellpadding="0" cellspacing="0" style="margin: 20px 0; width: 100%;">
+            <tr>
+              <td style="padding: 5px 0;"><strong>🙍‍♂️ Name:</strong></td>
+              <td>${donorName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px 0;"><strong>📧 Email:</strong></td>
+              <td>${donorEmail}</td>
+            </tr>
+            <tr>
+              <td style="padding: 5px 0;"><strong>💰 Amount:</strong></td>
+              <td>${amount}</td>
+            </tr>
+          </table>
+
+          ${thankYouNote ? `<p style="margin: 20px 0;"><strong>🙏 Message:</strong> ${thankYouNote}</p>` : ''}
+
+          <p style="margin: 0;">Once again, thank you for your kindness and support.</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 20px; background-color: #F9FAFB; text-align: center; color: #6B7280; font-size: 14px;">
+          — Hussaini Welfare Association
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`);
+};

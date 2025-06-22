@@ -4,13 +4,16 @@ import crypto from "crypto";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { getErrorMessage } from "@/utils/helpers";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { createZohoInvoice, getZohoAccessToken, sendInvoiceViaZohoMail } from "@/utils/zoho";
+import { DonationConfirmationEmail } from "@/utils/MailTemplates";
+import { sendEmail } from "@/utils/mail";
 
+// Initialize Razorpay instance with secret credentials
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID!,
     key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
 
+// Define expected request body structure
 interface VerifyBody {
     razorpay_order_id: string;
     razorpay_payment_id: string;
@@ -19,6 +22,7 @@ interface VerifyBody {
     email: string,
 }
 
+// Define transaction interface for Firestore logging
 export interface Transaction {
     razorpay_order_id?: string;
     razorpay_payment_id?: string;
@@ -40,10 +44,12 @@ export interface Transaction {
     timestamp: Timestamp;
 }
 
+// POST handler to verify payment and log transaction
 export async function POST(request: NextRequest) {
     const transactionsRef = adminDb.collection("transactions");
 
     try {
+        // Extract data from request body
         const {
             razorpay_order_id,
             razorpay_payment_id,
@@ -52,7 +58,9 @@ export async function POST(request: NextRequest) {
             email,
         }: VerifyBody = await request.json();
 
+        // Validate presence of essential Razorpay parameters
         if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            // Log failed transaction due to missing params
             await transactionsRef.add({
                 email: "",
                 razorpay_order_id,
@@ -63,18 +71,22 @@ export async function POST(request: NextRequest) {
                 timestamp: Timestamp.now(),
             } satisfies Transaction);
 
+            // Return 400 response
             return NextResponse.json(
                 { error: "Missing required parameters", success: false },
                 { status: 400 }
             );
         }
 
+        // Create expected signature using Razorpay secret
         const secret = process.env.RAZORPAY_KEY_SECRET!;
         const hmac = crypto.createHmac("sha256", secret);
         hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
         const generatedSignature = hmac.digest("hex");
 
+        // Compare generated signature with received one
         if (generatedSignature !== razorpay_signature) {
+            // Log failed transaction due to invalid signature
             await transactionsRef.add({
                 email: "",
                 razorpay_order_id,
@@ -85,14 +97,17 @@ export async function POST(request: NextRequest) {
                 timestamp: Timestamp.now(),
             } satisfies Transaction);
 
+            // Return 400 response
             return NextResponse.json(
                 { error: "Invalid signature", success: false },
                 { status: 400 }
             );
         }
 
+        // Fetch payment details from Razorpay
         const payment = await razorpay.payments.fetch(razorpay_payment_id);
 
+        // If email is not present, log failure
         if (!email) {
             await transactionsRef.add({
                 email: "",
@@ -110,7 +125,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const donation = await transactionsRef.add({
+        // Log successful transaction in Firestore
+        await transactionsRef.add({
             email,
             razorpay_order_id,
             razorpay_payment_id: payment.id,
@@ -128,6 +144,7 @@ export async function POST(request: NextRequest) {
             timestamp: Timestamp.now(),
         } satisfies Transaction);
 
+        // Increment total donated amount
         await adminDb.collection("totals").doc("transactions").set(
             {
                 totalAmount: FieldValue.increment(Number(payment.amount) / 100),
@@ -135,57 +152,19 @@ export async function POST(request: NextRequest) {
             { merge: true }
         );
 
-        let invoice_url = "";
-
         try {
-            const accessToken = await getZohoAccessToken();
-            const invoice = await createZohoInvoice({
-                accessToken,
-                customerEmail: email,
-                customerName: name || "Donor",
-                amount: Number(payment.amount) / 100,
-                paymentId: payment.id,
-            });
+            // Send confirmation email to donor
+            if (email) {
+                const amount = Number(payment?.amount) / 100;
+                const html = DonationConfirmationEmail(name, email, amount, 'Thank you for your generous contribution. Your support empowers us to continue our mission and make a meaningful impact. We truly appreciate your kindness and belief in our cause.')
 
-            const invoiceRef = invoice.invoice;
-
-            if (invoiceRef?.invoice_id) {
-                await adminDb.collection("invoices").add({
-                    email,
-                    zohoInvoiceId: invoiceRef.invoice_id,
-                    invoiceNumber: invoiceRef.invoice_number,
-                    pdfUrl: `https://invoice.zoho.in/api/v3/invoices/${invoiceRef.invoice_id}?accept=pdf&organization_id=${process.env.ZOHO_ORG_ID}`,
-                    amount: Number(payment.amount) / 100,
-                    createdAt: Timestamp.now(),
-                });
-
-                await sendInvoiceViaZohoMail(invoiceRef.invoice_id, accessToken, email);
-
-                await transactionsRef.doc(donation.id).update({
-                    invoiceId: invoiceRef.invoice_id,
-                    invoice_url: `https://invoice.zoho.in/api/v3/invoices/${invoiceRef.invoice_id}?accept=pdf&organization_id=${process.env.ZOHO_ORG_ID}`,
-                });
-
-                invoice_url = `https://invoice.zoho.in/api/v3/invoices/${invoiceRef.invoice_id}?accept=pdf&organization_id=${process.env.ZOHO_ORG_ID}`
+                await sendEmail(email, 'Your Donation Has Been Received – Thank You for Your Support! Hussaini Welfare Association', html)
             }
-        } catch (error) {
-            return NextResponse.json({
-                message: "Payment verified successfully but failed to generate or send invoice",
-                success: true,
-                status: 200,
-                data: {
-                    payment_id: payment.id,
-                    amount: Number(payment.amount) / 100,
-                    currency: payment.currency,
-                    status: payment.status,
-                    method: payment.method,
-                    email,
-                    contact: payment.contact,
-                    notes: payment.notes,
-                },
-            });
+        } finally {
+            // mail sent 
         }
 
+        // Return success response with payment info
         return NextResponse.json({
             message: "Payment verified successfully",
             success: true,
@@ -199,10 +178,10 @@ export async function POST(request: NextRequest) {
                 email,
                 contact: payment.contact,
                 notes: payment.notes,
-                invoice: invoice_url
             },
         });
     } catch (error: unknown) {
+        // Log any unexpected error as a failed transaction
         await transactionsRef.add({
             email: "",
             status: "failed",
@@ -210,6 +189,7 @@ export async function POST(request: NextRequest) {
             timestamp: Timestamp.now(),
         } satisfies Transaction);
 
+        // Return 500 error response
         return NextResponse.json(
             { error: getErrorMessage(error), success: false },
             { status: 500 }

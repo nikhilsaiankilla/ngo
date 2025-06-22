@@ -21,6 +21,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         description: desc + '...',
         openGraph: {
             images: [{ url: data.event.image }]
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: data.event.title,
+            description: desc + '...',
+            images: [data.event.image],
         }
     };
 }

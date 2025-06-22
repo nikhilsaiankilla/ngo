@@ -8,9 +8,45 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+// we hae to make it dynamic seo tags
+
 export const metadata: Metadata = {
-    title: 'Events '
-}
+  title: 'Events',
+  description: 'Discover ongoing, upcoming, and past events organized by Hussaini Welfare Association. Join us to volunteer, donate, and create a meaningful impact in the community.',
+  keywords: [
+    'events',
+    'community events',
+    'volunteering',
+    'donation events',
+    'charity events',
+    'Hussaini Welfare Association',
+    'upcoming events',
+    'past events',
+    'ongoing events',
+    'social impact events'
+  ],
+  openGraph: {
+    title: 'Events',
+    description: 'Discover ongoing, upcoming, and past events organized by Hussaini Welfare Association. Join us to volunteer, donate, and create a meaningful impact in the community.',
+    url: 'https://yourdomain.com/events',
+    siteName: 'Hussaini Welfare Association',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Events',
+    description: 'Discover ongoing, upcoming, and past events organized by Hussaini Welfare Association. Join us to volunteer, donate, and create a meaningful impact in the community.',
+    creator: '@yourTwitterHandle',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: 'https://yourdomain.com/events',
+  },
+};
 
 export const revalidate = 60;
 

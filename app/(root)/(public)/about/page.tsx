@@ -16,8 +16,53 @@ import TeamSection from '@/components/sections/TeamSection';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title : 'About Our Ngo'
-}
+  title: 'About',
+  description:
+    'Learn about Hussaini Welfare Association (HWA), a volunteer-led nonprofit committed to serving underserved communities through education, healthcare, food security, and emergency relief in India. Join our mission to make a lasting impact.',
+  keywords: [
+    'Hussaini Welfare Association',
+    'HWA NGO',
+    'About HWA',
+    'nonprofit in India',
+    'volunteer organization',
+    'community service',
+    'education NGO',
+    'healthcare NGO',
+    'food relief India',
+    'emergency relief NGO',
+    'help poor communities',
+    'volunteer in India',
+    'Indian NGO',
+    'serve humanity',
+    'uplift communities',
+    'social impact',
+    'charity work India',
+  ],
+  authors: [{ name: 'Hussaini Welfare Association', url: 'https://hwa.org.in' }],
+  creator: 'Hussaini Welfare Association',
+  openGraph: {
+    title: 'About Hussaini Welfare Association | Who We Are & What We Do',
+    description:
+      'Discover the journey, mission, and values of Hussaini Welfare Association — a people-powered NGO dedicated to uplifting lives with compassion and dignity.',
+    url: 'https://hwa.org.in/about',
+    siteName: 'Hussaini Welfare Association',
+    type: 'website',
+    locale: 'en_IN',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Hussaini Welfare Association | Our Mission & Impact',
+    description:
+      'Learn how Hussaini Welfare Association is changing lives through community-driven programs in education, healthcare, and relief efforts.',
+    creator: '@hwa_official', // Replace with your actual Twitter handle
+    images: ['https://hwa.org.in/og-about.jpg'],
+  },
+  metadataBase: new URL('https://hwa.org.in'),
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 const AboutPage = () => {
   const values = [

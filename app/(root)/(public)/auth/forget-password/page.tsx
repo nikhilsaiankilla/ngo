@@ -12,6 +12,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { auth } from "@/firebase/firebase";
 
+
 const ForgotPasswordPage = () => {
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);

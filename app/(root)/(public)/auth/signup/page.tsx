@@ -55,7 +55,7 @@ const SignUpPage = () => {
 
         setLoading(true);
         try {
-            const res = await signUp(name, email, password);
+            const res = await signUp(name.trim(), email.trim(), password);
 
             if (!res?.success) {
                 toast.error(res?.message || 'Something went wrong');

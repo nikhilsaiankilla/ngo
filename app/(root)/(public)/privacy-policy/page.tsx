@@ -2,8 +2,32 @@ import FooterSection from "@/components/sections/FooterSection";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: 'Privacy Policy'
-}
+    title: 'Privacy Policy',
+    description: 'Learn about how Hussaini Welfare collects, uses, and protects your personal data.',
+    openGraph: {
+        title: 'Privacy Policy - Hussaini Welfare',
+        description: 'Learn about how Hussaini Welfare collects, uses, and protects your personal data.',
+        url: 'https://yourdomain.com/privacy-policy',
+        siteName: 'Hussaini Welfare',
+        images: [
+            {
+                url: 'https://yourdomain.com/og-image.png',
+                width: 1200,
+                height: 630,
+                alt: 'Hussaini Welfare Privacy Policy',
+            },
+        ],
+        locale: 'en_US',
+        type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Privacy Policy - Hussaini Welfare',
+        description: 'Learn about how Hussaini Welfare collects, uses, and protects your personal data.',
+        images: ['https://yourdomain.com/og-image.png'],
+        creator: '@HussainiWelfare',
+    },
+};
 
 // app/privacy-policy/page.tsx
 export default function PrivacyPolicyPage() {
@@ -42,7 +66,10 @@ export default function PrivacyPolicyPage() {
 
                 <h2 className="text-xl font-semibold mt-6 mb-2">5. Contact</h2>
                 <p className="text-gray-700">
-                    For privacy-related questions, reach out to us at <a href="mailto:support@example.com" className="underline text-blue-600">support@example.com</a>.
+                    For privacy-related questions, reach out to us at{' '}
+                    <a href="mailto:support@hussaini-welfare.org" className="underline text-blue-600">
+                        support@hussaini-welfare.org
+                    </a>.
                 </p>
             </div>
             <FooterSection />

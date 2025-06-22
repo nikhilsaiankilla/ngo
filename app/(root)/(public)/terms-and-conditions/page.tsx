@@ -1,4 +1,33 @@
 import FooterSection from "@/components/sections/FooterSection";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Terms & Conditions",
+    description:
+        "Read the Terms & Conditions for using the Hussaini Welfare platform. Understand your rights and obligations while accessing our services.",
+    keywords: [
+        "terms and conditions",
+        "hussaini welfare",
+        "service terms",
+        "donations terms",
+        "legal agreement",
+    ],
+    openGraph: {
+        title: "Terms & Conditions - Hussaini Welfare Association",
+        description:
+            "Read the Terms & Conditions for using the Hussaini Welfare platform. Understand your rights and obligations while accessing our services.",
+        url: "https://yourdomain.com/terms-and-conditions",
+        siteName: "Hussaini Welfare",
+        type: "website",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Terms & Conditions - Hussaini Welfare Association",
+        description:
+            "Read the Terms & Conditions for using the Hussaini Welfare platform. Understand your rights and obligations while accessing our services.",
+    },
+};
+
 
 // app/terms-and-conditions/page.tsx
 export default function TermsPage() {
